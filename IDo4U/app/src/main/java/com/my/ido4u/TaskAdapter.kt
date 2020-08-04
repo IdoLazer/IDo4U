@@ -4,7 +4,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
-class TaskAdapter : RecyclerView.Adapter<TaskHolder>() {
+class TaskAdapter (taskClickListener: TaskClickListener) : RecyclerView.Adapter<TaskHolder>() {
+
+    interface TaskClickListener {
+        fun onTaskClicked(id : Int)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskHolder {
         val context = parent.context
