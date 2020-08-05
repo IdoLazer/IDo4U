@@ -3,6 +3,7 @@ package com.my.ido4u
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,10 +23,17 @@ class MainActivity : AppCompatActivity() {
         val recycler : RecyclerView = findViewById(R.id.task_recycler)
         recycler.adapter = adapter
         recycler.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
-        val addButton : FloatingActionButton = findViewById(R.id.add_task_button)
         TaskManager.addTask(Task("Stupid Task", true))
         TaskManager.addTask(Task("Shut up bitch Im tryin to talk", false))
         adapter.notifyDataSetChanged()
+
+        val addButton : FloatingActionButton = findViewById(R.id.add_task_button)
+        addButton.setOnClickListener(object : View.OnClickListener {
+            override fun onClick(v: View?) {
+                var intent = Intent(this@MainActivity, TaskProfileActivity::class.java)
+                startActivity(intent)
+            }
+        })
     }
 
     private fun openTaskProfile(id: Int) {

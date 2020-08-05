@@ -1,10 +1,11 @@
 package com.my.ido4u
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
-class TaskAdapter (taskClickListener: TaskClickListener) : RecyclerView.Adapter<TaskHolder>() {
+class TaskAdapter (var taskClickListener: TaskClickListener) : RecyclerView.Adapter<TaskHolder>() {
 
     interface TaskClickListener {
         fun onTaskClicked(id : Int)
@@ -24,5 +25,10 @@ class TaskAdapter (taskClickListener: TaskClickListener) : RecyclerView.Adapter<
         val task = TaskManager.getPosition(position)
         holder.text.text = task.name
         holder.switch.isChecked = task.isOn
+        holder.itemView.setOnClickListener(object : View.OnClickListener {
+            override fun onClick(v: View?) {
+                taskClickListener.onTaskClicked(position)
+            }
+        })
     }
 }

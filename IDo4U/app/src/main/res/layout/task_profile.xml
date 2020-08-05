@@ -10,8 +10,7 @@
         android:id="@+id/edit_task_title"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:text="Enter Task Title"
-        android:textColor="@android:color/darker_gray"
+        android:hint="Enter Task Title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -24,24 +23,25 @@
         android:text="Condition"
         app:layout_constraintTop_toBottomOf="@+id/edit_task_title" />
 
-    <fragment
+    <ScrollView
         android:id="@+id/condition_fragment"
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:layout_marginTop="20dp"
+        android:autofillHints="Need at least one condition"
         app:layout_constraintTop_toBottomOf="@+id/condition_text_view" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/add_condition_button"
-        android:layout_width="80dp"
-        android:layout_height="30dp"
+        android:layout_width="160dp"
+        android:layout_height="50dp"
         android:layout_marginTop="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.95"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/condition_fragment"
         android:text="Add Condition"
-        android:textSize="6dp"/>
+        android:textSize="12dp"/>
 
     <TextView
         android:id="@+id/actions_text_view"
@@ -51,7 +51,7 @@
         android:text="Actions"
         app:layout_constraintTop_toBottomOf="@+id/add_condition_button" />
 
-    <fragment
+    <ScrollView
         android:id="@+id/actions_fragment"
         android:layout_width="match_parent"
         android:layout_height="180dp"
@@ -60,14 +60,14 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/add_action_button"
-        android:layout_width="80dp"
-        android:layout_height="30dp"
+        android:layout_width="160dp"
+        android:layout_height="50dp"
         android:layout_marginTop="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.95"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/actions_fragment"
         android:text="Add Action"
-        android:textSize="6dp"/>
+        android:textSize="12dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
