@@ -1,6 +1,7 @@
 package com.my.ido4u
 
 object TaskManager {
+
     private var taskList = mutableListOf<Task>()
 
     fun addTask(task : Task) {
@@ -17,5 +18,9 @@ object TaskManager {
 
     fun getSize() : Int {
         return taskList.size
+    }
+
+    fun getTaskList() : MutableList<Task>{
+        return taskList
     }
 }
