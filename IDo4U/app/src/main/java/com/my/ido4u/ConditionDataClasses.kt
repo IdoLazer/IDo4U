@@ -6,5 +6,6 @@ import android.net.wifi.WifiInfo
 
 data class WifiConditionData(var bssid: String)
 
-data class BluetoothConditionData(var bluetoothName: String)
+data class BluetoothConditionData(var bluetoothName: String, var hardwareAddress : String)
 data class LocationConditionData(var location : Location, var radius: Float)
+
