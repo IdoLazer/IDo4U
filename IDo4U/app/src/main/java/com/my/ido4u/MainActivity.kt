@@ -3,17 +3,13 @@ package com.my.ido4u
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -70,7 +66,7 @@ class MainActivity : AppCompatActivity() {
     ////////////////////////////////////// todo change /////////////////////////////////////////////
     private fun mockBluetooth(){
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-        if(checkPermissions(Task.ConditionEnum.BLUETOOTH)){
+        if(checkConditionsPermissions(Task.ConditionEnum.BLUETOOTH)){
             val conData = BluetoothConditionData("LE-Ido's Bose QC35 II", "4C:87:5D:CB:9B:CD")
             val conDataStr = gson.toJson(conData)
             var cond = Task.Condition(Task.ConditionEnum.BLUETOOTH, conDataStr)
@@ -88,54 +84,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun mockWifi(){ //todo delete!
-        wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        checkPermissions(Task.ConditionEnum.WIFI)
-        handleWifi()
-    }
 
-    private fun handleWifi() {
-        wifiScanReceiver = object : BroadcastReceiver() {
-            @RequiresApi(api = Build.VERSION_CODES.M)
-            override fun onReceive(c: Context, intent: Intent) {
-                val success = intent.getBooleanExtra(
-                    WifiManager.EXTRA_RESULTS_UPDATED, false)
-                if (success) {
-                    scanSuccess()
-                } else {
-                    scanFailure()
-                }
-            }
-        }
-        val intentFilter = IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
-//        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
-        registerReceiver(wifiScanReceiver, intentFilter)
-        val success = wifiManager!!.startScan()
-        if (!success) {
-            scanFailure()
-        }
-    }
-
-    private fun scanSuccess() {
-        val results = wifiManager!!.scanResults
-        myNetwork = results[0]
-
-        val conData : WifiConditionData = WifiConditionData(results[0].BSSID)
+        val conData : WifiConditionData = WifiConditionData("10:be:f5:3c:48:e6")
         val cond : Task.Condition = Task.Condition(Task.ConditionEnum.WIFI, gson.toJson(conData))
-        val actData : ToastActionData = ToastActionData(ToastActionData.ToastAction.LONG,
-                                                                        "found Ido's wifi!")
-        val action : Task.Action = Task.Action(Task.ActionEnum.TOAST, gson.toJson(actData))
+//        val actData : ToastActionData = ToastActionData(ToastActionData.ToastAction.LONG,
+//                                                                           "found Ido's wifi!")
+//        val action : Task.Action = Task.Action(Task.ActionEnum.TOAST, gson.toJson(actData))
+
+        val actData = VolumeActionData(VolumeActionData.VolumeAction.SOUND, 3)
+        val action : Task.Action = Task.Action(Task.ActionEnum.VOLUME, gson.toJson(actData))
+
         val newTask : Task = Task("wifi task", true, cond, action)
 
         TaskManager.addTask(newTask)
-//        TaskManager.addTask(Task("Stupid Task", false, cond, action))
-//        TaskManager.addTask(Task("Shut up bitch Im tryin to talk", false, cond, action))
         adapter.notifyDataSetChanged()
         startService()
         Log.e("found_wifi_start", myNetwork.toString())
-    }
-
-    private fun scanFailure() {
-        Log.e("scan failure", "failed to scan wifi")
     }
 
     fun startService() {
@@ -171,7 +135,7 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    private fun checkPermissions(type : Task.ConditionEnum) : Boolean{
+    private fun checkConditionsPermissions(type : Task.ConditionEnum) : Boolean{
         when(type){
             Task.ConditionEnum.WIFI -> checkSpecificPermissions(mutableListOf(
                                             Manifest.permission.ACCESS_WIFI_STATE,
@@ -187,6 +151,15 @@ class MainActivity : AppCompatActivity() {
         }
         return true // todo
     }
+
+//    private fun checkActionsPermissions(type : Task.ActionEnum) : Boolean{
+//        when(type){
+//            Task.ActionEnum.VOLUME ->{
+//
+//            }
+//        }
+//        return true // todo
+//    }
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     override fun onDestroy() {
