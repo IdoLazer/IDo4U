@@ -6,9 +6,7 @@ import android.app.Service
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
-import android.bluetooth.BluetoothProfile
 import android.bluetooth.BluetoothProfile.GATT
-import android.bluetooth.BluetoothProfile.GATT_SERVER
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -17,10 +15,12 @@ import android.media.AudioManager
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.google.gson.Gson
 
@@ -39,13 +39,30 @@ class BroadcastReceiverService : Service() {
     private val gson : Gson = Gson()
     private var bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
+    /**
+     * The BroadcastReceiver of the Service, it listens to the relevant broadcasts.
+     */
+    inner class MyReceiver : BroadcastReceiver() {
+        @RequiresApi(Build.VERSION_CODES.M)
+        override fun onReceive(context: Context, intent: Intent) {
+            val action = intent.action
+            if (action == null) {
+                Log.e("error", "action is null!")
+            } else {
+                when (action) { // todo - add more cases
+                    WIFI_CHANGED_BROADCAST -> handleWifiCondition()
+                    BLUETOOTH_CHANGED_BROADCAST -> handleBluetoothCondition(intent)
+                }
+            }
+        }
+    }
 
     /**
      * Adds WifiManager.NETWORK_STATE_CHANGED_ACTION to the filter of the broadcastReceiver.
      * In addition, checks for every existing wifi conditioned task if the phone is connected
      * to its condition's wifi address and if so execute its action.
      */
-    private fun initializeBluetoothTask(rawData: String, task: Task) {
+    private fun initializeBluetoothTask(rawData: String, task: Task) { //todo = not working!
         actionsToListenTo.add(BLUETOOTH_CHANGED_BROADCAST)
         val condData = gson.fromJson(rawData, BluetoothConditionData::class.java)
         val deviceAddress = condData.hardwareAddress
@@ -65,6 +82,7 @@ class BroadcastReceiverService : Service() {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun handleBluetoothCondition(intent : Intent) {
         var device : BluetoothDevice? = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
         for (task in taskList) {
@@ -81,6 +99,7 @@ class BroadcastReceiverService : Service() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun handleWifiCondition() {
         for (task in taskList) {
             if (task.condition.conditionType == Task.ConditionEnum.WIFI) {
@@ -92,7 +111,7 @@ class BroadcastReceiverService : Service() {
                 val curBssid = wifiInfo.bssid
 
                 if (taskBssid != DEFAULT_BSSID && taskBssid != null) { //todo - only null?
-                    if (curBssid == taskBssid && curBssid != lastRSSID) {
+                    if (curBssid == taskBssid ){//&& curBssid != lastRSSID) {
                         lastRSSID = taskBssid
                         handleActions(task)
                     }
@@ -102,34 +121,48 @@ class BroadcastReceiverService : Service() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun handleActions(task: Task) {
         when (task.action.actionType) {
             Task.ActionEnum.TOAST -> createAndShowToast(task)  // todo - delete
             Task.ActionEnum.VOLUME -> handleVolumeActions(task)
+            Task.ActionEnum.BRIGHTNESS -> {
+                val rawData = gson.fromJson(task.action.extraData, BrightnessActionData::class.java)
+                if(Settings.System.canWrite(applicationContext)){
+                    changeBrightness(rawData)
+                } else {
+                    //todo
+                }
+            }
             Task.ActionEnum.APPS -> {} //todo
-            Task.ActionEnum.BRIGHTNESS -> {} //todo
             Task.ActionEnum.COMMUNICATION -> {} //todo
             Task.ActionEnum.DATA -> {} //todo
         }
     }
 
+    private fun changeBrightness(rawData: BrightnessActionData) {
+        Settings.System.putInt(
+            applicationContext.contentResolver,
+            Settings.System.SCREEN_BRIGHTNESS, rawData.brightness
+        )
+    }
+
+    /**
+     * todo
+     */
     private fun handleVolumeActions(task: Task) {
         val audioMngr = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val actionData = gson.fromJson(task.action.extraData, VolumeActionData::class.java)
-        val volumeType = actionData.volumeAction
-        val currentMode = audioMngr.ringerMode
-        val currentVolume = audioMngr.getStreamVolume(AudioManager.STREAM_RING)
-        when (volumeType) {
+        when (actionData.volumeAction) {
             VolumeActionData.VolumeAction.SOUND -> changeRingerModeToSound(audioMngr, actionData)
-
-            VolumeActionData.VolumeAction.VIBRATE -> audioMngr.ringerMode =
-                AudioManager.RINGER_MODE_VIBRATE
-
+            VolumeActionData.VolumeAction.VIBRATE -> audioMngr.ringerMode = AudioManager.RINGER_MODE_VIBRATE
             VolumeActionData.VolumeAction.MUTE -> silenceRinger(audioMngr)
-
         }
     }
 
+    /**
+     * Changes the cellPhones ringing mode to normal (sound) at the .
+     */
     private fun changeRingerModeToSound(audioMngr: AudioManager, actionData: VolumeActionData) {
         val notificationMngr = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !notificationMngr.isNotificationPolicyAccessGranted) {
@@ -140,6 +173,9 @@ class BroadcastReceiverService : Service() {
         }
     }
 
+    /**
+     * Changes the cellPhones ringing mode to silent.
+     */
     private fun silenceRinger(audioMngr: AudioManager) {
         val notificationMngr = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&!notificationMngr.isNotificationPolicyAccessGranted) {
@@ -150,13 +186,16 @@ class BroadcastReceiverService : Service() {
         }
     }
 
+    /**
+     * Changes the cellPhones ringing sound to the target sound stored in actionData
+     */
     private fun changeRingerVolume(audioMngr: AudioManager, actionData: VolumeActionData) {
         audioMngr.ringerMode = AudioManager.RINGER_MODE_NORMAL
         val targetVolume = actionData.volumeLevel
         audioMngr.setStreamVolume(AudioManager.STREAM_RING, targetVolume, 0)
     }
 
-    private fun createAndShowToast(task : Task ) {
+    private fun createAndShowToast(task : Task ) { //todo - delete
         val c = applicationContext
         val actionData = gson.fromJson(task.action.extraData, ToastActionData::class.java)
         val text: CharSequence = actionData.text
@@ -164,21 +203,6 @@ class BroadcastReceiverService : Service() {
         val toast = Toast.makeText(c, text, duration)
         toast.show()
     }
-
-    inner class MyReceiver : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val action = intent.action
-            if (action == null) {
-                Log.e("error", "action is null!")
-            } else {
-                when (action) { // todo - add more cases
-                    WIFI_CHANGED_BROADCAST -> handleWifiCondition()
-                    BLUETOOTH_CHANGED_BROADCAST -> handleBluetoothCondition(intent)
-                }
-            }
-        }
-    }
-
 
     /**
      * Adds to a filter all the actions to whom the broadcastReceiver should listen, creates the
@@ -189,8 +213,8 @@ class BroadcastReceiverService : Service() {
             when(task.condition.conditionType){
                 Task.ConditionEnum.WIFI -> actionsToListenTo.add(WIFI_CHANGED_BROADCAST)
                 Task.ConditionEnum.BLUETOOTH -> actionsToListenTo.add(BLUETOOTH_CHANGED_BROADCAST)
-
-                //todo - fill in bluetooth's action, location, etc.
+                Task.ConditionEnum.LOCATION -> {} //todo
+                Task.ConditionEnum.TIME -> {} // todo
             }
         }
         val filter = IntentFilter()
@@ -209,6 +233,7 @@ class BroadcastReceiverService : Service() {
     /**
      * These commands will be performed whenever StartService is called for this class
      */
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         createAndRegisterBroadcastReceiver() // todo - here or in the constructor?
         for(task in taskList){
@@ -216,6 +241,11 @@ class BroadcastReceiverService : Service() {
             when(task.condition.conditionType){
                 Task.ConditionEnum.BLUETOOTH -> initializeBluetoothTask(rawData, task) //todo - doesn't work!
                 //todo - fill in bluetooth's action, location, etc.
+            }
+            if(task.action.actionType == Task.ActionEnum.BRIGHTNESS) {
+                if (!Settings.System.canWrite(applicationContext)) {
+                    startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
+                }
             }
         }
         val intent1 = Intent(this, MainActivity::class.java)

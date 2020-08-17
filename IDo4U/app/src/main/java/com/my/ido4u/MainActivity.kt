@@ -7,9 +7,12 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -83,22 +86,36 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun mockWifi(){ //todo delete!
 
+        if(!Settings.System.canWrite(applicationContext)){
+            startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
+        }
         val conData : WifiConditionData = WifiConditionData("10:be:f5:3c:48:e6")
         val cond : Task.Condition = Task.Condition(Task.ConditionEnum.WIFI, gson.toJson(conData))
 //        val actData : ToastActionData = ToastActionData(ToastActionData.ToastAction.LONG,
 //                                                                           "found Ido's wifi!")
 //        val action : Task.Action = Task.Action(Task.ActionEnum.TOAST, gson.toJson(actData))
 
+        /////////////////////////////////////// volume action //////////////////////////////////////
         val actData = VolumeActionData(VolumeActionData.VolumeAction.SOUND, 3)
         val action : Task.Action = Task.Action(Task.ActionEnum.VOLUME, gson.toJson(actData))
-
-        val newTask : Task = Task("wifi task", true, cond, action)
+        val newTask : Task = Task("wifi task1", true, cond, action)
 
         TaskManager.addTask(newTask)
         adapter.notifyDataSetChanged()
         startService()
+
+        /////////////////////////////////// brightness action //////////////////////////////////////
+        val actData2 = BrightnessActionData(170)
+        val action2 : Task.Action = Task.Action(Task.ActionEnum.BRIGHTNESS, gson.toJson(actData2))
+        val newTask2 = Task("wifi task2", true, cond, action2)
+
+        TaskManager.addTask(newTask2)
+        adapter.notifyDataSetChanged()
+        startService()
+
         Log.e("found_wifi_start", myNetwork.toString())
     }
 

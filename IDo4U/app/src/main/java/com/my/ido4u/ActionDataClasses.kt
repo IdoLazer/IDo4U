@@ -7,3 +7,5 @@ data class VolumeActionData (var volumeAction: VolumeAction, var volumeLevel: In
 data class ToastActionData (var toastAction: ToastAction, var text: String){
     enum class ToastAction {LONG, SHORT}
 }
+
+data class BrightnessActionData (var brightness: Int){}
