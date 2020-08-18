@@ -6,9 +6,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import android.net.wifi.ScanResult
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
 import android.os.IBinder
@@ -19,15 +16,15 @@ import androidx.core.app.NotificationCompat
 class BroadcastReceiverService : Service() {
 
     var mReceiver: BroadcastReceiver? = null
-    private var  actionsToListenTo : HashSet<String> = HashSet<String>()
-    private var taskList : MutableList<Task> = TaskManager.getTaskList() //todo - deep copy?
-    private var lastRSSID : String? = null
+    private var actionsToListenTo: HashSet<String> = HashSet<String>()
+    private var taskList: MutableList<Task> = TaskManager.getTaskList() //todo - deep copy?
+    private var lastRSSID: String? = null
 
-    init{
-        for(task in taskList){
-            when(task.condition.conditionType){
+    init {
+        for (task in taskList) {
+            when (task.condition.conditionType) {
                 Task.ConditionEnum.WIFI -> actionsToListenTo
-                                                    .add(WifiManager.NETWORK_STATE_CHANGED_ACTION)
+                    .add(WifiManager.NETWORK_STATE_CHANGED_ACTION)
                 //todo - fill in bluetooth's action, location, etc.
             }
         }
@@ -41,30 +38,31 @@ class BroadcastReceiverService : Service() {
             } else {
                 when (action) {
                     WifiManager.NETWORK_STATE_CHANGED_ACTION -> { // todo - add more cases
-                        for(task in taskList){
-                            if(task.condition.conditionType == Task.ConditionEnum.WIFI){
-                                val wifiMngr : WifiManager = applicationContext.applicationContext
-                                        .getSystemService(Context.WIFI_SERVICE) as WifiManager
-                                val wifiInfo : WifiInfo = wifiMngr.connectionInfo
-                                val bssid : String? = wifiInfo.bssid
+                        for (task in taskList) {
+                            if (task.condition.conditionType == Task.ConditionEnum.WIFI) {
+                                val wifiMngr: WifiManager = applicationContext.applicationContext
+                                    .getSystemService(Context.WIFI_SERVICE) as WifiManager
+                                val wifiInfo: WifiInfo = wifiMngr.connectionInfo
+                                val bssid: String? = wifiInfo.bssid
 
-                                if(bssid != "02:00:00:00:00:00" && bssid != null) {
-                                    val myBssid : String = task.wifiNetworkSSID ?: "" //todo
+                                if (bssid != "02:00:00:00:00:00" && bssid != null) {
+                                    val myBssid: String = ""//task.wifiNetworkSSID ?: "" //todo
                                     if (myBssid == bssid && lastRSSID != bssid) {
                                         lastRSSID = bssid
-                                        when (task.action.actionType) {
-                                            Task.ActionEnum.TOAST -> { // todo - add more cases
-                                                Log.e("found something", "wifi changed!")
-                                                val c = applicationContext
-                                                val text: CharSequence = "wifi changed!"
-                                                val duration = Toast.LENGTH_SHORT
-                                                val toast = Toast.makeText(c, text, duration)
-                                                toast.show()
+                                        for (taskAction in task.actions) {
+                                            when (taskAction.actionType) {
+                                                Task.ActionEnum.TOAST -> { // todo - add more cases
+                                                    Log.e("found something", "wifi changed!")
+                                                    val c = applicationContext
+                                                    val text: CharSequence = "wifi changed!"
+                                                    val duration = Toast.LENGTH_SHORT
+                                                    val toast = Toast.makeText(c, text, duration)
+                                                    toast.show()
+                                                }
                                             }
                                         }
                                     }
-                                }
-                                else{
+                                } else {
                                     lastRSSID = "bssid"
                                 }
                             }
@@ -96,8 +94,10 @@ class BroadcastReceiverService : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         val input = intent.getStringExtra("inputExtra")
         val notificationIntent = Intent(this, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(this, 0,
-            notificationIntent, 0)
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0,
+            notificationIntent, 0
+        )
         val notification = NotificationCompat.Builder(this, Ido4uApp.CHANNEL_ID)
             .setContentTitle(input)
             .setContentText(input)
