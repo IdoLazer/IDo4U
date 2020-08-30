@@ -3,9 +3,24 @@ package com.my.ido4u
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Context
 import android.os.Build
 
-class Ido4uApp : Application(){
+class Ido4uApp : Application() {
+
+    init {
+        instance = this
+    }
+
+    companion object {
+        const val CHANNEL_ID = "stickyChannel"
+        private var instance: Ido4uApp? = null
+
+        fun applicationContext(): Context {
+            return instance!!.applicationContext
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
@@ -21,9 +36,5 @@ class Ido4uApp : Application(){
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(serviceChannel)
         }
-    }
-
-    companion object {
-        const val CHANNEL_ID = "stickyChannel"
     }
 }

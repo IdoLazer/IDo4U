@@ -1,26 +1,69 @@
 package com.my.ido4u
 
+import android.content.Context
+import android.util.Log
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.lang.reflect.Type
+
+
 object TaskManager {
+    private const val SHARED_PREFERENCES_NAME = "TaskManagerSharedPreferences"
+    private const val TASK_LIST = "taskList"
 
-    private var taskList = mutableListOf<Task>()
+    private var taskList = ArrayList<Task>()
+    private val gson = Gson()
+    private var sp = Ido4uApp.applicationContext()
+        .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
 
-    fun addTask(task : Task) {
-        taskList.add(task)
+    init {
+//        sp.edit().clear().apply()
+        val taskListJsonString = sp.getString(TASK_LIST, null)
+        if (taskListJsonString != null) {
+            val groupListType: Type = object : TypeToken<ArrayList<Task>>() {}.type
+            taskList = gson.fromJson(taskListJsonString, groupListType)
+        }
     }
 
-    fun getPosition(i : Int) : Task{
+    fun addTask(task: Task) {
+        taskList.add(task)
+        refreshSharedPreferences()
+    }
+
+    fun getPosition(i: Int): Task {
         return taskList[i]
     }
 
-    fun removeTask(i : Int) {
-        taskList.removeAt(i)
+    fun setPosition(i: Int, task: Task) {
+        taskList[i] = task
+        refreshSharedPreferences()
     }
 
-    fun getSize() : Int {
+    fun removeTask(i: Int) {
+        taskList.removeAt(i)
+        refreshSharedPreferences()
+    }
+
+    fun getSize(): Int {
         return taskList.size
     }
 
-    fun getTaskList() : MutableList<Task>{
-        return taskList
+    fun getTaskList(): MutableList<Task> {
+        return taskList.toMutableList()
+    }
+
+    fun switchTask(i: Int, isSwitched: Boolean) {
+        taskList[i].isOn = isSwitched
+        Log.d("tag", "switchedddddddddddddddddddddddddddddddddddddd")
+        refreshSharedPreferences()
+    }
+
+    fun renameTask(i: Int, name: String) {
+        taskList[i].name = name
+        refreshSharedPreferences()
+    }
+
+    private fun refreshSharedPreferences() {
+        sp.edit().putString(TASK_LIST, gson.toJson(taskList)).apply()
     }
 }

@@ -126,26 +126,28 @@ class BroadcastReceiverService : Service() {
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun handleActions(task: Task) {
-        when (task.action.actionType) {
-            Task.ActionEnum.TOAST -> createAndShowToast(task)  // todo - delete
-            Task.ActionEnum.VOLUME -> handleVolumeActions(task)
-            Task.ActionEnum.BRIGHTNESS -> handleBrightnessActions(task)
-            Task.ActionEnum.APPS -> {
-                val rawData = task.action.extraData
-                val actionData = gson.fromJson(rawData, OpenAppActionData::class.java)
-                val packageName = actionData.packageName
+        for (action in task.actions) {
+            when (action.actionType) {
+                Task.ActionEnum.TOAST -> createAndShowToast(action)  // todo - delete
+                Task.ActionEnum.VOLUME -> handleVolumeActions(action)
+                Task.ActionEnum.BRIGHTNESS -> handleBrightnessActions(action)
+                Task.ActionEnum.APPS -> {
+                    val rawData = action.extraData
+                    val actionData = gson.fromJson(rawData, OpenAppActionData::class.java)
+                    val packageName = actionData.packageName
 
-                val launchIntent =packageManager.getLaunchIntentForPackage(packageName)
-                                                    launchIntent?.let { startActivity(it) }
-            } //todo
-            Task.ActionEnum.COMMUNICATION -> {} //todo
-            Task.ActionEnum.DATA -> {} //todo
+                    val launchIntent =packageManager.getLaunchIntentForPackage(packageName)
+                    launchIntent?.let { startActivity(it) }
+                } //todo
+                Task.ActionEnum.COMMUNICATION -> {} //todo
+                Task.ActionEnum.DATA -> {} //todo
+            }
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    private fun handleBrightnessActions(task: Task) {
-        val rawData = gson.fromJson(task.action.extraData, BrightnessActionData::class.java)
+    private fun handleBrightnessActions(action : Task.Action) {
+        val rawData = gson.fromJson(action.extraData, BrightnessActionData::class.java)
         if (Settings.System.canWrite(applicationContext)) {
             Settings.System.putInt(
                 applicationContext.contentResolver,
@@ -159,9 +161,9 @@ class BroadcastReceiverService : Service() {
     /**
      * todo
      */
-    private fun handleVolumeActions(task: Task) {
+    private fun handleVolumeActions(action : Task.Action) {
         val audioMngr = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        val actionData = gson.fromJson(task.action.extraData, VolumeActionData::class.java)
+        val actionData = gson.fromJson(action.extraData, VolumeActionData::class.java)
         when (actionData.volumeAction) {
             VolumeActionData.VolumeAction.SOUND -> changeRingerModeToSound(audioMngr, actionData)
             VolumeActionData.VolumeAction.VIBRATE -> audioMngr.ringerMode = AudioManager.RINGER_MODE_VIBRATE
@@ -200,13 +202,13 @@ class BroadcastReceiverService : Service() {
      */
     private fun changeRingerVolume(audioMngr: AudioManager, actionData: VolumeActionData) {
         audioMngr.ringerMode = AudioManager.RINGER_MODE_NORMAL
-        val targetVolume = actionData.volumeLevel
+        val targetVolume = actionData.volumeLevel.toInt() //todo to int or not to int? that is the float
         audioMngr.setStreamVolume(AudioManager.STREAM_RING, targetVolume, 0)
     }
 
-    private fun createAndShowToast(task : Task ) { //todo - delete
+    private fun createAndShowToast(action : Task.Action) { //todo - delete
         val c = applicationContext
-        val actionData = gson.fromJson(task.action.extraData, ToastActionData::class.java)
+        val actionData = gson.fromJson(action.extraData, ToastActionData::class.java)
         val text: CharSequence = actionData.text
         val duration = Toast.LENGTH_SHORT
         val toast = Toast.makeText(c, text, duration)
@@ -251,9 +253,11 @@ class BroadcastReceiverService : Service() {
                 Task.ConditionEnum.BLUETOOTH -> initializeBluetoothTask(rawData, task) //todo - doesn't work!
                 //todo - fill in bluetooth's action, location, etc.
             }
-            if(task.action.actionType == Task.ActionEnum.BRIGHTNESS) {
-                if (!Settings.System.canWrite(applicationContext)) {
-                    startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
+            for (action in task.actions) {
+                if (action.actionType == Task.ActionEnum.BRIGHTNESS) {
+                    if (!Settings.System.canWrite(applicationContext)) {
+                        startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
+                    }
                 }
             }
         }
