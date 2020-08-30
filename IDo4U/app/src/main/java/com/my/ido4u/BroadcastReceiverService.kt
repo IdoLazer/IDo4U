@@ -11,6 +11,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.graphics.Color.BLUE
 import android.media.AudioManager
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
@@ -62,6 +65,7 @@ class BroadcastReceiverService : Service() {
      * In addition, checks for every existing wifi conditioned task if the phone is connected
      * to its condition's wifi address and if so execute its action.
      */
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun initializeBluetoothTask(rawData: String, task: Task) { //todo = not working!
         actionsToListenTo.add(BLUETOOTH_CHANGED_BROADCAST)
         val condData = gson.fromJson(rawData, BluetoothConditionData::class.java)
@@ -80,7 +84,6 @@ class BroadcastReceiverService : Service() {
             }
         }
     }
-
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun handleBluetoothCondition(intent : Intent) {
@@ -126,25 +129,31 @@ class BroadcastReceiverService : Service() {
         when (task.action.actionType) {
             Task.ActionEnum.TOAST -> createAndShowToast(task)  // todo - delete
             Task.ActionEnum.VOLUME -> handleVolumeActions(task)
-            Task.ActionEnum.BRIGHTNESS -> {
-                val rawData = gson.fromJson(task.action.extraData, BrightnessActionData::class.java)
-                if(Settings.System.canWrite(applicationContext)){
-                    changeBrightness(rawData)
-                } else {
-                    //todo
-                }
-            }
-            Task.ActionEnum.APPS -> {} //todo
+            Task.ActionEnum.BRIGHTNESS -> handleBrightnessActions(task)
+            Task.ActionEnum.APPS -> {
+                val rawData = task.action.extraData
+                val actionData = gson.fromJson(rawData, OpenAppActionData::class.java)
+                val packageName = actionData.packageName
+
+                val launchIntent =packageManager.getLaunchIntentForPackage(packageName)
+                                                    launchIntent?.let { startActivity(it) }
+            } //todo
             Task.ActionEnum.COMMUNICATION -> {} //todo
             Task.ActionEnum.DATA -> {} //todo
         }
     }
 
-    private fun changeBrightness(rawData: BrightnessActionData) {
-        Settings.System.putInt(
-            applicationContext.contentResolver,
-            Settings.System.SCREEN_BRIGHTNESS, rawData.brightness
-        )
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun handleBrightnessActions(task: Task) {
+        val rawData = gson.fromJson(task.action.extraData, BrightnessActionData::class.java)
+        if (Settings.System.canWrite(applicationContext)) {
+            Settings.System.putInt(
+                applicationContext.contentResolver,
+                Settings.System.SCREEN_BRIGHTNESS, rawData.brightness
+            )
+        } else {
+            //todo
+        }
     }
 
     /**
@@ -255,6 +264,8 @@ class BroadcastReceiverService : Service() {
             .setContentText("Waiting for a condition to be filled...")
             .setSmallIcon(R.drawable.ic_baseline_hearing_24)
             .setContentIntent(pendingIntent)
+            .setColor(Color.rgb(118,0,255))
+            .setOngoing(true)
             .build()
         startForeground(FOREGROUND_ID, notification)
         return START_STICKY

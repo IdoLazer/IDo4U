@@ -9,3 +9,5 @@ data class ToastActionData (var toastAction: ToastAction, var text: String){
 }
 
 data class BrightnessActionData (var brightness: Int){}
+
+data class OpenAppActionData(var packageName : String){}

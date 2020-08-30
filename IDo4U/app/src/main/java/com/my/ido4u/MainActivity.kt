@@ -1,25 +1,31 @@
 package com.my.ido4u
 
 import android.Manifest
+import android.R.attr
+import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
+import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
-import java.util.ArrayList
+import java.util.*
+
 
 const val WIFI_PERMISSION_REQUEST_CODE = 1
 
@@ -36,6 +42,7 @@ class MainActivity : AppCompatActivity() {
         }
     })
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -45,10 +52,13 @@ class MainActivity : AppCompatActivity() {
 //                openTaskProfile(id)
 //            }
 //        })
+
         val recycler : RecyclerView = findViewById(R.id.task_recycler)
         recycler.adapter = adapter
         recycler.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
 
+       // val m = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager //todo
+//        m.isDataEnabled = false //todo
 
         val addButton : FloatingActionButton = findViewById(R.id.add_task_button)
         addButton.setOnClickListener {
@@ -58,6 +68,7 @@ class MainActivity : AppCompatActivity() {
 
         mockWifi()
         mockBluetooth()
+
     }
 
     private fun openTaskProfile(id: Int) {
@@ -108,11 +119,21 @@ class MainActivity : AppCompatActivity() {
         startService()
 
         /////////////////////////////////// brightness action //////////////////////////////////////
-        val actData2 = BrightnessActionData(170)
+
+                val actData2 = BrightnessActionData(170)
         val action2 : Task.Action = Task.Action(Task.ActionEnum.BRIGHTNESS, gson.toJson(actData2))
         val newTask2 = Task("wifi task2", true, cond, action2)
 
         TaskManager.addTask(newTask2)
+        adapter.notifyDataSetChanged()
+        startService()
+
+        /////////////////////////////////////// app action //////////////////////////////////////
+        val actData3 = OpenAppActionData("com.waze")
+        val action3 : Task.Action = Task.Action(Task.ActionEnum.APPS, gson.toJson(actData3))
+        val newTask3 : Task = Task("wifi task3", true, cond, action3)
+
+        TaskManager.addTask(newTask3)
         adapter.notifyDataSetChanged()
         startService()
 
@@ -179,6 +200,16 @@ class MainActivity : AppCompatActivity() {
 //    }
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//        if (requestCode == 0 && resultCode == Activity.RESULT_OK && data != null) {
+//            val componentName: ComponentName? = data.getComponent()
+//            if(componentName != null) {
+//                val packageName = componentName.packageName
+//                val activityName = componentName.className
+//            }
+//        }
+//    }
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(wifiScanReceiver);
