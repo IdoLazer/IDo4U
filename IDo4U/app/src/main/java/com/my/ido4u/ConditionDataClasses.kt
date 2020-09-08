@@ -15,9 +15,9 @@ data class BluetoothConditionData(var bluetoothName: String, var hardwareAddress
     }
 }
 
-data class LocationConditionData(var location: Location, var radius: Float) {
+data class LocationConditionData(var longitude: Double, var latitude: Double, var radius: Float) {
     override fun toString(): String {
-        return "Location is within radius of $radius from location (${location.latitude}, ${location.longitude}"
+        return "Location is within radius of $radius from location ($latitude, $longitude"
     }
 }
 

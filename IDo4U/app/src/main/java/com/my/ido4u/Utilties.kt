@@ -2,12 +2,27 @@ package com.my.ido4u
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
+import android.bluetooth.BluetoothDevice
 import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.wifi.WifiManager
+import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import java.util.ArrayList
+
+
+
+
+const val DEFAULT_BSSID = "02:00:00:00:00:00"
+const val FOREGROUND_ID = 1
+const val WIFI_CHANGED_BROADCAST = WifiManager.NETWORK_STATE_CHANGED_ACTION
+const val BLUETOOTH_CHANGED_BROADCAST = BluetoothDevice.ACTION_ACL_CONNECTED
+const val MINIMAL_ACCURACY = 50
+const val MINIMAL_DISTANCE_TO_LAST_LOCATION = 30
 
 /**
  * Checks a if all permissions in permissionsList are granted - if so returns true, else - calls
@@ -48,8 +63,27 @@ fun checkConditionsPermissions(type : Task.ConditionEnum, activity: Activity) : 
 
         Task.ConditionEnum.TIME -> {} //todo
 
-        Task.ConditionEnum.LOCATION -> {}//todo
+        Task.ConditionEnum.LOCATION -> checkSpecificPermissions(mutableListOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION),
+            WIFI_PERMISSION_REQUEST_CODE, activity)
     }
     return true // todo
 }
+
+/**
+ * Shows a dialog that says the location service is unavailable
+ * @param context a context
+ */
+ fun noLocationDialog(context: Context?) {
+    AlertDialog.Builder(context).setMessage(R.string.gps_network_not_enabled)
+        .setPositiveButton(
+            R.string.open_location_settings,
+            DialogInterface.OnClickListener { paraDialogInterface, paramInt ->
+                if (context != null) {
+                    context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                }
+            }).setNegativeButton(R.string.Cancel, null).show()
+}
+
 

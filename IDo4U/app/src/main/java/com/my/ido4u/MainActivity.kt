@@ -1,10 +1,12 @@
 package com.my.ido4u
 
+import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
 import android.os.Build
@@ -13,8 +15,10 @@ import android.provider.Settings
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 
@@ -22,6 +26,7 @@ import com.google.gson.Gson
 const val WIFI_SCAN_PERMISSION_REQUEST_CODE = 0
 const val  BLUETOOTH_PERMISSIONS_REQUEST_CODE = 1
 const val WIFI_PERMISSION_REQUEST_CODE = 2
+const val LOCATION_PERMISSION_REQUEST_CODE = 3
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,6 +35,7 @@ class MainActivity : AppCompatActivity() {
     private var myNetwork: ScanResult? = null
     private var wifiScanReceiver: BroadcastReceiver? = null
     private var gson: Gson = Gson()
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private var adapter = TaskAdapter(object : TaskAdapter.TaskClickListener {
         override fun onTaskClicked(id: Int) {
@@ -49,11 +55,11 @@ class MainActivity : AppCompatActivity() {
         initializeViews()
         wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
-       // val m = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager //todo
-//        m.isDataEnabled = false //todo
-        scanWifi() //todo - remove
+
+//        scanWifi() //todo - remove
         mockWifi() //todo - remove
         mockBluetooth() //todo - remove
+        mockLocation()
     }
 
     /**
@@ -91,6 +97,7 @@ class MainActivity : AppCompatActivity() {
 
     ////////////////////////////////////// todo change /////////////////////////////////////////////
     private fun mockBluetooth(){
+        checkConditionsPermissions(Task.ConditionEnum.LOCATION, this)
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         if(checkConditionsPermissions(Task.ConditionEnum.BLUETOOTH, this)){
             val conData = BluetoothConditionData("LE-Ido's Bose QC35 II", "4C:87:5D:CB:9B:CD")
@@ -105,6 +112,15 @@ class MainActivity : AppCompatActivity() {
 
             addNewTask(newTask)
         }
+    }
+
+    private fun mockLocation(){
+        val condData = LocationConditionData(35.192712,31.7770856,  50f)
+        val cond : Task.Condition = Task.Condition(Task.ConditionEnum.LOCATION, gson.toJson(condData), condData.toString())
+        val actData = OpenAppActionData("com.waze")
+        val action : Task.Action = Task.Action(Task.ActionEnum.APPS, gson.toJson(actData), actData.toString())
+        val newTask : Task = Task("wifi task4", true, cond, arrayOf(action))
+        addNewTask(newTask)
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -126,13 +142,34 @@ class MainActivity : AppCompatActivity() {
         val newTask2 = Task("wifi task2", true, cond, arrayOf(action2))
         addNewTask(newTask2)
 
-        /////////////////////////////////////// app action /////////////////////////////////////////
-        val actData3 = OpenAppActionData("com.waze")
-        val action3 : Task.Action = Task.Action(Task.ActionEnum.APPS, gson.toJson(actData3), actData3.toString())
-        val newTask3 : Task = Task("wifi task3", true, cond, arrayOf(action3))
-        addNewTask(newTask3)
+//        /////////////////////////////////////// app action /////////////////////////////////////////
+//        val actData3 = OpenAppActionData("com.waze")
+//        val action3 : Task.Action = Task.Action(Task.ActionEnum.APPS, gson.toJson(actData3), actData3.toString())
+//        val newTask3 : Task = Task("wifi task3", true, cond, arrayOf(action3))
+//        addNewTask(newTask3)
 
-        Log.e("found_wifi_start", myNetwork.toString())
+        /////////////////////////////////////// location action /////////////////////////////////////////
+//        val lastLocation = if (ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.ACCESS_FINE_LOCATION
+//            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.ACCESS_COARSE_LOCATION
+//            ) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return
+//        }
+//        else {
+//            fusedLocationClient.lastLocation
+//        }
+
     }
 
     ////////////////////////////// Service - related code //////////////////////////////////////////

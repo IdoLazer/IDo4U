@@ -64,15 +64,16 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 float cur = (float) radiusSeekBar.getProgress();
                 radius = (cur / seekBerMax) * RADIUS_MAX_IN_METERS;
                 mapCircle.setRadius(radius);
-                Context context = getApplicationContext();
-                showToast(context);
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {}
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                Context context = getApplicationContext();
+                showToast(context);
+            }
         });
     }
 
