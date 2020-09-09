@@ -66,4 +66,8 @@ object TaskManager {
     private fun refreshSharedPreferences() {
         sp.edit().putString(TASK_LIST, gson.toJson(taskList)).apply()
     }
+
+    fun emptySP(){ //todo - delete
+        sp.edit().clear().apply()
+    }
 }

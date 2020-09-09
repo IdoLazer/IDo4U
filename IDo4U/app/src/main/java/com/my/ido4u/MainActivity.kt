@@ -1,21 +1,20 @@
 package com.my.ido4u
 
-import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -53,14 +52,30 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         initializeViews()
+//        noLocationDialog(this)
         wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
-
-//        scanWifi() //todo - remove
-        mockWifi() //todo - remove
-        mockBluetooth() //todo - remove
+        //        scanWifi() //todo - remove
+//        mockWifi() //todo - remove
+//        mockBluetooth() //todo - remove
         mockLocation()
     }
+
+
+//    fun setMobileDataState(mobileDataEnabled: Boolean) { //todo - No Carrier Privilege
+//        try {
+//            val telephonyService = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+//            val setMobileDataEnabledMethod = telephonyService.javaClass.getDeclaredMethod(
+//                    "setDataEnabled",
+//                    Boolean::class.javaPrimitiveType
+//                )
+//            setMobileDataEnabledMethod.invoke(telephonyService, mobileDataEnabled)
+//        } catch (ex: Exception) {
+//            Log.e("FragmentActivity.TAG", ex.cause.toString(), ex)
+//        }
+//    }
+
+
 
     /**
      * Initializes the MainActivities' views
@@ -119,7 +134,7 @@ class MainActivity : AppCompatActivity() {
         val cond : Task.Condition = Task.Condition(Task.ConditionEnum.LOCATION, gson.toJson(condData), condData.toString())
         val actData = OpenAppActionData("com.waze")
         val action : Task.Action = Task.Action(Task.ActionEnum.APPS, gson.toJson(actData), actData.toString())
-        val newTask : Task = Task("wifi task4", true, cond, arrayOf(action))
+        val newTask : Task = Task("location task", true, cond, arrayOf(action))
         addNewTask(newTask)
     }
 
@@ -252,5 +267,8 @@ class MainActivity : AppCompatActivity() {
         if(wifiScanReceiver != null){
             unregisterReceiver(wifiScanReceiver)
         }
+
+        TaskManager.emptySP() //todo - remove
+
     }
 }

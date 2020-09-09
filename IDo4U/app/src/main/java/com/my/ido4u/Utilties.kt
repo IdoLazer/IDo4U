@@ -10,19 +10,19 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.wifi.WifiManager
 import android.provider.Settings
+import android.telephony.TelephonyManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
 import java.util.ArrayList
-
-
 
 
 const val DEFAULT_BSSID = "02:00:00:00:00:00"
 const val FOREGROUND_ID = 1
 const val WIFI_CHANGED_BROADCAST = WifiManager.NETWORK_STATE_CHANGED_ACTION
 const val BLUETOOTH_CHANGED_BROADCAST = BluetoothDevice.ACTION_ACL_CONNECTED
-const val MINIMAL_ACCURACY = 50
-const val MINIMAL_DISTANCE_TO_LAST_LOCATION = 30
+const val THRESHOLD_ACCURACY = 50 //todo - is it a good choice
+const val MINIMAL_DISTANCE_TO_LAST_LOCATION = 30 //todo - is it a good choice
 
 /**
  * Checks a if all permissions in permissionsList are granted - if so returns true, else - calls
@@ -78,12 +78,12 @@ fun checkConditionsPermissions(type : Task.ConditionEnum, activity: Activity) : 
  fun noLocationDialog(context: Context?) {
     AlertDialog.Builder(context).setMessage(R.string.gps_network_not_enabled)
         .setPositiveButton(
-            R.string.open_location_settings,
-            DialogInterface.OnClickListener { paraDialogInterface, paramInt ->
-                if (context != null) {
-                    context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-                }
-            }).setNegativeButton(R.string.Cancel, null).show()
+            R.string.open_location_settings
+        ) { _, _ ->
+            context?.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+        }
+        .show()
 }
+
 
 

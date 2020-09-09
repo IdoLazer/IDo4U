@@ -31,7 +31,6 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.*
-import com.google.android.gms.tasks.OnCompleteListener
 import com.google.gson.Gson
 
 class BroadcastReceiverService : Service() {
@@ -106,7 +105,7 @@ class BroadcastReceiverService : Service() {
     /**
      * todo
      */
-    private fun initializeLocationTracking() {
+    private fun initializeLocationTracking() { // todo - move to mainActivity
         if (!locationTrackingStarted) {
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
             if (hasLocationPermissions()) {
@@ -116,7 +115,7 @@ class BroadcastReceiverService : Service() {
                     }
                 }
                 else{
-                    noLocationDialog(context)
+                    noLocationDialog(applicationContext)
                 }
             }
             else{
@@ -125,6 +124,8 @@ class BroadcastReceiverService : Service() {
             locationTrackingStarted = true
         }
     }
+
+
 
     /**
      * Requests location updates periodically
@@ -153,41 +154,42 @@ class BroadcastReceiverService : Service() {
      *   smaller or equal to the condition's radius.
      * - If so, it executes the task's actions.
      */
-    //todo - should add some lastLocation mechanism in order to save battery
     private fun onLocationChanged(curLocation: Location){
-        if(curLocation.accuracy < MINIMAL_ACCURACY) { // todo - needed? If so, is 50m a good limitation?
-            if(lastLocation == null){
+        if(curLocation.accuracy < THRESHOLD_ACCURACY) { // todo - needed? If so, is 50m a good limitation?
+            var firstLocationQuery = false
+            if (lastLocation == null){
                 lastLocation = curLocation
-                activateLoactionConditionedTasks(curLocation)
+                firstLocationQuery = true
             }
-            if(curLocation.distanceTo(lastLocation) > MINIMAL_DISTANCE_TO_LAST_LOCATION) {
-                activateLoactionConditionedTasks(curLocation)
-            }
-            else{
-                Log.e("too close", "curLocation is too close to to the last one")
+            for (task in taskList) {
+                if (task.condition.conditionType == Task.ConditionEnum.LOCATION) {
+                    val newLocationSatisfiesCond = doesLocationConditionApply(task, curLocation)
+                    val oldLocationSatisfiesCond = doesLocationConditionApply(task, lastLocation!!)
+                    val closeToOldLocation =
+                        curLocation.distanceTo(lastLocation) <= MINIMAL_DISTANCE_TO_LAST_LOCATION
+                    if ((newLocationSatisfiesCond && !oldLocationSatisfiesCond) ||
+                        (newLocationSatisfiesCond && !closeToOldLocation) ||
+                        (newLocationSatisfiesCond && firstLocationQuery)) {
+                        handleActions(task)
+                    }
+                }
             }
             lastLocation = curLocation
         }
-
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun activateLoactionConditionedTasks(curLocation: Location) {
-        Log.e("action activated", "action activated due to location change")
+    /**
+     * Returns true if curLocation satisfies the location condition of task, false otherwise
+     */
+    private fun doesLocationConditionApply(task: Task, curLocation: Location): Boolean {
         val curLon = curLocation.longitude
         val curLat = curLocation.latitude
-        for (task in taskList) {
-            if (task.condition.conditionType == Task.ConditionEnum.LOCATION) {
-                val rawData = task.condition.extraData
-                val data = gson.fromJson(rawData, LocationConditionData::class.java)
-                val results = FloatArray(1)
-                Location.distanceBetween(curLat, curLon, data.latitude, data.longitude, results)
-                Log.e("distance", "${results[0]}") // todo - remove
-                if (results[0] <= data.radius) {
-                    handleActions(task)
-                }
-            }
-        }
+        val rawData = task.condition.extraData
+        val data = gson.fromJson(rawData, LocationConditionData::class.java)
+        val results = FloatArray(1)
+        Location.distanceBetween(curLat, curLon, data.latitude, data.longitude, results)
+        Log.e("distance", "${results[0]}") // todo - remove
+        return results[0] <= data.radius
     }
 
     /**
@@ -196,17 +198,17 @@ class BroadcastReceiverService : Service() {
      */
     private fun isLocationEnabled(): Boolean {
         val lm = context?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        var gps_enabled = false
-        var network_enabled = false
+        var gpsEnabled = false
+        var networkEnabled = false
         try {
-            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+            gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
         } catch (ex: Exception) {
         }
         try {
-            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+            networkEnabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
         } catch (ex: Exception) {
         }
-        return gps_enabled && network_enabled
+        return gpsEnabled && networkEnabled
     }
 
     /**
