@@ -10,6 +10,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile.GATT
+import android.bluetooth.BluetoothProfile.GATT_SERVER
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -39,7 +40,6 @@ class BroadcastReceiverService : Service() {
     private var taskList : MutableList<Task> = TaskManager.getTaskList() //todo - deep copy?
     private var lastRSSID : String? = null
     private val gson : Gson = Gson()
-    private var bluetoothAdapter = BluetoothAdapter.getDefaultAdapter() // todo - needed?
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var lastLocation : Location? = null
     private var locationTrackingStarted = false
@@ -68,6 +68,13 @@ class BroadcastReceiverService : Service() {
         //todo - should add stopService() at some point (maybe "stop listening" button)
     }
 
+    /**
+     * Stops the service
+     */
+    fun stop(){
+        stopSelf()
+    }
+
     @RequiresApi(Build.VERSION_CODES.M)
     /**
      * todo
@@ -88,10 +95,14 @@ class BroadcastReceiverService : Service() {
     private fun createStickyNotification(): Notification? {
         val intent1 = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 0, intent1, 0)
+        val qIntent = Intent(QUIT)
+        val quitPendingIntent = PendingIntent.getBroadcast(this, QUIT_ID, qIntent, 0)
+        var action = NotificationCompat.Action(R.drawable.common_google_signin_btn_text_disabled, "Stop listening", quitPendingIntent)
         val notification = NotificationCompat.Builder(this, Ido4uApp.CHANNEL_ID)
             .setContentTitle("Ido4u")
             .setContentText("Waiting for a condition to be filled...")
             .setSmallIcon(R.drawable.ic_baseline_hearing_24)
+            .addAction(action)
             .setContentIntent(pendingIntent)
             .setColor(Color.rgb(118, 0, 255))
             .setOngoing(true)
@@ -235,6 +246,7 @@ class BroadcastReceiverService : Service() {
                 Log.e("error", "action is null!")
             } else {
                 when (action) { // todo - add more cases
+                    QUIT -> stop()
                     WIFI_CHANGED_BROADCAST -> handleWifiCondition()
                     BLUETOOTH_CHANGED_BROADCAST -> handleBluetoothCondition(intent)
                 }
@@ -253,13 +265,7 @@ class BroadcastReceiverService : Service() {
         val condData = gson.fromJson(rawData, BluetoothConditionData::class.java)
         val deviceAddress = condData.hardwareAddress
         val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-
-//        val device = bluetoothAdapter.getRemoteDevice(deviceAddress)
-//        var connectionState = bluetoothManager.getConnectionState(device, GATT)
-//        if(connectionState == BluetoothProfile.STATE_CONNECTED){
-//            handleActions(task)
-//        }
-        val connected: List<BluetoothDevice> = bluetoothManager.getConnectedDevices(GATT) //todo - why is it empty?!
+        val connected: List<BluetoothDevice> = bluetoothManager.getConnectedDevices(GATT_SERVER) //todo - why is it empty?!
         for (connectedDevice in connected) {
             if (connectedDevice.address == deviceAddress) {
                 handleActions(task)
@@ -413,6 +419,7 @@ class BroadcastReceiverService : Service() {
         for (action in actionsToListenTo) {
             filter.addAction(action)
         }
+        filter.addAction(QUIT)
         if(mReceiver != null){
             unregisterReceiver(mReceiver)
         }
@@ -421,8 +428,6 @@ class BroadcastReceiverService : Service() {
         }
         registerReceiver(mReceiver, filter)
     }
-
-
 
     override fun onBind(intent: Intent): IBinder? { //todo - needed?
         return null

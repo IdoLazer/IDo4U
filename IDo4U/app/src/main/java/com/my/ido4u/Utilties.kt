@@ -18,6 +18,8 @@ import java.util.ArrayList
 
 
 const val DEFAULT_BSSID = "02:00:00:00:00:00"
+const val QUIT = "quit"
+const val QUIT_ID = 0
 const val FOREGROUND_ID = 1
 const val WIFI_CHANGED_BROADCAST = WifiManager.NETWORK_STATE_CHANGED_ACTION
 const val BLUETOOTH_CHANGED_BROADCAST = BluetoothDevice.ACTION_ACL_CONNECTED
@@ -84,6 +86,7 @@ fun checkConditionsPermissions(type : Task.ConditionEnum, activity: Activity) : 
         }
         .show()
 }
+
 
 
 

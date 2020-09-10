@@ -22,9 +22,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 
 
-const val WIFI_SCAN_PERMISSION_REQUEST_CODE = 0
+const val WIFI_PERMISSION_REQUEST_CODE = 0
 const val  BLUETOOTH_PERMISSIONS_REQUEST_CODE = 1
-const val WIFI_PERMISSION_REQUEST_CODE = 2
 const val LOCATION_PERMISSION_REQUEST_CODE = 3
 
 class MainActivity : AppCompatActivity() {
@@ -122,31 +121,27 @@ class MainActivity : AppCompatActivity() {
     ////////////////////////////////// Wifi Scan methods ///////////////////////////////////////////
     private fun scanWifi(){ //todo move to the relevant Activity when it will be created
         if (checkConditionsPermissions(Task.ConditionEnum.WIFI, this)){
-            Log.e("scan", "wifi scan permission already ok") //todo - remove
-            performWifiScan()
-        }
-    }
+            wifiScanReceiver = object : BroadcastReceiver() {
 
-    private fun performWifiScan() {
-        wifiScanReceiver = object : BroadcastReceiver() {
-
-            @RequiresApi(api = Build.VERSION_CODES.M)
-            override fun onReceive(c: Context, intent: Intent) {
-                val success = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false)
-                if (success) scanSuccess() else scanFailure()
+                @RequiresApi(api = Build.VERSION_CODES.M)
+                override fun onReceive(c: Context, intent: Intent) {
+                    val success = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED,
+                                                        false)
+                    if (success) scanSuccess() else scanFailure()
+                }
             }
+            val intentFilter = IntentFilter()
+            intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
+            registerReceiver(wifiScanReceiver, intentFilter)
+            val success = wifiManager!!.startScan()
+            if (!success) scanFailure()
         }
-        val intentFilter = IntentFilter()
-        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
-        registerReceiver(wifiScanReceiver, intentFilter)
-        val success = wifiManager!!.startScan()
-        if (!success) scanFailure()
     }
 
     /**
-     * Handles success
+     * Handles wifi scan success
      */
-    private fun scanSuccess() {
+    private fun scanSuccess() { //todo - present results to user (Lazer)
         val results = wifiManager!!.scanResults
         Log.e("found_wifi_start", results.toString())
     }
@@ -161,14 +156,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     //////////////////////////// permission related code ///////////////////////////////////////////
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
+                                            grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when(requestCode){
-            WIFI_SCAN_PERMISSION_REQUEST_CODE ->{scanWifi()} //todo
             WIFI_PERMISSION_REQUEST_CODE ->{scanWifi()} //todo
         }
     }
@@ -188,13 +179,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     ////////////////////////////////////// todo change /////////////////////////////////////////////
     @RequiresApi(Build.VERSION_CODES.M)
     private fun createMockTasks() { // todo - remove
-        mockWifi()
+//        mockWifi()
         mockBluetooth()
-        mockLocation()
+//        mockLocation()
     }
 
     private fun mockBluetooth(){
