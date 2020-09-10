@@ -35,7 +35,6 @@ class MainActivity : AppCompatActivity() {
     private var wifiScanReceiver: BroadcastReceiver? = null
     private var gson: Gson = Gson()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-
     private var adapter = TaskAdapter(object : TaskAdapter.TaskClickListener {
         override fun onTaskClicked(id: Int) {
             openTaskProfile(id)
@@ -53,12 +52,9 @@ class MainActivity : AppCompatActivity() {
 
         initializeViews()
 //        noLocationDialog(this)
+        TaskManager.emptySP() //todo - remove
         wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-
-        //        scanWifi() //todo - remove
-//        mockWifi() //todo - remove
-//        mockBluetooth() //todo - remove
-        mockLocation()
+        createMockTasks() //todo - remove
     }
 
 
@@ -76,15 +72,14 @@ class MainActivity : AppCompatActivity() {
 //    }
 
 
-
     /**
      * Initializes the MainActivities' views
      */
     private fun initializeViews() {
         val recycler: RecyclerView = findViewById(R.id.task_recycler)
         recycler.adapter = adapter
-        recycler.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
-
+        recycler.layoutManager =
+                        LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         val addButton: FloatingActionButton = findViewById(R.id.add_task_button)
         addButton.setOnClickListener {
             var intent = Intent(this@MainActivity, TaskProfileActivity::class.java)
@@ -110,88 +105,12 @@ class MainActivity : AppCompatActivity() {
         startService()
     }
 
-    ////////////////////////////////////// todo change /////////////////////////////////////////////
-    private fun mockBluetooth(){
-        checkConditionsPermissions(Task.ConditionEnum.LOCATION, this)
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-        if(checkConditionsPermissions(Task.ConditionEnum.BLUETOOTH, this)){
-            val conData = BluetoothConditionData("LE-Ido's Bose QC35 II", "4C:87:5D:CB:9B:CD")
-            val conDataStr = gson.toJson(conData)
-            var cond = Task.Condition(Task.ConditionEnum.BLUETOOTH, conDataStr, conData.toString())
 
-            val actData : ToastActionData = ToastActionData(ToastActionData.ToastAction.LONG,
-                "found Ido's bluetooth!")
-            val action : Task.Action = Task.Action(Task.ActionEnum.TOAST, gson.toJson(actData), actData.toString())
-
-            var newTask = Task("find earphone", true, cond, arrayOf(action))
-
-            addNewTask(newTask)
-        }
-    }
-
-    private fun mockLocation(){
-        val condData = LocationConditionData(35.192712,31.7770856,  50f)
-        val cond : Task.Condition = Task.Condition(Task.ConditionEnum.LOCATION, gson.toJson(condData), condData.toString())
-        val actData = OpenAppActionData("com.waze")
-        val action : Task.Action = Task.Action(Task.ActionEnum.APPS, gson.toJson(actData), actData.toString())
-        val newTask : Task = Task("location task", true, cond, arrayOf(action))
-        addNewTask(newTask)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun mockWifi(){ //todo delete!
-
-        if (!Settings.System.canWrite(applicationContext)) startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
-        val conData : WifiConditionData = WifiConditionData("10:be:f5:3c:48:e6") //"10:5a:f7:07:6f:88")
-        val cond : Task.Condition = Task.Condition(Task.ConditionEnum.WIFI, gson.toJson(conData), conData.toString())
-
-        /////////////////////////////////////// volume action //////////////////////////////////////
-        val actData = VolumeActionData(VolumeActionData.VolumeAction.SOUND, 3.0f)
-        val action : Task.Action = Task.Action(Task.ActionEnum.VOLUME, gson.toJson(actData), actData.toString())
-        val newTask : Task = Task("wifi task1", true, cond, arrayOf(action))
-        addNewTask(newTask)
-
-        /////////////////////////////////// brightness action //////////////////////////////////////
-        val actData2 = BrightnessActionData(170)
-        val action2 : Task.Action = Task.Action(Task.ActionEnum.BRIGHTNESS, gson.toJson(actData2),actData2.toString())
-        val newTask2 = Task("wifi task2", true, cond, arrayOf(action2))
-        addNewTask(newTask2)
-
-//        /////////////////////////////////////// app action /////////////////////////////////////////
-//        val actData3 = OpenAppActionData("com.waze")
-//        val action3 : Task.Action = Task.Action(Task.ActionEnum.APPS, gson.toJson(actData3), actData3.toString())
-//        val newTask3 : Task = Task("wifi task3", true, cond, arrayOf(action3))
-//        addNewTask(newTask3)
-
-        /////////////////////////////////////// location action /////////////////////////////////////////
-//        val lastLocation = if (ActivityCompat.checkSelfPermission(
-//                this,
-//                Manifest.permission.ACCESS_FINE_LOCATION
-//            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-//                this,
-//                Manifest.permission.ACCESS_COARSE_LOCATION
-//            ) != PackageManager.PERMISSION_GRANTED
-//        ) {
-//            // TODO: Consider calling
-//            //    ActivityCompat#requestPermissions
-//            // here to request the missing permissions, and then overriding
-//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//            //                                          int[] grantResults)
-//            // to handle the case where the user grants the permission. See the documentation
-//            // for ActivityCompat#requestPermissions for more details.
-//            return
-//        }
-//        else {
-//            fusedLocationClient.lastLocation
-//        }
-
-    }
 
     ////////////////////////////// Service - related code //////////////////////////////////////////
     private fun startService() {
         val serviceIntent = Intent(this, BroadcastReceiverService::class.java)
         serviceIntent.putExtra("inputExtra", "listening")
-
         startService(serviceIntent)
     }
 
@@ -267,8 +186,61 @@ class MainActivity : AppCompatActivity() {
         if(wifiScanReceiver != null){
             unregisterReceiver(wifiScanReceiver)
         }
+    }
 
-        TaskManager.emptySP() //todo - remove
 
+    ////////////////////////////////////// todo change /////////////////////////////////////////////
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun createMockTasks() { // todo - remove
+        mockWifi()
+        mockBluetooth()
+        mockLocation()
+    }
+
+    private fun mockBluetooth(){
+        checkConditionsPermissions(Task.ConditionEnum.LOCATION, this)
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        if(checkConditionsPermissions(Task.ConditionEnum.BLUETOOTH, this)){
+            val conData = BluetoothConditionData("LE-Ido's Bose QC35 II", "4C:87:5D:CB:9B:CD")
+            val conDataStr = gson.toJson(conData)
+            var cond = Task.Condition(Task.ConditionEnum.BLUETOOTH, conDataStr, conData.toString())
+
+            val actData : ToastActionData = ToastActionData(ToastActionData.ToastAction.LONG,
+                "found Ido's bluetooth!")
+            val action : Task.Action = Task.Action(Task.ActionEnum.TOAST, gson.toJson(actData), actData.toString())
+
+            var newTask = Task("find earphone", true, cond, arrayOf(action))
+
+            addNewTask(newTask)
+        }
+    }
+
+    private fun mockLocation(){
+        val condData = LocationConditionData(35.192712,31.7770856,  50f)
+        val cond : Task.Condition = Task.Condition(Task.ConditionEnum.LOCATION, gson.toJson(condData), condData.toString())
+        val actData = OpenAppActionData("com.waze")
+        val action : Task.Action = Task.Action(Task.ActionEnum.APPS, gson.toJson(actData), actData.toString())
+        val newTask : Task = Task("location task", true, cond, arrayOf(action))
+        addNewTask(newTask)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun mockWifi(){ //todo delete!
+
+        if (!Settings.System.canWrite(applicationContext)) startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
+        val conData : WifiConditionData = WifiConditionData("10:be:f5:3c:48:e6") //"10:5a:f7:07:6f:88")
+        val cond : Task.Condition = Task.Condition(Task.ConditionEnum.WIFI, gson.toJson(conData), conData.toString())
+
+        /////////////////////////////////////// volume action //////////////////////////////////////
+        val actData = VolumeActionData(VolumeActionData.VolumeAction.SOUND, 3.0f)
+        val action : Task.Action = Task.Action(Task.ActionEnum.VOLUME, gson.toJson(actData), actData.toString())
+        val newTask : Task = Task("wifi task1", true, cond, arrayOf(action))
+        addNewTask(newTask)
+
+        /////////////////////////////////// brightness action //////////////////////////////////////
+        val actData2 = BrightnessActionData(170)
+        val action2 : Task.Action = Task.Action(Task.ActionEnum.BRIGHTNESS, gson.toJson(actData2),actData2.toString())
+        val newTask2 = Task("wifi task2", true, cond, arrayOf(action2))
+        addNewTask(newTask2)
     }
 }

@@ -52,7 +52,7 @@ class BroadcastReceiverService : Service() {
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         context = applicationContext
-        createAndRegisterBroadcastReceiver() // todo - here or in the constructor?
+        createAndRegisterBroadcastReceiver()
         for(task in taskList){
             val rawData = task.condition.extraData
             when(task.condition.conditionType){
