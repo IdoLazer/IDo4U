@@ -17,7 +17,7 @@ object TaskManager {
         .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
 
     init {
-//        sp.edit().clear().apply()
+        sp.edit().clear().commit() //todo - remove
         val taskListJsonString = sp.getString(TASK_LIST, null)
         if (taskListJsonString != null) {
             val groupListType: Type = object : TypeToken<ArrayList<Task>>() {}.type
@@ -67,7 +67,10 @@ object TaskManager {
         sp.edit().putString(TASK_LIST, gson.toJson(taskList)).apply()
     }
 
-    fun emptySP(){ //todo - delete
-        sp.edit().clear().apply()
+    fun emptySP(adapter: TaskAdapter){ //todo - delete
+//        sp.edit().clear().apply()
+         sp.edit().remove(TASK_LIST).commit()
+        sp.edit().clear().commit()
+        adapter.notifyDataSetChanged()
     }
 }

@@ -53,19 +53,22 @@ class BroadcastReceiverService : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         context = applicationContext
         createAndRegisterBroadcastReceiver()
+        var checkedBrightnessPermissions = false
         for(task in taskList){
             val rawData = task.condition.extraData
             when(task.condition.conditionType){
                 Task.ConditionEnum.BLUETOOTH -> initializeBluetoothTask(rawData, task) //todo - doesn't work!
                 Task.ConditionEnum.LOCATION -> initializeLocationTracking()
-
-                //todo - fill in bluetooth's action, location, etc.
+//                Task.ConditionEnum.WIFI -> {} TODO()
+//                Task.ConditionEnum.TIME -> {} TODO()
             }
-            askBrightnessPermission(task) //todo - delete and check permissions in task creation
+            if(!checkedBrightnessPermissions) { //todo - delete and check permissions in task creation
+                askBrightnessPermission(task, applicationContext)
+                checkedBrightnessPermissions = true
+            }
         }
         startForeground(FOREGROUND_ID,  createStickyNotification())
         return START_STICKY
-        //todo - should add stopService() at some point (maybe "stop listening" button)
     }
 
     /**
@@ -73,20 +76,6 @@ class BroadcastReceiverService : Service() {
      */
     fun stop(){
         stopSelf()
-    }
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    /**
-     * todo
-     */
-    private fun askBrightnessPermission(task: Task) { //todo - delete and check permissions in task creation
-        for (action in task.actions) {
-            if (action.actionType == Task.ActionEnum.BRIGHTNESS) {
-                if (!Settings.System.canWrite(context)) {
-                    startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
-                }
-            }
-        }
     }
 
     /**
@@ -97,7 +86,11 @@ class BroadcastReceiverService : Service() {
         val pendingIntent = PendingIntent.getActivity(this, 0, intent1, 0)
         val qIntent = Intent(QUIT)
         val quitPendingIntent = PendingIntent.getBroadcast(this, QUIT_ID, qIntent, 0)
-        var action = NotificationCompat.Action(R.drawable.common_google_signin_btn_text_disabled, "Stop listening", quitPendingIntent)
+        var action = NotificationCompat.Action(
+            R.drawable.common_google_signin_btn_text_disabled,
+            "Stop listening",
+            quitPendingIntent
+        )
         val notification = NotificationCompat.Builder(this, Ido4uApp.CHANNEL_ID)
             .setContentTitle("Ido4u")
             .setContentText("Waiting for a condition to be filled...")
@@ -112,14 +105,14 @@ class BroadcastReceiverService : Service() {
 
     //////////////////////////////// location tracking methods /////////////////////////////////////
 
-    @SuppressLint("MissingPermission") // todo - can't happen, leave this notation?
+    @SuppressLint("MissingPermission")
     /**
      * todo
      */
     private fun initializeLocationTracking() { // todo - move to mainActivity
         if (!locationTrackingStarted) {
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-            if (hasLocationPermissions()) {
+            if (hasLocationPermissions(applicationContext)) {
                 if (isLocationEnabled()) {
                     fusedLocationClient.lastLocation.addOnCompleteListener {
                         requestNewLocationData()
@@ -136,16 +129,14 @@ class BroadcastReceiverService : Service() {
         }
     }
 
-
-
     /**
      * Requests location updates periodically
      */
-    @SuppressLint("MissingPermission") // todo - can't happen, leave this notation?
+    @SuppressLint("MissingPermission")
     private fun requestNewLocationData() {
         val locationRequest = LocationRequest()
-        locationRequest.interval = 5
-        locationRequest.fastestInterval = 5 // the fastest update interval allowed
+        locationRequest.interval = LOCATION_REQUEST_INTERVALS
+        locationRequest.fastestInterval = LOCATION_REQUEST_INTERVALS // the fastest interval allowed
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         locationCallback = object : LocationCallback() {
             @RequiresApi(Build.VERSION_CODES.M)
@@ -153,8 +144,7 @@ class BroadcastReceiverService : Service() {
                 onLocationChanged(locationResult.lastLocation)
             }
         }
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback,
-                                                                                Looper.myLooper())
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -166,7 +156,8 @@ class BroadcastReceiverService : Service() {
      * - If so, it executes the task's actions.
      */
     private fun onLocationChanged(curLocation: Location){
-        if(curLocation.accuracy < THRESHOLD_ACCURACY) { // todo - needed? If so, is 50m a good limitation?
+//        Log.e("accuracy", "${curLocation.accuracy}") //todo - remove
+        if(curLocation.accuracy < THRESHOLD_ACCURACY) {
             var firstLocationQuery = false
             if (lastLocation == null){
                 lastLocation = curLocation
@@ -176,10 +167,10 @@ class BroadcastReceiverService : Service() {
                 if (task.condition.conditionType == Task.ConditionEnum.LOCATION) {
                     val newLocationSatisfiesCond = doesLocationConditionApply(task, curLocation)
                     val oldLocationSatisfiesCond = doesLocationConditionApply(task, lastLocation!!)
-                    val closeToOldLocation =
-                        curLocation.distanceTo(lastLocation) <= MINIMAL_DISTANCE_TO_LAST_LOCATION
+//                    val closeToOldLocation =
+//                        curLocation.distanceTo(lastLocation) <= MINIMAL_DISTANCE_TO_LAST_LOCATION
                     if ((newLocationSatisfiesCond && !oldLocationSatisfiesCond) ||
-                        (newLocationSatisfiesCond && !closeToOldLocation) ||
+//                        (newLocationSatisfiesCond && !closeToOldLocation) ||
                         (newLocationSatisfiesCond && firstLocationQuery)) {
                         handleActions(task)
                     }
@@ -199,7 +190,9 @@ class BroadcastReceiverService : Service() {
         val data = gson.fromJson(rawData, LocationConditionData::class.java)
         val results = FloatArray(1)
         Location.distanceBetween(curLat, curLon, data.latitude, data.longitude, results)
-        Log.e("distance", "${results[0]}") // todo - remove
+        if(results[0] > data.radius){ //todo - remove
+            Log.e("delta", "${results[0]}")//todo - remove
+        }//todo - remove
         return results[0] <= data.radius
     }
 
@@ -220,17 +213,6 @@ class BroadcastReceiverService : Service() {
         } catch (ex: Exception) {
         }
         return gpsEnabled && networkEnabled
-    }
-
-    /**
-     * Returns true if the app has the necessary permissions for location tracking, false otherwise
-     */
-    private fun hasLocationPermissions(): Boolean {
-        return ActivityCompat.checkSelfPermission(
-            this, Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-            this, Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -260,7 +242,7 @@ class BroadcastReceiverService : Service() {
      * to its condition's wifi address and if so execute its action.
      */
     @RequiresApi(Build.VERSION_CODES.M)
-    private fun initializeBluetoothTask(rawData: String, task: Task) { //todo = not working!
+    private fun initializeBluetoothTask(rawData: String, task: Task) { //todo - not working!
         actionsToListenTo.add(BLUETOOTH_CHANGED_BROADCAST)
         val condData = gson.fromJson(rawData, BluetoothConditionData::class.java)
         val deviceAddress = condData.hardwareAddress
@@ -294,7 +276,7 @@ class BroadcastReceiverService : Service() {
     private fun handleWifiCondition() {
         for (task in taskList) {
             if (task.condition.conditionType == Task.ConditionEnum.WIFI) {
-                val wifiMngr = context?.getSystemService(Context.WIFI_SERVICE) as WifiManager
+                val wifiMngr = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
                 val wifiInfo: WifiInfo = wifiMngr.connectionInfo
                 val rawExtraData = task.condition.extraData
                 val extraData = gson.fromJson(rawExtraData, WifiConditionData::class.java)
@@ -302,7 +284,7 @@ class BroadcastReceiverService : Service() {
                 val curBssid = wifiInfo.bssid
 
                 if (taskBssid != DEFAULT_BSSID && taskBssid != null) { //todo - only null?
-                    if (curBssid == taskBssid ){//&& curBssid != lastRSSID) {
+                    if (curBssid == taskBssid ){
                         lastRSSID = taskBssid
                         handleActions(task)
                     }
@@ -429,7 +411,7 @@ class BroadcastReceiverService : Service() {
         registerReceiver(mReceiver, filter)
     }
 
-    override fun onBind(intent: Intent): IBinder? { //todo - needed?
+    override fun onBind(intent: Intent): IBinder? {
         return null
     }
 

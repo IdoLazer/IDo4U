@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:IDo4U="http://schemas.android.com/apk/res-auto">
+
+
+    <TextView
+        android:id="@+id/custom_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Click this button in order to start creating a new task"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textSize="24dp"
+        android:textStyle="bold"
+        IDo4U:layout_constraintBottom_toTopOf="@+id/close_spotlight"
+        IDo4U:layout_constraintEnd_toEndOf="parent"
+        IDo4U:layout_constraintHorizontal_bias="0.497"
+        IDo4U:layout_constraintStart_toStartOf="parent"
+        IDo4U:layout_constraintTop_toTopOf="parent"
+        IDo4U:layout_constraintVertical_bias="1.0" />
+
+    <Button
+        android:id="@+id/close_spotlight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="408dp"
+        android:text="@string/close_spotlight"
+        IDo4U:layout_constraintBottom_toBottomOf="parent"
+        IDo4U:layout_constraintEnd_toEndOf="parent"
+        IDo4U:layout_constraintHorizontal_bias="0.498"
+        IDo4U:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

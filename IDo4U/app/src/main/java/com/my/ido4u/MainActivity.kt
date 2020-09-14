@@ -5,21 +5,31 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Color.argb
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.telephony.TelephonyManager
 import android.util.Log
+import android.view.View
+import android.view.ViewTreeObserver
+import android.view.animation.DecelerateInterpolator
+import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
+import com.takusemba.spotlight.OnSpotlightListener
+import com.takusemba.spotlight.Spotlight
+import com.takusemba.spotlight.Target
+import com.takusemba.spotlight.effet.RippleEffect
+import com.takusemba.spotlight.shape.Circle
 
 
 const val WIFI_PERMISSION_REQUEST_CODE = 0
@@ -39,10 +49,12 @@ class MainActivity : AppCompatActivity() {
             openTaskProfile(id)
         }
 
-        override fun onSwitchClicked(id: Int, isChecked : Boolean) {
+        override fun onSwitchClicked(id: Int, isChecked: Boolean) {
             TaskManager.switchTask(id, isChecked)
         }
     })
+
+
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,9 +63,54 @@ class MainActivity : AppCompatActivity() {
 
         initializeViews()
 //        noLocationDialog(this)
-        TaskManager.emptySP() //todo - remove
         wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         createMockTasks() //todo - remove
+
+        val firstRoot = FrameLayout(this)
+        val layout = layoutInflater.inflate(R.layout.layout_target, firstRoot)
+        val button = findViewById<View>(R.id.add_task_button)
+
+
+        button.viewTreeObserver.addOnGlobalLayoutListener(
+            object : ViewTreeObserver.OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+
+                    val target = Target.Builder()
+                        .setAnchor(button)//findViewById<View>(R.id.add_task_button))
+                        .setShape(Circle(100f))
+                        .setEffect(RippleEffect(100f, 200f, argb(30, 124, 255, 90)))
+                        .setOverlay(layout)
+                        .build()
+
+                    val spotlight = Spotlight.Builder(this@MainActivity)
+                        .setTargets(target)
+                        .setBackgroundColor(R.color.spotlightBackground)
+                        .setDuration(1000L)
+                        .setAnimation(DecelerateInterpolator(2f))
+                        .setOnSpotlightListener(object : OnSpotlightListener {
+                            override fun onStarted() {
+                                Toast.makeText(this@MainActivity, "spotlight is started", Toast.LENGTH_SHORT)
+                                    .show()
+                            }
+
+                            override fun onEnded() {
+                                Toast.makeText(this@MainActivity, "spotlight is ended", Toast.LENGTH_SHORT)
+                                    .show()
+                            }
+                        })
+                        .build()
+
+
+                    val closeSpotlight = View.OnClickListener { spotlight.finish() }
+
+                    layout.findViewById<View>(R.id.close_spotlight).setOnClickListener(closeSpotlight)
+
+                    spotlight.start()
+
+                    button.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                }
+            })
+
     }
 
 
@@ -81,16 +138,17 @@ class MainActivity : AppCompatActivity() {
                         LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         val addButton: FloatingActionButton = findViewById(R.id.add_task_button)
         addButton.setOnClickListener {
-            var intent = Intent(this@MainActivity, TaskProfileActivity::class.java)
+            val intent = Intent(this@MainActivity, TaskProfileActivity::class.java)
             startActivity(intent)
         }
+
     }
 
     /**
      * todo
      */
     private fun openTaskProfile(id: Int) {
-        var intent = Intent(this, TaskProfileActivity::class.java)
+        val intent = Intent(this, TaskProfileActivity::class.java)
         intent.putExtra("id", id)
         startActivity(intent)
     }
@@ -104,29 +162,29 @@ class MainActivity : AppCompatActivity() {
         startService()
     }
 
-
-
-    ////////////////////////////// Service - related code //////////////////////////////////////////
+    /**
+     * Starts the service that continuously checks for conditions.
+     */
     private fun startService() {
         val serviceIntent = Intent(this, BroadcastReceiverService::class.java)
         serviceIntent.putExtra("inputExtra", "listening")
         startService(serviceIntent)
     }
 
-    fun stopService() { //todo - add a "stop" button
-        val serviceIntent = Intent(this, BroadcastReceiverService::class.java)
-        stopService(serviceIntent)
-    }
-
-    ////////////////////////////////// Wifi Scan methods ///////////////////////////////////////////
+    /**
+     * Scans the available wifi access points and registers a broadcastListener that listens to the
+     * scan's results
+     */
     private fun scanWifi(){ //todo move to the relevant Activity when it will be created
         if (checkConditionsPermissions(Task.ConditionEnum.WIFI, this)){
             wifiScanReceiver = object : BroadcastReceiver() {
 
                 @RequiresApi(api = Build.VERSION_CODES.M)
                 override fun onReceive(c: Context, intent: Intent) {
-                    val success = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED,
-                                                        false)
+                    val success = intent.getBooleanExtra(
+                        WifiManager.EXTRA_RESULTS_UPDATED,
+                        false
+                    )
                     if (success) scanSuccess() else scanFailure()
                 }
             }
@@ -156,17 +214,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     //////////////////////////// permission related code ///////////////////////////////////////////
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
-                                            grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when(requestCode){
-            WIFI_PERMISSION_REQUEST_CODE ->{scanWifi()} //todo
+            WIFI_PERMISSION_REQUEST_CODE -> {
+                scanWifi()
+            } //todo
         }
     }
 
-    private fun checkActionsPermissions(type : Task.ActionEnum) : Boolean{ //todo - needed?
+    private fun checkActionsPermissions(type: Task.ActionEnum) : Boolean{ //todo - needed?
         when(type){
-            Task.ActionEnum.VOLUME ->{}
+            Task.ActionEnum.VOLUME -> {
+            }
         }
         return true // todo
     }
@@ -183,7 +246,7 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.M)
     private fun createMockTasks() { // todo - remove
 //        mockWifi()
-        mockBluetooth()
+//        mockBluetooth()
 //        mockLocation()
     }
 
@@ -195,9 +258,15 @@ class MainActivity : AppCompatActivity() {
             val conDataStr = gson.toJson(conData)
             var cond = Task.Condition(Task.ConditionEnum.BLUETOOTH, conDataStr, conData.toString())
 
-            val actData : ToastActionData = ToastActionData(ToastActionData.ToastAction.LONG,
-                "found Ido's bluetooth!")
-            val action : Task.Action = Task.Action(Task.ActionEnum.TOAST, gson.toJson(actData), actData.toString())
+            val actData : ToastActionData = ToastActionData(
+                ToastActionData.ToastAction.LONG,
+                "found Ido's bluetooth!"
+            )
+            val action : Task.Action = Task.Action(
+                Task.ActionEnum.TOAST,
+                gson.toJson(actData),
+                actData.toString()
+            )
 
             var newTask = Task("find earphone", true, cond, arrayOf(action))
 
@@ -206,10 +275,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun mockLocation(){
-        val condData = LocationConditionData(35.192712,31.7770856,  50f)
-        val cond : Task.Condition = Task.Condition(Task.ConditionEnum.LOCATION, gson.toJson(condData), condData.toString())
+        checkConditionsPermissions(Task.ConditionEnum.LOCATION, this)
+        val condData = LocationConditionData(35.192712, 31.7770856, 50f)
+        val cond : Task.Condition = Task.Condition(
+            Task.ConditionEnum.LOCATION,
+            gson.toJson(condData),
+            condData.toString()
+        )
         val actData = OpenAppActionData("com.waze")
-        val action : Task.Action = Task.Action(Task.ActionEnum.APPS, gson.toJson(actData), actData.toString())
+        val action : Task.Action = Task.Action(
+            Task.ActionEnum.APPS,
+            gson.toJson(actData),
+            actData.toString()
+        )
         val newTask : Task = Task("location task", true, cond, arrayOf(action))
         addNewTask(newTask)
     }
@@ -219,17 +297,29 @@ class MainActivity : AppCompatActivity() {
 
         if (!Settings.System.canWrite(applicationContext)) startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
         val conData : WifiConditionData = WifiConditionData("10:be:f5:3c:48:e6") //"10:5a:f7:07:6f:88")
-        val cond : Task.Condition = Task.Condition(Task.ConditionEnum.WIFI, gson.toJson(conData), conData.toString())
+        val cond : Task.Condition = Task.Condition(
+            Task.ConditionEnum.WIFI,
+            gson.toJson(conData),
+            conData.toString()
+        )
 
         /////////////////////////////////////// volume action //////////////////////////////////////
         val actData = VolumeActionData(VolumeActionData.VolumeAction.SOUND, 3.0f)
-        val action : Task.Action = Task.Action(Task.ActionEnum.VOLUME, gson.toJson(actData), actData.toString())
+        val action : Task.Action = Task.Action(
+            Task.ActionEnum.VOLUME,
+            gson.toJson(actData),
+            actData.toString()
+        )
         val newTask : Task = Task("wifi task1", true, cond, arrayOf(action))
         addNewTask(newTask)
 
         /////////////////////////////////// brightness action //////////////////////////////////////
         val actData2 = BrightnessActionData(170)
-        val action2 : Task.Action = Task.Action(Task.ActionEnum.BRIGHTNESS, gson.toJson(actData2),actData2.toString())
+        val action2 : Task.Action = Task.Action(
+            Task.ActionEnum.BRIGHTNESS,
+            gson.toJson(actData2),
+            actData2.toString()
+        )
         val newTask2 = Task("wifi task2", true, cond, arrayOf(action2))
         addNewTask(newTask2)
     }
