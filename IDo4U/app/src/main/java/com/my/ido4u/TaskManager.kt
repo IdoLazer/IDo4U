@@ -54,7 +54,7 @@ object TaskManager {
 
     fun switchTask(i: Int, isSwitched: Boolean) {
         taskList[i].isOn = isSwitched
-        Log.d("tag", "switchedddddddddddddddddddddddddddddddddddddd")
+        Log.d("tag", "switchedddddddddddddddddddddddddddddddddddddd") //todo - remove?
         refreshSharedPreferences()
     }
 
@@ -65,12 +65,5 @@ object TaskManager {
 
     private fun refreshSharedPreferences() {
         sp.edit().putString(TASK_LIST, gson.toJson(taskList)).apply()
-    }
-
-    fun emptySP(adapter: TaskAdapter){ //todo - delete
-//        sp.edit().clear().apply()
-         sp.edit().remove(TASK_LIST).commit()
-        sp.edit().clear().commit()
-        adapter.notifyDataSetChanged()
     }
 }

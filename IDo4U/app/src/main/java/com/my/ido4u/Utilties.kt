@@ -26,16 +26,19 @@ import com.takusemba.spotlight.effet.RippleEffect
 import com.takusemba.spotlight.shape.Circle
 import java.util.ArrayList
 
-
+///////////////////////////////////////// Constants ////////////////////////////////////////////////
 const val DEFAULT_BSSID = "02:00:00:00:00:00"
 const val QUIT = "quit"
 const val QUIT_ID = 0
 const val FOREGROUND_ID = 1
 const val WIFI_CHANGED_BROADCAST = WifiManager.NETWORK_STATE_CHANGED_ACTION
 const val BLUETOOTH_CHANGED_BROADCAST = BluetoothDevice.ACTION_ACL_CONNECTED
-const val THRESHOLD_ACCURACY = 50 //todo - is it a good choice
-const val MINIMAL_DISTANCE_TO_LAST_LOCATION = 30 //todo - is it a good choice
+const val THRESHOLD_ACCURACY = 50
 const val LOCATION_REQUEST_INTERVALS: Long = 5
+
+const val WIFI_PERMISSION_REQUEST_CODE = 0
+const val  BLUETOOTH_PERMISSIONS_REQUEST_CODE = 1
+const val LOCATION_PERMISSION_REQUEST_CODE = 3
 
 
 /////////////////////////// Permission - related methods ///////////////////////////////////////////
@@ -124,7 +127,7 @@ fun hasLocationPermissions(context: Context): Boolean {
         context, Manifest.permission.ACCESS_COARSE_LOCATION
     ) == PackageManager.PERMISSION_GRANTED
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////
+
 //////////////////////// Tutorial - related methods ////////////////////////////////////////////////
 /**
  * Create a tutorial spotlight around the target provided
@@ -185,9 +188,9 @@ fun createTutorial(activity: Activity) { //todo - add tutorial for a task in the
  * Scans the available wifi access points and registers a broadcastListener that listens to the
  * scan's results
  */
-fun scanWifi(activity: Activity, wifiManager: WifiManager?): BroadcastReceiver?{ //todo move to the relevant Activity when it will be created
+fun scanWifi(activity: Activity, wifiManager: WifiManager?): BroadcastReceiver?{
     if (checkConditionsPermissions(Task.ConditionEnum.WIFI, activity)){
-        var wifiScanReceiver = object : BroadcastReceiver() {
+        val wifiScanReceiver = object : BroadcastReceiver() {
 
             @RequiresApi(api = Build.VERSION_CODES.M)
             override fun onReceive(c: Context, intent: Intent) {

@@ -32,22 +32,15 @@ import com.takusemba.spotlight.Target
 import com.takusemba.spotlight.effet.RippleEffect
 import com.takusemba.spotlight.shape.Circle
 
-
-const val WIFI_PERMISSION_REQUEST_CODE = 0
-const val  BLUETOOTH_PERMISSIONS_REQUEST_CODE = 1
-const val LOCATION_PERMISSION_REQUEST_CODE = 3
-
 class MainActivity : AppCompatActivity() {
 
     private var wifiManager: WifiManager? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var wifiScanReceiver: BroadcastReceiver? = null
     private var gson: Gson = Gson()
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var adapter = TaskAdapter(object : TaskAdapter.TaskClickListener {
-        override fun onTaskClicked(id: Int) {
-            openTaskProfile(id)
-        }
+
+        override fun onTaskClicked(id: Int) {openTaskProfile(id)}
 
         override fun onSwitchClicked(id: Int, isChecked: Boolean) {
             TaskManager.switchTask(id, isChecked)
@@ -60,7 +53,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         initializeViews()
-//        noLocationDialog(this)
         wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         wifiScanReceiver = scanWifi(this@MainActivity, wifiManager) //todo -remove
         createMockTasks() //todo - remove
@@ -79,7 +71,6 @@ class MainActivity : AppCompatActivity() {
 //            Log.e("FragmentActivity.TAG", ex.cause.toString(), ex)
 //        }
 //    }
-
 
     /**
      * Initializes the MainActivities' views
@@ -156,9 +147,9 @@ class MainActivity : AppCompatActivity() {
     ////////////////////////////////////// todo change /////////////////////////////////////////////
     @RequiresApi(Build.VERSION_CODES.M)
     private fun createMockTasks() { // todo - remove
-//        mockWifi()
-//        mockBluetooth()
-//        mockLocation()
+        mockWifi()
+        mockBluetooth()
+        mockLocation()
     }
 
     private fun mockBluetooth(){
