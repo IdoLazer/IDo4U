@@ -7,4 +7,5 @@
     <string name="start_spotlight">Start Spotlight</string>
     <string name="close_spotlight">Got it!</string>
     <string name="next_target">Next Target</string>
+    <string name="add_task_explanation">Click this button in order to start creating a new task</string>
 </resources>

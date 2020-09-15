@@ -1,5 +1,6 @@
 package com.my.ido4u
 
+import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -40,7 +41,6 @@ class MainActivity : AppCompatActivity() {
 
     private var wifiManager: WifiManager? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
-    private var myNetwork: ScanResult? = null
     private var wifiScanReceiver: BroadcastReceiver? = null
     private var gson: Gson = Gson()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -54,8 +54,6 @@ class MainActivity : AppCompatActivity() {
         }
     })
 
-
-
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,55 +62,10 @@ class MainActivity : AppCompatActivity() {
         initializeViews()
 //        noLocationDialog(this)
         wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        wifiScanReceiver = scanWifi(this@MainActivity, wifiManager) //todo -remove
         createMockTasks() //todo - remove
-
-        val firstRoot = FrameLayout(this)
-        val layout = layoutInflater.inflate(R.layout.layout_target, firstRoot)
-        val button = findViewById<View>(R.id.add_task_button)
-
-
-        button.viewTreeObserver.addOnGlobalLayoutListener(
-            object : ViewTreeObserver.OnGlobalLayoutListener {
-                override fun onGlobalLayout() {
-
-                    val target = Target.Builder()
-                        .setAnchor(button)//findViewById<View>(R.id.add_task_button))
-                        .setShape(Circle(100f))
-                        .setEffect(RippleEffect(100f, 200f, argb(30, 124, 255, 90)))
-                        .setOverlay(layout)
-                        .build()
-
-                    val spotlight = Spotlight.Builder(this@MainActivity)
-                        .setTargets(target)
-                        .setBackgroundColor(R.color.spotlightBackground)
-                        .setDuration(1000L)
-                        .setAnimation(DecelerateInterpolator(2f))
-                        .setOnSpotlightListener(object : OnSpotlightListener {
-                            override fun onStarted() {
-                                Toast.makeText(this@MainActivity, "spotlight is started", Toast.LENGTH_SHORT)
-                                    .show()
-                            }
-
-                            override fun onEnded() {
-                                Toast.makeText(this@MainActivity, "spotlight is ended", Toast.LENGTH_SHORT)
-                                    .show()
-                            }
-                        })
-                        .build()
-
-
-                    val closeSpotlight = View.OnClickListener { spotlight.finish() }
-
-                    layout.findViewById<View>(R.id.close_spotlight).setOnClickListener(closeSpotlight)
-
-                    spotlight.start()
-
-                    button.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                }
-            })
-
+        createTutorial(this@MainActivity)
     }
-
 
 //    fun setMobileDataState(mobileDataEnabled: Boolean) { //todo - No Carrier Privilege
 //        try {
@@ -141,11 +94,10 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this@MainActivity, TaskProfileActivity::class.java)
             startActivity(intent)
         }
-
     }
 
     /**
-     * todo
+     * Opens an activity which presents the profile of the task with the id given
      */
     private fun openTaskProfile(id: Int) {
         val intent = Intent(this, TaskProfileActivity::class.java)
@@ -171,48 +123,6 @@ class MainActivity : AppCompatActivity() {
         startService(serviceIntent)
     }
 
-    /**
-     * Scans the available wifi access points and registers a broadcastListener that listens to the
-     * scan's results
-     */
-    private fun scanWifi(){ //todo move to the relevant Activity when it will be created
-        if (checkConditionsPermissions(Task.ConditionEnum.WIFI, this)){
-            wifiScanReceiver = object : BroadcastReceiver() {
-
-                @RequiresApi(api = Build.VERSION_CODES.M)
-                override fun onReceive(c: Context, intent: Intent) {
-                    val success = intent.getBooleanExtra(
-                        WifiManager.EXTRA_RESULTS_UPDATED,
-                        false
-                    )
-                    if (success) scanSuccess() else scanFailure()
-                }
-            }
-            val intentFilter = IntentFilter()
-            intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
-            registerReceiver(wifiScanReceiver, intentFilter)
-            val success = wifiManager!!.startScan()
-            if (!success) scanFailure()
-        }
-    }
-
-    /**
-     * Handles wifi scan success
-     */
-    private fun scanSuccess() { //todo - present results to user (Lazer)
-        val results = wifiManager!!.scanResults
-        Log.e("found_wifi_start", results.toString())
-    }
-
-    /**
-     * Handles failure: new scan did NOT succeed
-     */
-    private fun scanFailure() {
-        //todo consider using old scan results: these are the OLD results:
-        // val results = wifiManager!!.scanResults
-        Log.e("found_wifi_start", "wifi scan problem!")
-    }
-
     //////////////////////////// permission related code ///////////////////////////////////////////
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<out String>,
@@ -220,21 +130,22 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when(requestCode){
-            WIFI_PERMISSION_REQUEST_CODE -> {
-                scanWifi()
-            } //todo
+            WIFI_PERMISSION_REQUEST_CODE -> scanWifi(this@MainActivity, wifiManager) //todo
         }
     }
 
     private fun checkActionsPermissions(type: Task.ActionEnum) : Boolean{ //todo - needed?
         when(type){
-            Task.ActionEnum.VOLUME -> {
-            }
+            Task.ActionEnum.VOLUME -> {} //todo
+            Task.ActionEnum.BRIGHTNESS -> {} //todo
+            Task.ActionEnum.DATA -> {} //todo
+            Task.ActionEnum.APPS -> {} //todo
+            Task.ActionEnum.COMMUNICATION -> {} //todo
+            Task.ActionEnum.TOAST -> {} //todo
         }
         return true // todo
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////
-
     override fun onDestroy() { //todo make sure all relevant broadcastReceivers are unregistered here
         super.onDestroy()
         if(wifiScanReceiver != null){

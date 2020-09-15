@@ -4,18 +4,26 @@ import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.bluetooth.BluetoothDevice
-import android.content.Context
-import android.content.DialogInterface
-import android.content.Intent
+import android.content.*
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.provider.Settings
 import android.telephony.TelephonyManager
+import android.util.Log
+import android.view.View
+import android.view.ViewTreeObserver
+import android.view.animation.DecelerateInterpolator
+import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
+import com.takusemba.spotlight.Spotlight
+import com.takusemba.spotlight.Target
+import com.takusemba.spotlight.effet.RippleEffect
+import com.takusemba.spotlight.shape.Circle
 import java.util.ArrayList
 
 
@@ -29,6 +37,8 @@ const val THRESHOLD_ACCURACY = 50 //todo - is it a good choice
 const val MINIMAL_DISTANCE_TO_LAST_LOCATION = 30 //todo - is it a good choice
 const val LOCATION_REQUEST_INTERVALS: Long = 5
 
+
+/////////////////////////// Permission - related methods ///////////////////////////////////////////
 /**
  * Checks a if all permissions in permissionsList are granted - if so returns true, else - calls
  * ActivityCompat.requestPermissions on all the ungranted permissions.
@@ -114,7 +124,106 @@ fun hasLocationPermissions(context: Context): Boolean {
         context, Manifest.permission.ACCESS_COARSE_LOCATION
     ) == PackageManager.PERMISSION_GRANTED
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////// Tutorial - related methods ////////////////////////////////////////////////
+/**
+ * Create a tutorial spotlight around the target provided
+ */
+fun createSpotlight(target: Target, activity: Activity): Spotlight {
+    return Spotlight.Builder(activity)
+        .setTargets(target)
+        .setBackgroundColor(R.color.spotlightBackground)
+        .setDuration(1000L)
+        .setAnimation(DecelerateInterpolator(2f))
+        .build()
+}
 
+/**
+ * Adds a listener which create a target and spotlight around a view when it is inflated
+ */
+fun createSpotlightWhenViewIsInflated(button: View, layout: View, activity: Activity) {
+    button.viewTreeObserver.addOnGlobalLayoutListener(
+        object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                val target = createCircleTarget(button, layout)
+                val spotlight = createSpotlight(target, activity)
+                val closeSpotlight = View.OnClickListener { spotlight.finish() }
+                layout.findViewById<View>(R.id.close_spotlight)
+                    .setOnClickListener(closeSpotlight)
+                spotlight.start()
+                button.viewTreeObserver.removeOnGlobalLayoutListener(this)
+            }
+        })
+}
+
+/**
+ * Creates a target for a tutorial spotlight. The target will be illuminated bt a circle.
+ */
+private fun createCircleTarget(button: View, layout: View): Target {
+    return Target.Builder()
+        .setAnchor(button)//findViewById<View>(R.id.add_task_button))
+        .setShape(Circle(100f))
+        .setEffect(
+            RippleEffect(100f, 200f, Color.argb(30, 124, 255, 90))
+        )
+        .setOverlay(layout)
+        .build()
+}
+
+/**
+ * Creates a tutorial
+ */
+fun createTutorial(activity: Activity) { //todo - add tutorial for a task in the recyclerView
+    val firstRoot = FrameLayout(activity)
+    val layout = activity.layoutInflater.inflate(R.layout.layout_target, firstRoot)
+    val button = activity.findViewById<View>(R.id.add_task_button)
+    createSpotlightWhenViewIsInflated(button, layout, activity) //todo - should only happen at first launch!
+}
+
+//////////////////////////// Wifi - related methods ////////////////////////////////////////////
+/**
+ * Scans the available wifi access points and registers a broadcastListener that listens to the
+ * scan's results
+ */
+fun scanWifi(activity: Activity, wifiManager: WifiManager?): BroadcastReceiver?{ //todo move to the relevant Activity when it will be created
+    if (checkConditionsPermissions(Task.ConditionEnum.WIFI, activity)){
+        var wifiScanReceiver = object : BroadcastReceiver() {
+
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            override fun onReceive(c: Context, intent: Intent) {
+                val success = intent.getBooleanExtra(
+                    WifiManager.EXTRA_RESULTS_UPDATED,
+                    false
+                )
+                if (success) scanSuccess(wifiManager) else scanFailure()
+            }
+        }
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
+        activity.registerReceiver(wifiScanReceiver, intentFilter)
+        val success = wifiManager!!.startScan()
+        if (!success) scanFailure()
+        return wifiScanReceiver
+    }
+    return null
+}
+
+/**
+ * Handles wifi scan success
+ */
+private fun scanSuccess(wifiManager: WifiManager?) { //todo - present results to user (Lazer)
+    val results = wifiManager!!.scanResults
+    Log.e("found_wifi_start", results.toString())
+}
+
+/**
+ * Handles failure: new scan did NOT succeed
+ */
+private fun scanFailure() {
+    //todo consider using old scan results: these are the OLD results:
+    // val results = wifiManager!!.scanResults
+    Log.e("found_wifi_start", "wifi scan problem!")
+}
 
 
 
