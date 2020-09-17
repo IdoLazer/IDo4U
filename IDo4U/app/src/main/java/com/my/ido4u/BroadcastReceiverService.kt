@@ -156,7 +156,6 @@ class BroadcastReceiverService : Service() {
      * - If so, it executes the task's actions.
      */
     private fun onLocationChanged(curLocation: Location){
-//        Log.e("accuracy", "${curLocation.accuracy}") //todo - remove
         if(curLocation.accuracy < THRESHOLD_ACCURACY) {
             var firstLocationQuery = false
             if (lastLocation == null){
@@ -167,10 +166,7 @@ class BroadcastReceiverService : Service() {
                 if (task.condition.conditionType == Task.ConditionEnum.LOCATION) {
                     val newLocationSatisfiesCond = doesLocationConditionApply(task, curLocation)
                     val oldLocationSatisfiesCond = doesLocationConditionApply(task, lastLocation!!)
-//                    val closeToOldLocation =
-//                        curLocation.distanceTo(lastLocation) <= MINIMAL_DISTANCE_TO_LAST_LOCATION
                     if ((newLocationSatisfiesCond && !oldLocationSatisfiesCond) ||
-//                        (newLocationSatisfiesCond && !closeToOldLocation) ||
                         (newLocationSatisfiesCond && firstLocationQuery)) {
                         handleActions(task)
                     }
@@ -190,9 +186,6 @@ class BroadcastReceiverService : Service() {
         val data = gson.fromJson(rawData, LocationConditionData::class.java)
         val results = FloatArray(1)
         Location.distanceBetween(curLat, curLon, data.latitude, data.longitude, results)
-        if(results[0] > data.radius){ //todo - remove
-            Log.e("delta", "${results[0]}")//todo - remove
-        }//todo - remove
         return results[0] <= data.radius
     }
 
@@ -257,7 +250,7 @@ class BroadcastReceiverService : Service() {
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun handleBluetoothCondition(intent : Intent) {
-        var device : BluetoothDevice? = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+        val device : BluetoothDevice? = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
         for (task in taskList) {
             if (task.condition.conditionType == Task.ConditionEnum.BLUETOOTH) {
                 val rawExtraData = task.condition.extraData

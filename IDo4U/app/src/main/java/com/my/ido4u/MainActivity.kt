@@ -40,7 +40,9 @@ class MainActivity : AppCompatActivity() {
     private var gson: Gson = Gson()
     private var adapter = TaskAdapter(object : TaskAdapter.TaskClickListener {
 
-        override fun onTaskClicked(id: Int) {openTaskProfile(id)}
+        override fun onTaskClicked(id: Int) {
+            openTaskProfile(id)
+        }
 
         override fun onSwitchClicked(id: Int, isChecked: Boolean) {
             TaskManager.switchTask(id, isChecked)
@@ -51,6 +53,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
+
 
         initializeViews()
         wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
@@ -82,7 +87,10 @@ class MainActivity : AppCompatActivity() {
                         LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         val addButton: FloatingActionButton = findViewById(R.id.add_task_button)
         addButton.setOnClickListener {
-            val intent = Intent(this@MainActivity, TaskProfileActivity::class.java)
+//            val intent = Intent(this@MainActivity, TaskProfileActivity::class.java)
+//            startActivity(intent)
+
+            val intent = Intent(this@MainActivity, ChooseLocationActivity::class.java)
             startActivity(intent)
         }
     }

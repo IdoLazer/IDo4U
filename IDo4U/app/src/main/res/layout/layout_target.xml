@@ -28,12 +28,12 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="408dp"
         android:text="@string/close_spotlight"
         android:textColor="@android:color/white"
         IDo4U:layout_constraintBottom_toBottomOf="parent"
         IDo4U:layout_constraintEnd_toEndOf="parent"
         IDo4U:layout_constraintHorizontal_bias="0.498"
-        IDo4U:layout_constraintStart_toStartOf="parent" />
+        IDo4U:layout_constraintStart_toStartOf="parent"
+        IDo4U:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
