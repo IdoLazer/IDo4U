@@ -18,11 +18,18 @@
             android:layout_height="41dp"
             android:layout_marginTop="16dp" />
 
+        <Button
+            android:id="@+id/approveLocationButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/ok" />
+
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/mapAPI"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="675dp" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

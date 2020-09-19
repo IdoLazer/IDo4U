@@ -24,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 import com.takusemba.spotlight.OnSpotlightListener
@@ -61,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         wifiScanReceiver = scanWifi(this@MainActivity, wifiManager) //todo -remove
 //        createMockTasks() //todo - remove
-        createTutorial(this@MainActivity)
+        createTutorial(this@MainActivity, R.id.add_task_button)
     }
 
 //    fun setMobileDataState(mobileDataEnabled: Boolean) { //todo - No Carrier Privilege
@@ -87,11 +88,24 @@ class MainActivity : AppCompatActivity() {
                         LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         val addButton: FloatingActionButton = findViewById(R.id.add_task_button)
         addButton.setOnClickListener {
-//            val intent = Intent(this@MainActivity, TaskProfileActivity::class.java)
-//            startActivity(intent)
+//            val intent = Intent(this@MainActivity, TaskProfileActivity::class.java) //todo
+//            startActivity(intent) // todo
 
             val intent = Intent(this@MainActivity, ChooseLocationActivity::class.java)
-            startActivity(intent)
+            startActivityForResult(intent, 0)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) { //todo - remove
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if(resultCode == Activity.RESULT_OK){
+            if(requestCode == 0){
+                if (data != null) {
+                    Log.e("location selected: ", "${data.getParcelableExtra<LatLng>(MARKER_LAT_LNG)}")
+                    Log.e("radius", "${data.getFloatExtra(RADIUS, 0f)}")
+                }
+            }
         }
     }
 

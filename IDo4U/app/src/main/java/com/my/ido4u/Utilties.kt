@@ -10,7 +10,6 @@ import android.graphics.Color
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.provider.Settings
-import android.telephony.TelephonyManager
 import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
@@ -19,11 +18,10 @@ import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
 import com.takusemba.spotlight.Spotlight
 import com.takusemba.spotlight.Target
 import com.takusemba.spotlight.effet.RippleEffect
-import com.takusemba.spotlight.shape.Circle
+import com.takusemba.spotlight.shape.RoundedRectangle
 import java.util.ArrayList
 
 ///////////////////////////////////////// Constants ////////////////////////////////////////////////
@@ -44,7 +42,9 @@ const val MAP_PIN_LOCATION_REQUEST_CODE = 5
 const val DEFAULT_RADIUS = 500f
 const val RADIUS_MAX_IN_METERS = 5000
 const val CENTER_MARKER = "centerMarker"
-
+const val MAP_LOCATION_ACTION = "mapLocationAction"
+const val MARKER_LAT_LNG = "markerLatLng"
+const val RADIUS = "radius"
 
 /////////////////////////// Permission - related methods ///////////////////////////////////////////
 /**
@@ -153,7 +153,7 @@ fun createSpotlightWhenViewIsInflated(button: View, layout: View, activity: Acti
     button.viewTreeObserver.addOnGlobalLayoutListener(
         object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                val target = createCircleTarget(button, layout)
+                val target = createTarget(button, layout)
                 val spotlight = createSpotlight(target, activity)
                 val closeSpotlight = View.OnClickListener { spotlight.finish() }
                 layout.findViewById<View>(R.id.close_spotlight)
@@ -165,12 +165,12 @@ fun createSpotlightWhenViewIsInflated(button: View, layout: View, activity: Acti
 }
 
 /**
- * Creates a target for a tutorial spotlight. The target will be illuminated bt a circle.
+ * Creates a target for a tutorial spotlight. The target will be illuminated by a circle.
  */
-private fun createCircleTarget(button: View, layout: View): Target {
+private fun createTarget(button: View, layout: View): Target {
     return Target.Builder()
         .setAnchor(button)//findViewById<View>(R.id.add_task_button))
-        .setShape(Circle(100f))
+        .setShape(RoundedRectangle(button.height.toFloat(), button.width.toFloat(), 100f))
         .setEffect(
             RippleEffect(100f, 200f, Color.argb(30, 124, 255, 90))
         )
@@ -181,10 +181,10 @@ private fun createCircleTarget(button: View, layout: View): Target {
 /**
  * Creates a tutorial
  */
-fun createTutorial(activity: Activity) { //todo - add tutorial for a task in the recyclerView
+fun createTutorial(activity: Activity, viewId: Int) { //todo - add tutorial for a task in the recyclerView
     val firstRoot = FrameLayout(activity)
     val layout = activity.layoutInflater.inflate(R.layout.layout_target, firstRoot)
-    val button = activity.findViewById<View>(R.id.add_task_button)
+    val button = activity.findViewById<View>(viewId)
     createSpotlightWhenViewIsInflated(button, layout, activity) //todo - should only happen at first launch!
 }
 

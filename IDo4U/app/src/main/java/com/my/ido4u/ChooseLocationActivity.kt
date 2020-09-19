@@ -1,12 +1,15 @@
 package com.my.ido4u
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Toast
@@ -38,10 +41,55 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_choose_location)
+
         checkPermissions()
+        setViewsAndFragment()
+        createTutorial(this@ChooseLocationActivity, R.id.approveLocationButton) //todo - only once
+    }
+
+    /**
+     * Sets the views of the activity and the map fragment
+     */
+    private fun setViewsAndFragment() {
         setSeekBar()
+        setOkButton()
         mapFragment = supportFragmentManager.findFragmentById(R.id.mapAPI) as SupportMapFragment?
         mapFragment!!.getMapAsync(this)
+    }
+
+    /**
+     * Sets the OK button and its' onClickListener
+     */
+    private fun setOkButton() {
+        val OkButton = findViewById<Button>(R.id.approveLocationButton)
+        OkButton.setOnClickListener(View.OnClickListener {
+            val resultIntent = Intent(MAP_LOCATION_ACTION)
+            resultIntent.putExtra(MARKER_LAT_LNG, centerLatLng)
+            resultIntent.putExtra(RADIUS, radius)
+            setResult(RESULT_OK, resultIntent)
+            finish()
+        })
+    }
+
+    /**
+     * Sets the seek bar with which the user can define a radius
+     */
+    private fun setSeekBar() {
+        radiusSeekBar = findViewById<View>(R.id.RadiusSeekBar) as SeekBar
+        seekBerMax = radiusSeekBar!!.max
+        radiusSeekBar!!.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
+                val cur = radiusSeekBar!!.progress.toFloat()
+                radius = cur / seekBerMax * RADIUS_MAX_IN_METERS
+                mapCircle!!.radius = radius.toDouble()
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                val context = applicationContext
+                showToast(context) // todo - remove
+            }
+        })
     }
 
     /**
@@ -66,26 +114,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
                 }
         }
 
-    /**
-     * Sets the seek bar with which the user can define a radius
-     */
-    private fun setSeekBar() {
-        radiusSeekBar = findViewById<View>(R.id.RadiusSeekBar) as SeekBar
-        seekBerMax = radiusSeekBar!!.max
-        radiusSeekBar!!.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
-                val cur = radiusSeekBar!!.progress.toFloat()
-                radius = cur / seekBerMax * RADIUS_MAX_IN_METERS
-                mapCircle!!.radius = radius.toDouble()
-            }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar) {
-                val context = applicationContext
-                showToast(context) // todo - remove
-            }
-        })
-    }
 
     private fun checkPermissions(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
