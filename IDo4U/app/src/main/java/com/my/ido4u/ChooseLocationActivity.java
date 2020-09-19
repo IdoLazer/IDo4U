@@ -55,28 +55,17 @@ public class ChooseLocationActivity extends FragmentActivity implements OnMapRea
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_location);
-        checkPermissions();
 
+        checkPermissions();
         setSeekBar();
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapAPI);
-
-
-
         mapFragment.getMapAsync(this);
-
-
-//        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-//        if (hasLocationPermissions()) {
-//            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
-//                    Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_PERMISSIONS_REQUEST_CODE);
-//            return;
-//        }
-//        getLastLocation();
-
     }
 
 
-
+    /**
+     * Updates the marker's location to be the last one known and set the circle's center to be it
+     */
     private void getLastLocation() {
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(this, new OnSuccessListener<Location>() {
@@ -99,26 +88,9 @@ public class ChooseLocationActivity extends FragmentActivity implements OnMapRea
                 });
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(permissions.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-            if(requestCode == LOCATION_PERMISSIONS_REQUEST_CODE){
-                getLastLocation();
-            }
-        }
-    }
-
-    private boolean hasLocationPermissions() {
-        return ActivityCompat.checkSelfPermission(
-                this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED;
-    }
-
-
+    /**
+     * Sets the seek bar with which the user can define a radius
+     */
     private void setSeekBar() {
         radiusSeekBar = (SeekBar) findViewById(R.id.RadiusSeekBar);
         seekBerMax = radiusSeekBar.getMax();
@@ -141,7 +113,7 @@ public class ChooseLocationActivity extends FragmentActivity implements OnMapRea
         });
     }
 
-    private void checkPermissions() {
+    private boolean checkPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             Context mContext = getApplicationContext();
             if (mContext.checkSelfPermission(
@@ -150,43 +122,16 @@ public class ChooseLocationActivity extends FragmentActivity implements OnMapRea
                     != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         MAP_PIN_LOCATION_REQUEST_CODE);
+                return false;
             }
         }
+        return true;
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mapAPI = googleMap;
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        if (hasLocationPermissions()) {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_PERMISSIONS_REQUEST_CODE);
-            return;
-        }
-        getLastLocation();
-
-        initializeCenterAndCircle();
-        mapAPI.moveCamera(CameraUpdateFactory.newLatLngZoom(centerLatLng, 14.0f));
-        mapAPI.getUiSettings().setZoomControlsEnabled(true);
-        googleMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
-            @Override
-            public void onMarkerDragStart(Marker marker) {}
-
-            @Override
-            public void onMarkerDrag(Marker marker) {}
-
-            @Override
-            public void onMarkerDragEnd(Marker marker) {
-                Context context = getApplicationContext();
-                centerLatLng = marker.getPosition();
-                mapCircle.setRadius(radius);
-                mapCircle.setCenter(centerMarker.getPosition());
-                showToast(context);
-            }
-        });
-    }
-
+    /**
+     * Creates the location marker with the last known location, and a circle around it.
+     */
     private void initializeCenterAndCircle() {
 
         centerMarker = mapAPI.addMarker(
@@ -209,5 +154,43 @@ public class ChooseLocationActivity extends FragmentActivity implements OnMapRea
         String str = "lat: " + lat + "\nlong: " + lon + "\nradius: " + radius;
         Toast toast = Toast.makeText(context, str, duration);
         toast.show();
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mapAPI = googleMap;
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        checkPermissions();
+        getLastLocation();
+        initializeCenterAndCircle();
+        mapAPI.moveCamera(CameraUpdateFactory.newLatLngZoom(centerLatLng, 14.0f));
+        mapAPI.getUiSettings().setZoomControlsEnabled(true);
+        googleMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {}
+
+            @Override
+            public void onMarkerDrag(Marker marker) {}
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+                Context context = getApplicationContext();
+                centerLatLng = marker.getPosition();
+                mapCircle.setRadius(radius);
+                mapCircle.setCenter(centerMarker.getPosition());
+                showToast(context);
+            }
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(permissions.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            if(requestCode == MAP_PIN_LOCATION_REQUEST_CODE){
+                getLastLocation();
+            }
+        }
     }
 }

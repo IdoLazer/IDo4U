@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity() {
         initializeViews()
         wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         wifiScanReceiver = scanWifi(this@MainActivity, wifiManager) //todo -remove
-        createMockTasks() //todo - remove
+//        createMockTasks() //todo - remove
         createTutorial(this@MainActivity)
     }
 
