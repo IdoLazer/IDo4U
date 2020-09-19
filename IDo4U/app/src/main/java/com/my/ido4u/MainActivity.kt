@@ -55,12 +55,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
-
-
         initializeViews()
         wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        wifiScanReceiver = scanWifi(this@MainActivity, wifiManager) //todo -remove
+//        wifiScanReceiver = scanWifi(this@MainActivity, wifiManager) //todo -remove
 //        createMockTasks() //todo - remove
         createTutorial(this@MainActivity, R.id.add_task_button)
     }
@@ -88,11 +85,8 @@ class MainActivity : AppCompatActivity() {
                         LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         val addButton: FloatingActionButton = findViewById(R.id.add_task_button)
         addButton.setOnClickListener {
-//            val intent = Intent(this@MainActivity, TaskProfileActivity::class.java) //todo
-//            startActivity(intent) // todo
-
-            val intent = Intent(this@MainActivity, ChooseLocationActivity::class.java)
-            startActivityForResult(intent, 0)
+            val intent = Intent(this@MainActivity, TaskProfileActivity::class.java) //todo
+            startActivity(intent) // todo
         }
     }
 

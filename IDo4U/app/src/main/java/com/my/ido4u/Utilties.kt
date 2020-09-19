@@ -17,6 +17,7 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat
 import com.takusemba.spotlight.Spotlight
 import com.takusemba.spotlight.Target
@@ -45,6 +46,8 @@ const val CENTER_MARKER = "centerMarker"
 const val MAP_LOCATION_ACTION = "mapLocationAction"
 const val MARKER_LAT_LNG = "markerLatLng"
 const val RADIUS = "radius"
+
+const val CHOOSE_APP_REQUEST_CODE = 6
 
 /////////////////////////// Permission - related methods ///////////////////////////////////////////
 /**
@@ -193,7 +196,8 @@ fun createTutorial(activity: Activity, viewId: Int) {
 //////////////////////////// Wifi - related methods ////////////////////////////////////////////
 /**
  * Scans the available wifi access points and registers a broadcastListener that listens to the
- * scan's results
+ * scan's results. This method also initializes wifiManager, so its' return value should be used as
+ * one.
  */
 fun scanWifi(activity: Activity, wifiManager: WifiManager?): BroadcastReceiver?{
     if (checkConditionsPermissions(Task.ConditionEnum.WIFI, activity)){
@@ -233,6 +237,28 @@ private fun scanFailure() {
     //todo consider using old scan results: these are the OLD results:
     // val results = wifiManager!!.scanResults
     Log.e("found_wifi_start", "wifi scan problem!")
+}
+
+fun chooseApp(activity: Activity){
+    val mainIntent = Intent(Intent.ACTION_MAIN, null)
+    mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+    val pickIntent = Intent(Intent.ACTION_PICK_ACTIVITY)
+    pickIntent.putExtra(Intent.EXTRA_INTENT, mainIntent)
+    activity.startActivityForResult(pickIntent, CHOOSE_APP_REQUEST_CODE)
+    // todo - add this code to the calling app:
+    //    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    //        super.onActivityResult(requestCode, resultCode, data)
+    //        if (requestCode == CHOOSE_APP_REQUEST_CODE &&
+    //              resultCode == Activity.RESULT_OK && data != null) {
+    //            val componentName: ComponentName? = data.getComponent()
+    //            if(componentName != null) {
+    //                val packageName = componentName.packageName
+    //                val activityName = componentName.className
+    //            }
+    //        }
+    //    }
+
+
 }
 
 
