@@ -42,9 +42,9 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_choose_location)
 
-        checkPermissions()
+        checkConditionsPermissions(Task.ConditionEnum.LOCATION, this@ChooseLocationActivity)
         setViewsAndFragment()
-        createTutorial(this@ChooseLocationActivity, R.id.approveLocationButton) //todo - only once
+//        createTutorial(this@ChooseLocationActivity, R.id.RadiusSeekBar) //todo
     }
 
     /**
@@ -83,12 +83,8 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
                 radius = cur / seekBerMax * RADIUS_MAX_IN_METERS
                 mapCircle!!.radius = radius.toDouble()
             }
-
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar) {
-                val context = applicationContext
-                showToast(context) // todo - remove
-            }
+            override fun onStopTrackingTouch(seekBar: SeekBar) {}
         })
     }
 
@@ -114,27 +110,6 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
                 }
         }
 
-
-
-    private fun checkPermissions(): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val mContext = applicationContext
-            if (mContext.checkSelfPermission(
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-                && mContext.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
-            ) {
-                requestPermissions(
-                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                    MAP_PIN_LOCATION_REQUEST_CODE
-                )
-                return false
-            }
-        }
-        return true
-    }
-
     /**
      * Creates the location marker with the last known location, and a circle around it.
      */
@@ -154,19 +129,10 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun showToast(context: Context) { //todo - remove
-        val duration = Toast.LENGTH_LONG
-        val lat = centerMarker!!.position.latitude
-        val lon = centerMarker!!.position.longitude
-        val str = "lat: $lat\nlong: $lon\nradius: $radius"
-        val toast = Toast.makeText(context, str, duration)
-        toast.show()
-    }
-
     override fun onMapReady(googleMap: GoogleMap) {
         mapAPI = googleMap
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        checkPermissions()
+        checkConditionsPermissions(Task.ConditionEnum.LOCATION, this@ChooseLocationActivity)
         lastLocation
         initializeCenterAndCircle()
         mapAPI!!.moveCamera(CameraUpdateFactory.newLatLngZoom(centerLatLng, 14.0f))
@@ -179,7 +145,6 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
                 centerLatLng = marker.position
                 mapCircle!!.radius = radius.toDouble()
                 mapCircle!!.center = centerMarker!!.position
-                showToast(context)
             }
         })
     }

@@ -181,7 +181,9 @@ private fun createTarget(button: View, layout: View): Target {
 /**
  * Creates a tutorial
  */
-fun createTutorial(activity: Activity, viewId: Int) { //todo - add tutorial for a task in the recyclerView
+//todo - add to parameters a list of strings to be presented and change activity to a list of
+// activities to be spotlighted one after the other
+fun createTutorial(activity: Activity, viewId: Int) {
     val firstRoot = FrameLayout(activity)
     val layout = activity.layoutInflater.inflate(R.layout.layout_target, firstRoot)
     val button = activity.findViewById<View>(viewId)
