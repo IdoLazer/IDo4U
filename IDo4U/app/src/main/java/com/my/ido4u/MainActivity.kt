@@ -220,14 +220,14 @@ class MainActivity : AppCompatActivity() {
         )
 
         /////////////////////////////////////// volume action //////////////////////////////////////
-        val actData = VolumeActionData(VolumeActionData.VolumeAction.SOUND, 3.0f)
-        val action : Task.Action = Task.Action(
-            Task.ActionEnum.VOLUME,
-            gson.toJson(actData),
-            actData.toString()
-        )
-        val newTask : Task = Task("wifi task1", true, cond, arrayOf(action))
-        addNewTask(newTask)
+//        val actData = VolumeActionData(VolumeActionData.VolumeAction.SOUND, 3.0f)
+//        val action : Task.Action = Task.Action(
+//            Task.ActionEnum.VOLUME,
+//            gson.toJson(actData),
+//            actData.toString()
+//        )
+//        val newTask : Task = Task("wifi task1", true, cond, arrayOf(action))
+//        addNewTask(newTask)
 
         /////////////////////////////////// brightness action //////////////////////////////////////
         val actData2 = BrightnessActionData(170)

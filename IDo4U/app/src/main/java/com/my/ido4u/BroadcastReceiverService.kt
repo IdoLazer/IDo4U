@@ -33,7 +33,7 @@ class BroadcastReceiverService : Service() {
     private var mReceiver: BroadcastReceiver? = null
     private var actionsToListenTo : HashSet<String> = HashSet<String>()
     private var taskList : MutableList<Task> = TaskManager.getTaskList() //todo - deep copy?
-    private var lastRSSID : String? = null
+    private var lastSSID : String? = null
     private val gson : Gson = Gson()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var lastLocation : Location? = null
@@ -268,6 +268,7 @@ class BroadcastReceiverService : Service() {
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun handleWifiCondition() {
+        val x = 5
         for (task in taskList) {
             if (task.isOn) {
                 if (task.condition.conditionType == Task.ConditionEnum.WIFI) {
@@ -279,13 +280,12 @@ class BroadcastReceiverService : Service() {
                     val taskSsid: String? = extraData.ssid
                     val curSsid = wifiInfo.ssid
 
-                    if (taskSsid != null) {
+                    if (taskSsid != null && "\"$taskSsid\"" != lastSSID) {
                         if (curSsid == "\"$taskSsid\"") {
-//                            lastRSSID = taskSsid
                             handleActions(task)
                         }
                     }
-//                    lastRSSID = curSsid
+                    lastSSID = curSsid
                 }
             }
         }
@@ -386,7 +386,7 @@ class BroadcastReceiverService : Service() {
      * broadcastReceiver using the filter. Finally, register the broadcastReceiver with the filter.
      */
     private fun createAndRegisterBroadcastReceiver() {
-        for(task in taskList){
+        for(task in taskList){ //todo - should we check here if task is on?
             when(task.condition.conditionType){
                 Task.ConditionEnum.WIFI -> actionsToListenTo.add(WIFI_CHANGED_BROADCAST)
                 Task.ConditionEnum.BLUETOOTH -> actionsToListenTo.add(BLUETOOTH_CHANGED_BROADCAST)
