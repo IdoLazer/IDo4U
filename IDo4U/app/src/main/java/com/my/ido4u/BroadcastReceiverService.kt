@@ -6,8 +6,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothManager
-import android.bluetooth.BluetoothProfile.GATT_SERVER
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -32,7 +30,7 @@ import com.google.gson.Gson
 class BroadcastReceiverService : Service() {
     private var mReceiver: BroadcastReceiver? = null
     private var actionsToListenTo : HashSet<String> = HashSet<String>()
-    private var taskList : MutableList<Task> = TaskManager.getTaskList() //todo - deep copy?
+    private var taskList : MutableList<Task> = TaskManager.getTaskList()
     private var lastSSID : String? = null
     private val gson : Gson = Gson()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -48,23 +46,26 @@ class BroadcastReceiverService : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         context = applicationContext
         createAndRegisterBroadcastReceiver()
-        var checkedBrightnessPermissions = false
-        for(task in taskList){
-            val rawData = task.condition.extraData
-            when(task.condition.conditionType){
-                Task.ConditionEnum.BLUETOOTH -> initializeBluetoothTask(rawData, task) //todo - doesn't work!
-                Task.ConditionEnum.LOCATION -> initializeLocationTracking()
-//                Task.ConditionEnum.WIFI -> {} TODO()
-//                Task.ConditionEnum.TIME -> {} TODO()
-            }
-            if(!checkedBrightnessPermissions) { //todo - delete and check permissions in task creation
-                askBrightnessPermission(task, applicationContext)
-                checkedBrightnessPermissions = true
-            }
-        }
-        startForeground(FOREGROUND_ID,  createStickyNotification())
+//        initialization()
+        startForeground(FOREGROUND_ID, createStickyNotification())
         return START_STICKY
     }
+
+//    /**
+//     * Adds the relevant broadcasts to the list the service should listen to and initializes
+//     * location tracking if there's a location-conditioned task
+//     */
+//    private fun initialization() {
+//        for (task in taskList) {
+//            val rawData = task.condition.extraData
+//            when (task.condition.conditionType) {
+//                Task.ConditionEnum.BLUETOOTH -> actionsToListenTo.add(BLUETOOTH_CHANGED_BROADCAST)
+//                Task.ConditionEnum.WIFI -> actionsToListenTo.add(WIFI_CHANGED_BROADCAST)
+//                Task.ConditionEnum.LOCATION -> initializeLocationTracking()
+//    //                Task.ConditionEnum.TIME -> {} TODO()
+//            }
+//        }
+//    }
 
     /**
      * Stops the service
@@ -86,7 +87,7 @@ class BroadcastReceiverService : Service() {
             "Stop listening",
             quitPendingIntent
         )
-        val notification = NotificationCompat.Builder(this, Ido4uApp.CHANNEL_ID)
+        return NotificationCompat.Builder(this, Ido4uApp.CHANNEL_ID)
             .setContentTitle("Ido4u")
             .setContentText("Waiting for a condition to be filled...")
             .setSmallIcon(R.drawable.ic_baseline_hearing_24)
@@ -95,30 +96,21 @@ class BroadcastReceiverService : Service() {
             .setColor(Color.rgb(118, 0, 255))
             .setOngoing(true)
             .build()
-        return notification
     }
 
     //////////////////////////////// location tracking methods /////////////////////////////////////
 
     @SuppressLint("MissingPermission")
     /**
-     * todo
+     * Initializes location tracking using fuseLocation
      */
-    private fun initializeLocationTracking() { // todo - move to mainActivity
+    private fun initializeLocationTracking() {
         if (!locationTrackingStarted) {
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-            if (hasLocationPermissions(applicationContext)) {
-                if (isLocationEnabled()) {
-                    fusedLocationClient.lastLocation.addOnCompleteListener {
-                        requestNewLocationData()
-                    }
+            if (hasLocationPermissions(applicationContext) && isLocationEnabled()) {
+                fusedLocationClient.lastLocation.addOnCompleteListener {
+                    requestNewLocationData()
                 }
-                else{
-//                    noLocationDialog(applicationContext)
-                }
-            }
-            else{
-                //todo - show toast with explanation
             }
             locationTrackingStarted = true
         }
@@ -219,7 +211,7 @@ class BroadcastReceiverService : Service() {
             if (action == null) {
                 Log.e("error", "action is null!")
             } else {
-                when (action) { // todo - add more cases
+                when (action) { // todo - add more cases?
                     QUIT -> stop()
                     WIFI_CHANGED_BROADCAST -> handleWifiCondition()
                     BLUETOOTH_CHANGED_BROADCAST -> handleBluetoothCondition(intent)
@@ -228,34 +220,17 @@ class BroadcastReceiverService : Service() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     /**
-     * Adds WifiManager.NETWORK_STATE_CHANGED_ACTION to the filter of the broadcastReceiver.
-     * In addition, checks for every existing wifi conditioned task if the phone is connected
-     * to its condition's wifi address and if so execute its action.
+     * Handles conditions of BLUETOOTH type
      */
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun initializeBluetoothTask(rawData: String, task: Task) { //todo - not working!
-        actionsToListenTo.add(BLUETOOTH_CHANGED_BROADCAST)
-        val condData = gson.fromJson(rawData, BluetoothConditionData::class.java)
-        val deviceAddress = condData.hardwareAddress
-        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        val connected: List<BluetoothDevice> = bluetoothManager.getConnectedDevices(GATT_SERVER) //todo - why is it empty?!
-        for (connectedDevice in connected) {
-            if (connectedDevice.address == deviceAddress) {
-                handleActions(task)
-            }
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.M)
     private fun handleBluetoothCondition(intent : Intent) {
         val device : BluetoothDevice? = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
         for (task in taskList) {
             if (task.isOn) {
                 if (task.condition.conditionType == Task.ConditionEnum.BLUETOOTH) {
-                    val rawExtraData = task.condition.extraData
-                    val conditionData =
-                        gson.fromJson(rawExtraData, BluetoothConditionData::class.java)
+                    val rawData = task.condition.extraData
+                    val conditionData = gson.fromJson(rawData, BluetoothConditionData::class.java)
                     if (device != null) {
                         if (conditionData.hardwareAddress == device.address) {
                             handleActions(task)
@@ -267,8 +242,8 @@ class BroadcastReceiverService : Service() {
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    private fun handleWifiCondition() {
-        val x = 5
+    private fun handleWifiCondition() { //todo ooooooooooooooooooooooo
+        var curSsid : String? = null
         for (task in taskList) {
             if (task.isOn) {
                 if (task.condition.conditionType == Task.ConditionEnum.WIFI) {
@@ -278,20 +253,22 @@ class BroadcastReceiverService : Service() {
                     val rawExtraData = task.condition.extraData
                     val extraData = gson.fromJson(rawExtraData, WifiConditionData::class.java)
                     val taskSsid: String? = extraData.ssid
-                    val curSsid = wifiInfo.ssid
-
+                    curSsid = wifiInfo.ssid
                     if (taskSsid != null && "\"$taskSsid\"" != lastSSID) {
                         if (curSsid == "\"$taskSsid\"") {
                             handleActions(task)
                         }
                     }
-                    lastSSID = curSsid
                 }
             }
         }
+        lastSSID = curSsid
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
+    /**
+     * Handles all the actions of a task
+     */
     private fun handleActions(task: Task) {
         for (action in task.actions) {
             when (action.actionType) {
@@ -313,6 +290,9 @@ class BroadcastReceiverService : Service() {
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
+    /**
+     * Handles screen brightness actions
+     */
     private fun handleBrightnessActions(action : Task.Action) {
         val rawData = gson.fromJson(action.extraData, BrightnessActionData::class.java)
         if (Settings.System.canWrite(context)) {
@@ -320,13 +300,11 @@ class BroadcastReceiverService : Service() {
                 context?.contentResolver,
                 Settings.System.SCREEN_BRIGHTNESS, rawData.brightness
             )
-        } else {
-            //todo
         }
     }
 
     /**
-     * todo
+     * Handles volume actions
      */
     private fun handleVolumeActions(action : Task.Action) {
         val audioMngr = getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -390,8 +368,8 @@ class BroadcastReceiverService : Service() {
             when(task.condition.conditionType){
                 Task.ConditionEnum.WIFI -> actionsToListenTo.add(WIFI_CHANGED_BROADCAST)
                 Task.ConditionEnum.BLUETOOTH -> actionsToListenTo.add(BLUETOOTH_CHANGED_BROADCAST)
-                Task.ConditionEnum.LOCATION -> {} //todo
-                Task.ConditionEnum.TIME -> {} // todo
+                Task.ConditionEnum.LOCATION -> initializeLocationTracking()
+//                Task.ConditionEnum.TIME -> {} // todo
             }
         }
         val filter = IntentFilter()
