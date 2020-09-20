@@ -1,21 +1,17 @@
 package com.my.ido4u
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
-import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
-import android.bluetooth.BluetoothProfile.GATT
 import android.bluetooth.BluetoothProfile.GATT_SERVER
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
 import android.location.LocationManager
@@ -29,7 +25,6 @@ import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.*
 import com.google.gson.Gson
@@ -158,21 +153,25 @@ class BroadcastReceiverService : Service() {
     private fun onLocationChanged(curLocation: Location){
         if(curLocation.accuracy < THRESHOLD_ACCURACY) {
             var firstLocationQuery = false
-            if (lastLocation == null){
+            if (lastLocation == null) {
                 lastLocation = curLocation
                 firstLocationQuery = true
             }
-            for (task in taskList) {
-                if (task.condition.conditionType == Task.ConditionEnum.LOCATION) {
-                    val newLocationSatisfiesCond = doesLocationConditionApply(task, curLocation)
-                    val oldLocationSatisfiesCond = doesLocationConditionApply(task, lastLocation!!)
-                    if ((newLocationSatisfiesCond && !oldLocationSatisfiesCond) ||
-                        (newLocationSatisfiesCond && firstLocationQuery)) {
-                        handleActions(task)
+            for (task in taskList) { //todo - doesLocationConditionApply return false if oldLocation is null + cancel second condition
+                if (task.isOn) {
+                    if (task.condition.conditionType == Task.ConditionEnum.LOCATION) {
+                        val newLocationSatisfiesCond = doesLocationConditionApply(task, curLocation)
+                        val oldLocationSatisfiesCond =
+                            doesLocationConditionApply(task, lastLocation!!)
+                        if ((newLocationSatisfiesCond && !oldLocationSatisfiesCond) ||
+                            (newLocationSatisfiesCond && firstLocationQuery)
+                        ) {
+                            handleActions(task)
+                        }
                     }
                 }
+                lastLocation = curLocation
             }
-            lastLocation = curLocation
         }
     }
 
@@ -252,13 +251,15 @@ class BroadcastReceiverService : Service() {
     private fun handleBluetoothCondition(intent : Intent) {
         val device : BluetoothDevice? = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
         for (task in taskList) {
-            if (task.condition.conditionType == Task.ConditionEnum.BLUETOOTH) {
-                val rawExtraData = task.condition.extraData
-                var conditionData =
-                    gson.fromJson(rawExtraData, BluetoothConditionData::class.java)
-                if (device != null) {
-                    if (conditionData.hardwareAddress == device.address) {
-                        handleActions(task)
+            if (task.isOn) {
+                if (task.condition.conditionType == Task.ConditionEnum.BLUETOOTH) {
+                    val rawExtraData = task.condition.extraData
+                    val conditionData =
+                        gson.fromJson(rawExtraData, BluetoothConditionData::class.java)
+                    if (device != null) {
+                        if (conditionData.hardwareAddress == device.address) {
+                            handleActions(task)
+                        }
                     }
                 }
             }
@@ -268,21 +269,24 @@ class BroadcastReceiverService : Service() {
     @RequiresApi(Build.VERSION_CODES.M)
     private fun handleWifiCondition() {
         for (task in taskList) {
-            if (task.condition.conditionType == Task.ConditionEnum.WIFI) {
-                val wifiMngr = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-                val wifiInfo: WifiInfo = wifiMngr.connectionInfo
-                val rawExtraData = task.condition.extraData
-                val extraData = gson.fromJson(rawExtraData, WifiConditionData::class.java)
-                val taskBssid: String? = extraData.bssid
-                val curBssid = wifiInfo.bssid
+            if (task.isOn) {
+                if (task.condition.conditionType == Task.ConditionEnum.WIFI) {
+                    val wifiMngr =
+                        applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+                    val wifiInfo: WifiInfo = wifiMngr.connectionInfo
+                    val rawExtraData = task.condition.extraData
+                    val extraData = gson.fromJson(rawExtraData, WifiConditionData::class.java)
+                    val taskSsid: String? = extraData.ssid
+                    val curSsid = wifiInfo.ssid
 
-                if (taskBssid != DEFAULT_BSSID && taskBssid != null) { //todo - only null?
-                    if (curBssid == taskBssid ){
-                        lastRSSID = taskBssid
-                        handleActions(task)
+                    if (taskSsid != null) {
+                        if (curSsid == "\"$taskSsid\"") {
+//                            lastRSSID = taskSsid
+                            handleActions(task)
+                        }
                     }
+//                    lastRSSID = curSsid
                 }
-                lastRSSID = curBssid
             }
         }
     }

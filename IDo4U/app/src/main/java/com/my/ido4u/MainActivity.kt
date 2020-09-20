@@ -154,8 +154,8 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.M)
     private fun createMockTasks() { // todo - remove
         mockWifi()
-        mockBluetooth()
-        mockLocation()
+//        mockBluetooth()
+//        mockLocation()
     }
 
     private fun mockBluetooth(){
@@ -212,7 +212,7 @@ class MainActivity : AppCompatActivity() {
     private fun mockWifi(){ //todo delete!
 
         if (!Settings.System.canWrite(applicationContext)) startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
-        val conData : WifiConditionData = WifiConditionData("10:be:f5:3c:48:e6") //"10:5a:f7:07:6f:88")
+        val conData : WifiConditionData = WifiConditionData("Ido")//"10:be:f5:3c:48:e6")
         val cond : Task.Condition = Task.Condition(
             Task.ConditionEnum.WIFI,
             gson.toJson(conData),
