@@ -3,9 +3,11 @@ package com.my.ido4u
 import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.NotificationManager
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.*
+import android.content.Context.NOTIFICATION_SERVICE
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.wifi.WifiManager
@@ -19,6 +21,8 @@ import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.ContextCompat.startActivity
 import com.takusemba.spotlight.Spotlight
 import com.takusemba.spotlight.Target
 import com.takusemba.spotlight.effet.RippleEffect
@@ -115,13 +119,16 @@ private fun checkPermission(permission : String, context: Context) : Boolean{
 /**
  * todo
  */
-fun askBrightnessPermission(task: Task, context: Context) { //todo - delete and check permissions in task creation
-    for (action in task.actions) {
-        if (action.actionType == Task.ActionEnum.BRIGHTNESS) {
-            if (!Settings.System.canWrite(context)) {
-                context.startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
-            }
-        }
+fun askBrightnessPermission(context: Context) { //todo - delete and check permissions in task creation
+    if (!Settings.System.canWrite(context)) {
+        context.startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
+    }
+}
+
+fun checkSoundPermissions(context: Context){
+    val notificationMngr = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !notificationMngr.isNotificationPolicyAccessGranted) { //todo - uneccesry
+        context.startActivity(Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
     }
 }
 

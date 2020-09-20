@@ -42,7 +42,6 @@ class BroadcastReceiverService : Service() {
     /**
      * These commands will be performed whenever StartService is called for this class
      */
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         context = applicationContext
         createAndRegisterBroadcastReceiver()
@@ -50,22 +49,6 @@ class BroadcastReceiverService : Service() {
         startForeground(FOREGROUND_ID, createStickyNotification())
         return START_STICKY
     }
-
-//    /**
-//     * Adds the relevant broadcasts to the list the service should listen to and initializes
-//     * location tracking if there's a location-conditioned task
-//     */
-//    private fun initialization() {
-//        for (task in taskList) {
-//            val rawData = task.condition.extraData
-//            when (task.condition.conditionType) {
-//                Task.ConditionEnum.BLUETOOTH -> actionsToListenTo.add(BLUETOOTH_CHANGED_BROADCAST)
-//                Task.ConditionEnum.WIFI -> actionsToListenTo.add(WIFI_CHANGED_BROADCAST)
-//                Task.ConditionEnum.LOCATION -> initializeLocationTracking()
-//    //                Task.ConditionEnum.TIME -> {} TODO()
-//            }
-//        }
-//    }
 
     /**
      * Stops the service
@@ -242,7 +225,7 @@ class BroadcastReceiverService : Service() {
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    private fun handleWifiCondition() { //todo ooooooooooooooooooooooo
+    private fun handleWifiCondition() {
         var curSsid : String? = null
         for (task in taskList) {
             if (task.isOn) {
@@ -275,18 +258,22 @@ class BroadcastReceiverService : Service() {
                 Task.ActionEnum.TOAST -> createAndShowToast(action)  // todo - delete
                 Task.ActionEnum.VOLUME -> handleVolumeActions(action)
                 Task.ActionEnum.BRIGHTNESS -> handleBrightnessActions(action)
-                Task.ActionEnum.APPS -> {
-                    val rawData = action.extraData
-                    val actionData = gson.fromJson(rawData, OpenAppActionData::class.java)
-                    val packageName = actionData.packageName
-
-                    val launchIntent =packageManager.getLaunchIntentForPackage(packageName)
-                    launchIntent?.let { startActivity(it) }
-                } //todo
+                Task.ActionEnum.APPS -> handleAppOpenningAction(action)
                 Task.ActionEnum.COMMUNICATION -> {} //todo
                 Task.ActionEnum.DATA -> {} //todo
             }
         }
+    }
+
+    /**
+     * Tries to open the relevant app
+     */
+    private fun handleAppOpenningAction(action: Task.Action) {
+        val rawData = action.extraData
+        val actionData = gson.fromJson(rawData, OpenAppActionData::class.java)
+        val packageName = actionData.packageName
+        val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
+        launchIntent?.let { startActivity(it) }
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -309,36 +296,11 @@ class BroadcastReceiverService : Service() {
     private fun handleVolumeActions(action : Task.Action) {
         val audioMngr = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val actionData = gson.fromJson(action.extraData, VolumeActionData::class.java)
+        checkSoundPermissions(applicationContext)
         when (actionData.volumeAction) {
-            VolumeActionData.VolumeAction.SOUND -> changeRingerModeToSound(audioMngr, actionData)
+            VolumeActionData.VolumeAction.SOUND -> changeRingerVolume(audioMngr, actionData)
             VolumeActionData.VolumeAction.VIBRATE -> audioMngr.ringerMode = AudioManager.RINGER_MODE_VIBRATE
-            VolumeActionData.VolumeAction.MUTE -> silenceRinger(audioMngr)
-        }
-    }
-
-    /**
-     * Changes the cellPhones ringing mode to normal (sound) at the .
-     */
-    private fun changeRingerModeToSound(audioMngr: AudioManager, actionData: VolumeActionData) {
-        val notificationMngr = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !notificationMngr.isNotificationPolicyAccessGranted) {
-            startActivity(Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
-            changeRingerVolume(audioMngr, actionData)
-        } else {
-            changeRingerVolume(audioMngr, actionData)
-        }
-    }
-
-    /**
-     * Changes the cellPhones ringing mode to silent.
-     */
-    private fun silenceRinger(audioMngr: AudioManager) {
-        val notificationMngr = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&!notificationMngr.isNotificationPolicyAccessGranted) {
-            startActivity(Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
-            audioMngr.ringerMode = AudioManager.RINGER_MODE_SILENT
-        } else {
-            audioMngr.ringerMode = AudioManager.RINGER_MODE_SILENT
+            VolumeActionData.VolumeAction.MUTE -> audioMngr.ringerMode = AudioManager.RINGER_MODE_SILENT
         }
     }
 
@@ -347,7 +309,7 @@ class BroadcastReceiverService : Service() {
      */
     private fun changeRingerVolume(audioMngr: AudioManager, actionData: VolumeActionData) {
         audioMngr.ringerMode = AudioManager.RINGER_MODE_NORMAL
-        val targetVolume = actionData.volumeLevel.toInt() //todo to int or not to int? that is the float
+        val targetVolume = actionData.volumeLevel.toInt()
         audioMngr.setStreamVolume(AudioManager.STREAM_RING, targetVolume, 0)
     }
 
@@ -393,5 +355,6 @@ class BroadcastReceiverService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(mReceiver)
+        fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 }

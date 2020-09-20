@@ -230,6 +230,7 @@ class MainActivity : AppCompatActivity() {
         addNewTask(newTask)
 
         /////////////////////////////////// brightness action //////////////////////////////////////
+        askBrightnessPermission(this)
         val actData2 = BrightnessActionData(170)
         val action2 : Task.Action = Task.Action(
             Task.ActionEnum.BRIGHTNESS,
