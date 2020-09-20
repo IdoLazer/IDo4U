@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         initializeViews()
         wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 //        wifiScanReceiver = scanWifi(this@MainActivity, wifiManager) //todo -remove
-//        createMockTasks() //todo - remove
+        createMockTasks() //todo - remove
         createTutorial(this@MainActivity, R.id.add_task_button)
     }
 
@@ -141,17 +141,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkActionsPermissions(type: Task.ActionEnum) : Boolean{ //todo - needed?
-        when(type){
-            Task.ActionEnum.VOLUME -> {} //todo
-            Task.ActionEnum.BRIGHTNESS -> {} //todo
-            Task.ActionEnum.DATA -> {} //todo
-            Task.ActionEnum.APPS -> {} //todo
-            Task.ActionEnum.COMMUNICATION -> {} //todo
-            Task.ActionEnum.TOAST -> {} //todo
-        }
-        return true // todo
-    }
     ////////////////////////////////////////////////////////////////////////////////////////////////
     override fun onDestroy() { //todo make sure all relevant broadcastReceivers are unregistered here
         super.onDestroy()

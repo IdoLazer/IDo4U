@@ -26,7 +26,7 @@ import com.google.android.gms.maps.model.*
 
 class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
 
-    private var centerLatLng = LatLng(31.772915, 35.218016)
+    private var centerLatLng = LatLng(31.772915, 35.218016) //todo
     private var mapCircle: Circle? = null
     private var centerMarker: Marker? = null
     private var radiusSeekBar: SeekBar? = null
