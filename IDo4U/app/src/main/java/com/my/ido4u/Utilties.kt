@@ -17,7 +17,6 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
-import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat
 import com.takusemba.spotlight.Spotlight
 import com.takusemba.spotlight.Target
@@ -50,31 +49,6 @@ const val RADIUS = "radius"
 const val CHOOSE_APP_REQUEST_CODE = 6
 
 /////////////////////////// Permission - related methods ///////////////////////////////////////////
-/**
- * Checks a if all permissions in permissionsList are granted - if so returns true, else - calls
- * ActivityCompat.requestPermissions on all the ungranted permissions.
- */
-fun checkSpecificPermissions(permissionsList: MutableList<String>,
-                                     requestCode : Int, activity : Activity): Boolean {
-    val unGrantedPermissionsList: MutableList<String> = ArrayList()
-    for(permission in permissionsList){
-        if (checkWiFiPermissions(permission, activity)) {
-            unGrantedPermissionsList.add(permission)
-        }
-    }
-    if (unGrantedPermissionsList.size > 0) {
-        ActivityCompat.requestPermissions(activity,
-            unGrantedPermissionsList.toTypedArray(), requestCode)
-        return false
-    }
-    return true
-}
-
-fun checkWiFiPermissions(permission : String, context: Context) : Boolean{
-    val granted = PackageManager.PERMISSION_GRANTED
-    return ContextCompat.checkSelfPermission(context, permission)!= granted
-}
-
 fun checkConditionsPermissions(type : Task.ConditionEnum, activity: Activity) : Boolean{
     when(type){
         Task.ConditionEnum.WIFI -> checkSpecificPermissions(mutableListOf(
@@ -95,6 +69,31 @@ fun checkConditionsPermissions(type : Task.ConditionEnum, activity: Activity) : 
             WIFI_PERMISSION_REQUEST_CODE, activity)
     }
     return true // todo
+}
+
+/**
+ * Checks a if all permissions in permissionsList are granted - if so returns true, else - calls
+ * ActivityCompat.requestPermissions on all the ungranted permissions.
+ */
+private fun checkSpecificPermissions(permissionsList: MutableList<String>,
+                             requestCode : Int, activity : Activity): Boolean {
+    val unGrantedPermissionsList: MutableList<String> = ArrayList()
+    for(permission in permissionsList){
+        if (checkPermission(permission, activity)) {
+            unGrantedPermissionsList.add(permission)
+        }
+    }
+    if (unGrantedPermissionsList.size > 0) {
+        ActivityCompat.requestPermissions(activity,
+            unGrantedPermissionsList.toTypedArray(), requestCode)
+        return false
+    }
+    return true
+}
+
+private fun checkPermission(permission : String, context: Context) : Boolean{
+    val granted = PackageManager.PERMISSION_GRANTED
+    return ContextCompat.checkSelfPermission(context, permission)!= granted
 }
 
 /**

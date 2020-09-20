@@ -86,7 +86,7 @@ class BroadcastReceiverService : Service() {
         val pendingIntent = PendingIntent.getActivity(this, 0, intent1, 0)
         val qIntent = Intent(QUIT)
         val quitPendingIntent = PendingIntent.getBroadcast(this, QUIT_ID, qIntent, 0)
-        var action = NotificationCompat.Action(
+        val action = NotificationCompat.Action(
             R.drawable.common_google_signin_btn_text_disabled,
             "Stop listening",
             quitPendingIntent
