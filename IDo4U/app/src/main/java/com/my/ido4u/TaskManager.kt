@@ -54,7 +54,6 @@ object TaskManager {
 
     fun switchTask(i: Int, isSwitched: Boolean) {
         taskList[i].isOn = isSwitched
-        Log.d("tag", "switchedddddddddddddddddddddddddddddddddddddd") //todo - remove?
         refreshSharedPreferences()
     }
 
