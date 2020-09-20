@@ -2,6 +2,7 @@ package com.my.ido4u
 
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -160,6 +161,14 @@ class MainActivity : AppCompatActivity() {
     private fun mockBluetooth(){
         checkConditionsPermissions(Task.ConditionEnum.LOCATION, this)
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+
+        val pairedDevices: Set<BluetoothDevice>? = getPairedBluetoothDevices()
+        pairedDevices?.forEach { device ->
+            val deviceName = device.name
+            val deviceHardwareAddress = device.address // MAC address
+            Log.e("paired bluetooth", "$deviceName is paired with MAC address $deviceHardwareAddress")
+        }
+
         if(checkConditionsPermissions(Task.ConditionEnum.BLUETOOTH, this)){
             val conData = BluetoothConditionData("LE-Ido's Bose QC35 II", "4C:87:5D:CB:9B:CD")
             val conDataStr = gson.toJson(conData)

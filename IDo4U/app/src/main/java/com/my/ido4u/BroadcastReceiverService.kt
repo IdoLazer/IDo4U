@@ -119,7 +119,7 @@ class BroadcastReceiverService : Service() {
                     }
                 }
                 else{
-                    noLocationDialog(applicationContext)
+//                    noLocationDialog(applicationContext)
                 }
             }
             else{

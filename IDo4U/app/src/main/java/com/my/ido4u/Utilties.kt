@@ -3,6 +3,7 @@ package com.my.ido4u
 import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.*
 import android.content.pm.PackageManager
@@ -236,6 +237,13 @@ private fun scanFailure() {
     //todo consider using old scan results: these are the OLD results:
     // val results = wifiManager!!.scanResults
     Log.e("found_wifi_start", "wifi scan problem!")
+}
+
+///////////////////////////// Bluetooth related methods ////////////////////////////////////////////
+fun getPairedBluetoothDevices(): Set<BluetoothDevice>? {
+    val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+    val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
+    return pairedDevices
 }
 
 fun chooseApp(activity: Activity){
