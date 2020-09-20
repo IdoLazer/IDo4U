@@ -3,14 +3,13 @@ package com.my.ido4u
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CompoundButton
-import android.widget.RadioGroup
 import androidx.recyclerview.widget.RecyclerView
 
-class TaskAdapter (var taskClickListener: TaskClickListener) : RecyclerView.Adapter<TaskHolder>() {
+class TaskAdapter(var taskClickListener: TaskClickListener) : RecyclerView.Adapter<TaskHolder>() {
 
     interface TaskClickListener {
-        fun onTaskClicked(id : Int)
+        fun onTaskClicked(id: Int)
+        fun onSwitchClicked(id: Int, isChecked: Boolean)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskHolder {
@@ -32,13 +31,8 @@ class TaskAdapter (var taskClickListener: TaskClickListener) : RecyclerView.Adap
                 taskClickListener.onTaskClicked(position)
             }
         })
-//        holder.switch.setOnCheckedChangeListener(object : CompoundButton.OnCheckedChangeListener{
-//            override fun onCheckedChanged(p0: CompoundButton?, isChecked: Boolean) {
-//                if(isChecked){
-//
-//                }
-//            }
-//
-//        })
+        holder.switch.setOnCheckedChangeListener { _, isChecked ->
+            taskClickListener.onSwitchClicked(position, isChecked)
+        }
     }
 }
