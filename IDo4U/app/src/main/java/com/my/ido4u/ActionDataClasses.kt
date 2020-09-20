@@ -1,7 +1,13 @@
 package com.my.ido4u
 
+import android.location.Location
+
+data class BrightnessActionData (var brightness: Int){} //todo toString with %
+
+data class OpenAppActionData(var packageName : String){} //todo toString with app name
+
 data class VolumeActionData(var volumeAction: VolumeAction, var volumeLevel: Float) {
-    enum class VolumeAction { SOUND, MUTE, VIBRATE }
+    enum class VolumeAction { SOUND, MUTE, VIBRATE }  //todo toString with %
 
     override fun toString(): String {
         return when (volumeAction) {
@@ -12,6 +18,9 @@ data class VolumeActionData(var volumeAction: VolumeAction, var volumeLevel: Flo
     }
 }
 
+
+
 data class ToastActionData(var toastAction: ToastAction, var text: String) {
     enum class ToastAction { LONG, SHORT }
 }
+

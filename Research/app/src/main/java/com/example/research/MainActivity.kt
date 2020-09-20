@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
     private var wifiManager: WifiManager? = null
     private var myNetwork: ScanResult? = null
     private var wifiScanReceiver: BroadcastReceiver? = null
+    public val WIFI_SCAN = 1;
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -89,7 +90,7 @@ class MainActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
                                             grantResults: IntArray) {
         when (requestCode) {
-            1 -> wifiManager!!.startScan()
+            WIFI_SCAN -> wifiManager!!.startScan()
         }
     }
 
