@@ -15,7 +15,9 @@
     <string name="attachment_title">Download incoming attachments</string>
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="attachment_summary_off">
+        Only download attachments when manually requested
+    </string>
     <string name="title_activity_create_condition">CreateConditionActivity</string>
     <string name="gps_network_not_enabled">GPS network not enabled!</string>
     <string name="open_location_settings">\"open location settings\"</string>
@@ -24,7 +26,15 @@
     <string name="start_spotlight">Start Spotlight</string>
     <string name="close_spotlight">Got it!</string>
     <string name="next_target">Next Target</string>
-    <string name="add_task_explanation">Click this button in order to start creating a new task</string>
+    <string name="add_task_explanation">
+        Click this button in order to start creating a new task
+    </string>
+    <string name="task_recycler_explanation">
+        "Click any task to see it's content."
+    </string>
+    <string name="task_switch_explanation">
+        "Move a task's switch to turn it off or on."
+    </string>
     <string name="title_activity_maps">Map</string>
     <string name="ok">OK</string>
     <string name="next">Next</string>

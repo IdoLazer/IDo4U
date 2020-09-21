@@ -6,9 +6,6 @@ import android.bluetooth.BluetoothDevice
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.graphics.Color.argb
-import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
@@ -16,24 +13,13 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
-import android.view.animation.DecelerateInterpolator
-import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.Switch
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
-import com.takusemba.spotlight.OnSpotlightListener
-import com.takusemba.spotlight.Spotlight
-import com.takusemba.spotlight.Target
-import com.takusemba.spotlight.effet.RippleEffect
-import com.takusemba.spotlight.shape.Circle
 
 class MainActivity : AppCompatActivity() {
 
@@ -41,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var wifiScanReceiver: BroadcastReceiver? = null
     private var gson: Gson = Gson()
+    var recycler: RecyclerView? = null
     private var adapter = TaskAdapter(object : TaskAdapter.TaskClickListener {
 
         override fun onTaskClicked(id: Int) {
@@ -61,9 +48,43 @@ class MainActivity : AppCompatActivity() {
         wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 //        wifiScanReceiver = scanWifi(this@MainActivity, wifiManager) //todo -remove
         createMockTasks() //todo - remove
-//        val recyclerView = findViewById<RecyclerView>(R.id.task_recycler)
-        val arr: IntArray = intArrayOf(R.id.add_task_button, R.id.task_recycler)
-        createTutorial(this@MainActivity, *arr)
+
+
+
+        recycler!!.viewTreeObserver.addOnGlobalLayoutListener(
+            object : ViewTreeObserver.OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+                    val viewItem: View? = recycler!!.layoutManager?.findViewByPosition(0)
+                    val firstTaskLayout = viewItem?.findViewById<View>(R.id.task_layout)
+                    val firstTaskSwitch = viewItem?.findViewById<View>(R.id.task_switch)
+                    var arr: Array<View>? = null
+                    if(firstTaskLayout != null && firstTaskSwitch != null) {
+                        arr = arrayOf(
+                                findViewById(R.id.add_task_button),
+                                firstTaskLayout,
+                                firstTaskSwitch
+                            )
+
+                    }
+                    val texts: List<String> = listOf(
+                        getString(R.string.add_task_explanation),
+                        getString(R.string.task_recycler_explanation),
+                        getString(R.string.task_switch_explanation)
+                    )
+
+                    recycler!!.viewTreeObserver.removeOnGlobalLayoutListener(this)
+
+                    if (arr == null) {
+                        arr = arrayOf(
+                           findViewById(R.id.add_task_button),
+                           findViewById(R.id.task_recycler)
+                       )
+                    }
+                    createTutorial(this@MainActivity, texts,*arr)
+                }
+            })
+
+
     }
 
 //    fun setMobileDataState(mobileDataEnabled: Boolean) { //todo - No Carrier Privilege
@@ -83,11 +104,12 @@ class MainActivity : AppCompatActivity() {
      * Initializes the MainActivities' views
      */
     private fun initializeViews() {
-        val recycler: RecyclerView = findViewById(R.id.task_recycler)
-        recycler.adapter = adapter
-        recycler.layoutManager =
+        recycler = findViewById(R.id.task_recycler)
+        recycler!!.adapter = adapter
+        recycler!!.layoutManager =
                         LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         val addButton: FloatingActionButton = findViewById(R.id.add_task_button)
+
         addButton.setOnClickListener {
             val intent = Intent(this@MainActivity, TaskProfileActivity::class.java) //todo
             startActivity(intent) // todo
@@ -157,8 +179,8 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.M)
     private fun createMockTasks() { // todo - remove
         mockWifi()
-        mockBluetooth()
-        mockLocation()
+//        mockBluetooth()
+//        mockLocation()
     }
 
     private fun mockBluetooth(){

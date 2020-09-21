@@ -7,7 +7,7 @@
 
 
     <TextView
-        android:id="@+id/custom_text"
+        android:id="@+id/target_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -45,6 +45,6 @@
         android:textColor="@android:color/white"
         IDo4U:layout_constraintEnd_toEndOf="parent"
         IDo4U:layout_constraintStart_toEndOf="@+id/close_spotlight"
-        IDo4U:layout_constraintTop_toBottomOf="@+id/custom_text" />
+        IDo4U:layout_constraintTop_toBottomOf="@+id/target_text" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

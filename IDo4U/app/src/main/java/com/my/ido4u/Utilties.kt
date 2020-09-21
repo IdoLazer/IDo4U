@@ -6,8 +6,11 @@ import android.app.AlertDialog
 import android.app.NotificationManager
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.wifi.WifiManager
@@ -18,6 +21,7 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -25,7 +29,7 @@ import com.takusemba.spotlight.Spotlight
 import com.takusemba.spotlight.Target
 import com.takusemba.spotlight.effet.RippleEffect
 import com.takusemba.spotlight.shape.RoundedRectangle
-import java.util.ArrayList
+import java.util.*
 
 ///////////////////////////////////////// Constants ////////////////////////////////////////////////
 const val DEFAULT_BSSID = "02:00:00:00:00:00"
@@ -52,24 +56,34 @@ const val RADIUS = "radius"
 const val CHOOSE_APP_REQUEST_CODE = 6
 
 /////////////////////////// Permission - related methods ///////////////////////////////////////////
-fun checkConditionsPermissions(type : Task.ConditionEnum, activity: Activity) : Boolean{
+fun checkConditionsPermissions(type: Task.ConditionEnum, activity: Activity) : Boolean{
     when(type){
-        Task.ConditionEnum.WIFI -> checkSpecificPermissions(mutableListOf(
-            Manifest.permission.ACCESS_WIFI_STATE,
-            Manifest.permission.CHANGE_WIFI_STATE,
-            Manifest.permission.ACCESS_COARSE_LOCATION),
-            WIFI_PERMISSION_REQUEST_CODE, activity)
+        Task.ConditionEnum.WIFI -> checkSpecificPermissions(
+            mutableListOf(
+                Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.CHANGE_WIFI_STATE,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ),
+            WIFI_PERMISSION_REQUEST_CODE, activity
+        )
 
-        Task.ConditionEnum.BLUETOOTH -> checkSpecificPermissions(mutableListOf(
-            Manifest.permission.ACCESS_COARSE_LOCATION),
-            BLUETOOTH_PERMISSIONS_REQUEST_CODE, activity)
+        Task.ConditionEnum.BLUETOOTH -> checkSpecificPermissions(
+            mutableListOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ),
+            BLUETOOTH_PERMISSIONS_REQUEST_CODE, activity
+        )
 
-        Task.ConditionEnum.TIME -> {} //todo
+        Task.ConditionEnum.TIME -> {
+        } //todo
 
-        Task.ConditionEnum.LOCATION -> checkSpecificPermissions(mutableListOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION),
-            WIFI_PERMISSION_REQUEST_CODE, activity)
+        Task.ConditionEnum.LOCATION -> checkSpecificPermissions(
+            mutableListOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ),
+            WIFI_PERMISSION_REQUEST_CODE, activity
+        )
     }
     return true // todo
 }
@@ -78,8 +92,10 @@ fun checkConditionsPermissions(type : Task.ConditionEnum, activity: Activity) : 
  * Checks a if all permissions in permissionsList are granted - if so returns true, else - calls
  * ActivityCompat.requestPermissions on all the ungranted permissions.
  */
-private fun checkSpecificPermissions(permissionsList: MutableList<String>,
-                             requestCode : Int, activity : Activity): Boolean {
+private fun checkSpecificPermissions(
+    permissionsList: MutableList<String>,
+    requestCode: Int, activity: Activity
+): Boolean {
     val unGrantedPermissionsList: MutableList<String> = ArrayList()
     for(permission in permissionsList){
         if (checkPermission(permission, activity)) {
@@ -87,14 +103,16 @@ private fun checkSpecificPermissions(permissionsList: MutableList<String>,
         }
     }
     if (unGrantedPermissionsList.size > 0) {
-        ActivityCompat.requestPermissions(activity,
-            unGrantedPermissionsList.toTypedArray(), requestCode)
+        ActivityCompat.requestPermissions(
+            activity,
+            unGrantedPermissionsList.toTypedArray(), requestCode
+        )
         return false
     }
     return true
 }
 
-private fun checkPermission(permission : String, context: Context) : Boolean{
+private fun checkPermission(permission: String, context: Context) : Boolean{
     val granted = PackageManager.PERMISSION_GRANTED
     return ContextCompat.checkSelfPermission(context, permission)!= granted
 }
@@ -143,41 +161,43 @@ fun hasLocationPermissions(context: Context): Boolean {
 
 //////////////////////// Tutorial - related methods ////////////////////////////////////////////////
 /**
- * Creates a tutorial
+ * Creates a tutorial with all the vies in views as spotlight targets and all the strings in texts
+ * as tutorial text explanations
  */
-//todo - add to parameters a list of strings to be presented and change activity to a list of
-// activities to be spotlighted one after the other
-fun createTutorial(activity: Activity, vararg viewIds: Int) {
+//todo - should only happen at first launch in every activity!
+fun createTutorial(activity: Activity, texts: List<String>, vararg views: View) {
     val firstRoot = FrameLayout(activity)
     val layout = activity.layoutInflater.inflate(R.layout.layout_target, firstRoot)
-    val views = mutableListOf<View>()
-
-    for(viewId in viewIds){
-        val view = activity.findViewById<View>(viewId)
-        views.add(view)
-    }
-    val viewsArray: Array<View> = views.toTypedArray()
-
-    createSpotlightWhenViewIsInflated(layout, activity, *viewsArray) //todo - should only happen at first launch!
+    createSpotlightWhenViewIsInflated(layout, activity, texts, *views)
 }
 
 /**
  * Adds a listener which create a target and spotlight around a view when it is inflated
  */
-fun createSpotlightWhenViewIsInflated(layout: View, activity: Activity, vararg views: View) {
+fun createSpotlightWhenViewIsInflated(
+    layout: View,
+    activity: Activity,
+    texts: List<String>,
+    vararg views: View
+) {
     views[0].viewTreeObserver.addOnGlobalLayoutListener(
         object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 var targets: MutableList<Target> = mutableListOf()
-                for(view in views){
+                for (view in views) {
                     targets.add(createTarget(view, layout))
                 }
                 val targetsArray = targets.toTypedArray()
                 val spotlight = createSpotlight(activity, *targetsArray)
-                val closeSpotlight = View.OnClickListener { spotlight.next()}//spotlight.finish() }
-
-//                val nextButton =
-
+                val textIterator = texts.iterator()
+                val targetText = layout.findViewById<TextView>(R.id.target_text)
+                targetText.text = textIterator.next()
+                val closeSpotlight = View.OnClickListener {
+                    spotlight.next()
+                    if (textIterator.hasNext()) {
+                        targetText.text = textIterator.next()
+                    }
+                }
                 layout.findViewById<View>(R.id.close_spotlight)
                     .setOnClickListener(closeSpotlight)
                 spotlight.start()

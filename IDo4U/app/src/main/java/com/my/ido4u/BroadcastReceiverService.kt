@@ -29,11 +29,11 @@ import com.google.gson.Gson
 
 class BroadcastReceiverService : Service() {
     private var mReceiver: BroadcastReceiver? = null
-    private var actionsToListenTo : HashSet<String> = HashSet<String>()
+    private var actionsToListenTo : HashSet<String> = HashSet()
     private var taskList : MutableList<Task> = TaskManager.getTaskList()
     private var lastSSID : String? = null
     private val gson : Gson = Gson()
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var fusedLocationClient: FusedLocationProviderClient? = null
     private var lastLocation : Location? = null
     private var locationTrackingStarted = false
     private var context : Context? = null
@@ -45,7 +45,6 @@ class BroadcastReceiverService : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         context = applicationContext
         createAndRegisterBroadcastReceiver()
-//        initialization()
         startForeground(FOREGROUND_ID, createStickyNotification())
         return START_STICKY
     }
@@ -91,7 +90,7 @@ class BroadcastReceiverService : Service() {
         if (!locationTrackingStarted) {
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
             if (hasLocationPermissions(applicationContext) && isLocationEnabled()) {
-                fusedLocationClient.lastLocation.addOnCompleteListener {
+                fusedLocationClient!!.lastLocation.addOnCompleteListener {
                     requestNewLocationData()
                 }
             }
@@ -114,7 +113,7 @@ class BroadcastReceiverService : Service() {
                 onLocationChanged(locationResult.lastLocation)
             }
         }
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
+        fusedLocationClient!!.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -355,6 +354,8 @@ class BroadcastReceiverService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(mReceiver)
-        fusedLocationClient.removeLocationUpdates(locationCallback)
+        if(locationCallback != null) {
+            fusedLocationClient!!.removeLocationUpdates(locationCallback)
+        }
     }
 }
