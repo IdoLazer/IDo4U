@@ -57,30 +57,26 @@ class MainActivity : AppCompatActivity() {
                     val viewItem: View? = recycler!!.layoutManager?.findViewByPosition(0)
                     val firstTaskLayout = viewItem?.findViewById<View>(R.id.task_layout)
                     val firstTaskSwitch = viewItem?.findViewById<View>(R.id.task_switch)
-                    var arr: Array<View>? = null
-                    if(firstTaskLayout != null && firstTaskSwitch != null) {
-                        arr = arrayOf(
-                                findViewById(R.id.add_task_button),
-                                firstTaskLayout,
-                                firstTaskSwitch
-                            )
-
-                    }
                     val texts: List<String> = listOf(
                         getString(R.string.add_task_explanation),
                         getString(R.string.task_recycler_explanation),
                         getString(R.string.task_switch_explanation)
                     )
-
-                    recycler!!.viewTreeObserver.removeOnGlobalLayoutListener(this)
-
-                    if (arr == null) {
-                        arr = arrayOf(
-                           findViewById(R.id.add_task_button),
-                           findViewById(R.id.task_recycler)
-                       )
+                    val arr = if(firstTaskLayout != null && firstTaskSwitch != null) {
+                        arrayOf(
+                            findViewById(R.id.add_task_button),
+                            firstTaskLayout,
+                            firstTaskSwitch
+                        )
+                    }else {
+                        arrayOf(
+                            findViewById(R.id.add_task_button),
+                            findViewById(R.id.task_recycler)
+                        )
                     }
+
                     createTutorial(this@MainActivity, texts,*arr)
+                    recycler!!.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 }
             })
 

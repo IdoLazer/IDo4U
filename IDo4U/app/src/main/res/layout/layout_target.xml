@@ -1,50 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:IDo4U="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:IDo4U="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
 
-    <TextView
-        android:id="@+id/target_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@string/add_task_explanation"
-        android:textAlignment="center"
-        android:textColor="@android:color/white"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        IDo4U:layout_constraintBottom_toTopOf="@+id/close_spotlight"
-        IDo4U:layout_constraintEnd_toEndOf="parent"
-        IDo4U:layout_constraintHorizontal_bias="0.497"
-        IDo4U:layout_constraintStart_toStartOf="parent"
-        IDo4U:layout_constraintTop_toTopOf="parent"
-        IDo4U:layout_constraintVertical_bias="1.0" />
-
-    <Button
-        android:id="@+id/close_spotlight"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:text="@string/close_spotlight"
-        android:textColor="@android:color/white"
+    <LinearLayout
+        android:layout_width="385dp"
+        android:layout_height="254dp"
+        android:orientation="horizontal"
         IDo4U:layout_constraintBottom_toBottomOf="parent"
         IDo4U:layout_constraintEnd_toEndOf="parent"
-        IDo4U:layout_constraintHorizontal_bias="0.247"
         IDo4U:layout_constraintStart_toStartOf="parent"
-        IDo4U:layout_constraintTop_toTopOf="parent" />
+        IDo4U:layout_constraintTop_toTopOf="parent">
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/next"
-        android:textColor="@android:color/white"
-        IDo4U:layout_constraintEnd_toEndOf="parent"
-        IDo4U:layout_constraintStart_toEndOf="@+id/close_spotlight"
-        IDo4U:layout_constraintTop_toBottomOf="@+id/target_text" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/target_text"
+                android:layout_width="wrap_content"
+                android:layout_height="81dp"
+                android:layout_margin="5dp"
+                android:gravity="center"
+                android:text="@string/add_task_explanation"
+                android:textAlignment="center"
+                android:textColor="@android:color/white"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="190dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/close_spotlight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="40dp"
+                    android:text="@string/next_tutorial_text"
+                    android:textColor="@android:color/white" />
+
+                <Button
+                    android:id="@+id/next_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="40dp"
+                    android:text="@string/skip_tutorial"
+                    android:textColor="@android:color/white" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

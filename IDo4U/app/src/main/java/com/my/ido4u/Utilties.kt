@@ -27,7 +27,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.takusemba.spotlight.Spotlight
 import com.takusemba.spotlight.Target
-import com.takusemba.spotlight.effet.RippleEffect
 import com.takusemba.spotlight.shape.RoundedRectangle
 import java.util.*
 
@@ -192,14 +191,18 @@ fun createSpotlightWhenViewIsInflated(
                 val textIterator = texts.iterator()
                 val targetText = layout.findViewById<TextView>(R.id.target_text)
                 targetText.text = textIterator.next()
-                val closeSpotlight = View.OnClickListener {
+                val nextSpotlight = View.OnClickListener {
                     spotlight.next()
                     if (textIterator.hasNext()) {
                         targetText.text = textIterator.next()
                     }
                 }
+                val stopSpotlight = View.OnClickListener {
+                    spotlight.finish()
+                }
                 layout.findViewById<View>(R.id.close_spotlight)
-                    .setOnClickListener(closeSpotlight)
+                    .setOnClickListener(nextSpotlight)
+                layout.findViewById<View>(R.id.next_button).setOnClickListener(stopSpotlight)
                 spotlight.start()
                 views[0].viewTreeObserver.removeOnGlobalLayoutListener(this)
             }
@@ -214,7 +217,12 @@ private fun createTarget(view: View, layout: View): Target {
         .setAnchor(view)
         .setShape(RoundedRectangle(view.height.toFloat(), view.width.toFloat(), 100f))
         .setEffect(
-            RippleEffect(100f, 200f, Color.argb(30, 124, 255, 90))
+            RectangleRippleEffect(
+                view.height.toFloat(),
+                view.width.toFloat(),
+                100f,
+                200f,
+                Color.argb(30, 124, 255, 90))
         )
         .setOverlay(layout)
         .build()
