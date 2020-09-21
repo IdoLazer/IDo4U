@@ -21,8 +21,6 @@ import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.content.ContextCompat.startActivity
 import com.takusemba.spotlight.Spotlight
 import com.takusemba.spotlight.Target
 import com.takusemba.spotlight.effet.RippleEffect
@@ -127,7 +125,7 @@ fun askBrightnessPermission(context: Context) { //todo - delete and check permis
 
 fun checkSoundPermissions(context: Context){
     val notificationMngr = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !notificationMngr.isNotificationPolicyAccessGranted) { //todo - uneccesry
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !notificationMngr.isNotificationPolicyAccessGranted) {
         context.startActivity(Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
     }
 }
@@ -145,31 +143,45 @@ fun hasLocationPermissions(context: Context): Boolean {
 
 //////////////////////// Tutorial - related methods ////////////////////////////////////////////////
 /**
- * Create a tutorial spotlight around the target provided
+ * Creates a tutorial
  */
-fun createSpotlight(target: Target, activity: Activity): Spotlight {
-    return Spotlight.Builder(activity)
-        .setTargets(target)
-        .setBackgroundColor(R.color.spotlightBackground)
-        .setDuration(1000L)
-        .setAnimation(DecelerateInterpolator(2f))
-        .build()
+//todo - add to parameters a list of strings to be presented and change activity to a list of
+// activities to be spotlighted one after the other
+fun createTutorial(activity: Activity, vararg viewIds: Int) {
+    val firstRoot = FrameLayout(activity)
+    val layout = activity.layoutInflater.inflate(R.layout.layout_target, firstRoot)
+    val views = mutableListOf<View>()
+
+    for(viewId in viewIds){
+        val view = activity.findViewById<View>(viewId)
+        views.add(view)
+    }
+    val viewsArray: Array<View> = views.toTypedArray()
+
+    createSpotlightWhenViewIsInflated(layout, activity, *viewsArray) //todo - should only happen at first launch!
 }
 
 /**
  * Adds a listener which create a target and spotlight around a view when it is inflated
  */
-fun createSpotlightWhenViewIsInflated(button: View, layout: View, activity: Activity) {
-    button.viewTreeObserver.addOnGlobalLayoutListener(
+fun createSpotlightWhenViewIsInflated(layout: View, activity: Activity, vararg views: View) {
+    views[0].viewTreeObserver.addOnGlobalLayoutListener(
         object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                val target = createTarget(button, layout)
-                val spotlight = createSpotlight(target, activity)
-                val closeSpotlight = View.OnClickListener { spotlight.finish() }
+                var targets: MutableList<Target> = mutableListOf()
+                for(view in views){
+                    targets.add(createTarget(view, layout))
+                }
+                val targetsArray = targets.toTypedArray()
+                val spotlight = createSpotlight(activity, *targetsArray)
+                val closeSpotlight = View.OnClickListener { spotlight.next()}//spotlight.finish() }
+
+//                val nextButton =
+
                 layout.findViewById<View>(R.id.close_spotlight)
                     .setOnClickListener(closeSpotlight)
                 spotlight.start()
-                button.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                views[0].viewTreeObserver.removeOnGlobalLayoutListener(this)
             }
         })
 }
@@ -177,10 +189,10 @@ fun createSpotlightWhenViewIsInflated(button: View, layout: View, activity: Acti
 /**
  * Creates a target for a tutorial spotlight. The target will be illuminated by a circle.
  */
-private fun createTarget(button: View, layout: View): Target {
+private fun createTarget(view: View, layout: View): Target {
     return Target.Builder()
-        .setAnchor(button)//findViewById<View>(R.id.add_task_button))
-        .setShape(RoundedRectangle(button.height.toFloat(), button.width.toFloat(), 100f))
+        .setAnchor(view)
+        .setShape(RoundedRectangle(view.height.toFloat(), view.width.toFloat(), 100f))
         .setEffect(
             RippleEffect(100f, 200f, Color.argb(30, 124, 255, 90))
         )
@@ -189,17 +201,16 @@ private fun createTarget(button: View, layout: View): Target {
 }
 
 /**
- * Creates a tutorial
+ * Create a tutorial spotlight around the target provided
  */
-//todo - add to parameters a list of strings to be presented and change activity to a list of
-// activities to be spotlighted one after the other
-fun createTutorial(activity: Activity, viewId: Int) {
-    val firstRoot = FrameLayout(activity)
-    val layout = activity.layoutInflater.inflate(R.layout.layout_target, firstRoot)
-    val button = activity.findViewById<View>(viewId)
-    createSpotlightWhenViewIsInflated(button, layout, activity) //todo - should only happen at first launch!
+fun createSpotlight(activity: Activity, vararg targets: Target): Spotlight {
+    return Spotlight.Builder(activity)
+        .setTargets(*targets)
+        .setBackgroundColor(R.color.spotlightBackground)
+        .setDuration(1000L)
+        .setAnimation(DecelerateInterpolator(2f))
+        .build()
 }
-
 //////////////////////////// Wifi - related methods ////////////////////////////////////////////
 /**
  * Scans the available wifi access points and registers a broadcastListener that listens to the

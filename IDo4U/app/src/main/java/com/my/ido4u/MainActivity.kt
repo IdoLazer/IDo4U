@@ -19,6 +19,7 @@ import android.view.ViewTreeObserver
 import android.view.animation.DecelerateInterpolator
 import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.Switch
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -60,7 +61,9 @@ class MainActivity : AppCompatActivity() {
         wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 //        wifiScanReceiver = scanWifi(this@MainActivity, wifiManager) //todo -remove
         createMockTasks() //todo - remove
-        createTutorial(this@MainActivity, R.id.add_task_button)
+//        val recyclerView = findViewById<RecyclerView>(R.id.task_recycler)
+        val arr: IntArray = intArrayOf(R.id.add_task_button, R.id.task_recycler)
+        createTutorial(this@MainActivity, *arr)
     }
 
 //    fun setMobileDataState(mobileDataEnabled: Boolean) { //todo - No Carrier Privilege
