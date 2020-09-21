@@ -4,32 +4,37 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="80dp"
-    android:background="@color/colorBackGroundDarker">
+    android:layout_height="80dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:background="@color/colorBackGroundDarker">
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/task_name"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="78dp"
+            android:layout_marginStart="1dp"
+            android:layout_marginTop="1dp"
             android:layout_weight="1"
+            android:background="@color/colorBackGround"
             android:gravity="center_vertical"
             android:text="Sample Task"
-            android:layout_marginStart="10dp"
-            android:textSize="20dp"
+            android:textSize="20sp"
+            android:padding="10dip"
             />
 
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/task_switch"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="78dp"
+            android:layout_marginTop="-1dp"
+            android:layout_marginEnd="1dp"
             android:layout_weight="3"
-            android:layout_marginEnd="20dp"
-            />
+            android:padding="20dp"
+            android:background="@color/colorBackGround" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

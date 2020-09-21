@@ -21,7 +21,10 @@ class TaskProfileActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.task_profile)
+        initializeViews()
+    }
 
+    private fun initializeViews() {
         val editTaskTitle: EditText = findViewById(R.id.edit_task_title)
         val addConditionButton: MaterialButton = findViewById(R.id.add_condition_button)
         val addActionButton: MaterialButton = findViewById(R.id.add_action_button)
@@ -29,25 +32,37 @@ class TaskProfileActivity : FragmentActivity() {
         val conditionScrollViewLL: LinearLayout =
             findViewById(R.id.condition_scrollView_linearLayout)
         val actionsScrollViewLL: LinearLayout = findViewById(R.id.actions_scrollView_linearLayout)
+        val removeConditionButton: MaterialButton = findViewById(R.id.remove_condition_button)
+        val removeActionButton: MaterialButton = findViewById(R.id.remove_action_button)
 
         id = intent.getIntExtra("id", -1)
 
         addConditionButton.setOnClickListener {
-            if (conditionScrollViewLL.childCount == 1) {
+            if (condition == null) {
                 conditionScrollViewLL.removeAllViewsInLayout()
+            }
+            if (conditionScrollViewLL.childCount == 1) {
+                editCondition()
             } else {
+                addCondition(conditionScrollViewLL)
                 addConditionButton.text = "Edit Condition"
             }
-            val wifiCondition = WifiConditionData("fAk3_n3Tw0Rk")
-            var newCondition = Task.Condition(
-                Task.ConditionEnum.WIFI,
-                gson.toJson(wifiCondition),
-                wifiCondition.toString()
-            )
-            createCondition(newCondition, conditionScrollViewLL)
+
+        }
+
+        removeConditionButton.setOnClickListener {
+            condition = null
+            addConditionButton.text = "Add Condition"
+            conditionScrollViewLL.removeAllViewsInLayout()
+            val tv = TextView(this)
+            tv.hint = "Add a condition"
+            conditionScrollViewLL.addView(tv)
         }
 
         addActionButton.setOnClickListener {
+            if (actions.size == 0) {
+                actionsScrollViewLL.removeAllViewsInLayout()
+            }
             if (actionsScrollViewLL.childCount < MAX_ACTIONS) {
                 val volumeAction = VolumeActionData(VolumeActionData.VolumeAction.SOUND, 0.5f)
                 val action = Task.Action(
@@ -59,8 +74,16 @@ class TaskProfileActivity : FragmentActivity() {
             }
         }
 
+        removeActionButton.setOnClickListener {
+            actions = mutableListOf()
+            actionsScrollViewLL.removeAllViewsInLayout()
+            val tv = TextView(this)
+            tv.hint = "Add an action"
+            actionsScrollViewLL.addView(tv)
+        }
+
         applyNewTaskButton.setOnClickListener {
-            if (condition == null || actions.size == 0) {
+            if (condition == null || actions.size == 0 || editTaskTitle.text.isEmpty()) {
             } else {
                 val task =
                     Task(editTaskTitle.text.toString(), true, condition!!, actions.toTypedArray())
@@ -74,10 +97,24 @@ class TaskProfileActivity : FragmentActivity() {
             }
         }
 
-        if (id == -1) {
-            return
+        if (id != -1) {
+            populateFieldsForExistingTask(
+                conditionScrollViewLL,
+                actionsScrollViewLL,
+                addConditionButton,
+                editTaskTitle
+            )
         }
+    }
 
+    private fun populateFieldsForExistingTask(
+        conditionScrollViewLL: LinearLayout,
+        actionsScrollViewLL: LinearLayout,
+        addConditionButton: MaterialButton,
+        editTaskTitle: EditText
+    ) {
+        conditionScrollViewLL.removeAllViewsInLayout()
+        actionsScrollViewLL.removeAllViewsInLayout()
         addConditionButton.text = "Edit Condition"
         var task = TaskManager.getPosition(id)
         editTaskTitle.setText(task.name)
@@ -85,6 +122,20 @@ class TaskProfileActivity : FragmentActivity() {
         for (action in task.actions) {
             createAction(action, actionsScrollViewLL)
         }
+    }
+
+    private fun editCondition() {
+        TODO("Not yet implemented")
+    }
+
+    private fun addCondition(conditionScrollViewLL: LinearLayout) {
+        val wifiCondition = WifiConditionData("fAk3_n3Tw0Rk")
+        var newCondition = Task.Condition(
+            Task.ConditionEnum.WIFI,
+            gson.toJson(wifiCondition),
+            wifiCondition.toString()
+        )
+        createCondition(newCondition, conditionScrollViewLL)
     }
 
     private fun createAction(action: Task.Action, actionsScrollViewLL: LinearLayout) {
