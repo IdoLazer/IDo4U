@@ -27,5 +27,18 @@
     <string name="add_task_explanation">Click this button in order to start creating a new task</string>
     <string name="title_activity_maps">Map</string>
     <string name="ok">OK</string>
+    <string name="choose_a_condition">Choose A Condition</string>
+    <string name="sample_task">Sample Task</string>
+    <string name="menu_item_icon">menu item icon</string>
+    <string name="enter_task_title">Enter Task Title</string>
+    <string name="condition">Condition</string>
+    <string name="add_a_condition">Add a condition</string>
+    <string name="add_condition">Add Condition</string>
+    <string name="actions">Actions</string>
+    <string name="add_an_action">Add an action</string>
+    <string name="add_action">Add Action</string>
+    <string name="apply">Apply</string>
+    <string name="sample_menu_item">Sample Menu Item</string>
+    <string name="edit_condition">Edit Condition</string>
 
 </resources>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="80dp">
 
     <LinearLayout
@@ -11,7 +10,7 @@
         android:background="@color/colorBackGroundDarker">
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/task_name"
+            android:id="@+id/menu_item_name"
             android:layout_width="match_parent"
             android:layout_height="78dp"
             android:layout_marginStart="1dp"
@@ -19,20 +18,22 @@
             android:layout_weight="1"
             android:background="@color/colorBackGround"
             android:gravity="center_vertical"
-            android:text="@string/sample_task"
+            android:text="@string/sample_menu_item"
             android:textSize="20sp"
             android:padding="10dip"
             />
 
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/task_switch"
+        <ImageView
+            android:id="@+id/menu_item_icon"
             android:layout_width="match_parent"
             android:layout_height="78dp"
-            android:layout_marginTop="-1dp"
+            android:layout_marginTop="1dp"
             android:layout_marginEnd="1dp"
             android:layout_weight="3"
             android:padding="20dp"
-            android:background="@color/colorBackGround" />
+            android:src="@drawable/ic_cancel"
+            android:background="@color/colorBackGround"
+            android:contentDescription="@string/menu_item_icon" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -13,7 +13,7 @@
         android:text="@string/add_task_explanation"
         android:textAlignment="center"
         android:textColor="@android:color/white"
-        android:textSize="24dp"
+        android:textSize="24sp"
         android:textStyle="bold"
         IDo4U:layout_constraintBottom_toTopOf="@+id/close_spotlight"
         IDo4U:layout_constraintEnd_toEndOf="parent"

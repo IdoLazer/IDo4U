@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorBackGround">
@@ -20,8 +19,10 @@
             android:layout_width="match_parent"
             android:layout_height="58dp"
             android:layout_marginTop="1dp"
-            android:hint="Enter Task Title"
-            android:background="@color/colorBackGround"/>
+            android:hint="@string/enter_task_title"
+            android:background="@color/colorBackGround"
+            android:autofillHints="The task title"
+            android:inputType="text" />
     </LinearLayout>
 
 
@@ -30,7 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="20dp"
         android:layout_marginTop="100dp"
-        android:text="Condition"
+        android:text="@string/condition"
         android:padding="2dp"
         app:layout_constraintTop_toBottomOf="@+id/edit_task_title_linearLayout" />
 
@@ -55,7 +56,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="Add a condition"/>
+                    android:hint="@string/add_a_condition"/>
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
@@ -65,8 +66,8 @@
         android:layout_width="160dp"
         android:layout_height="50dp"
         android:layout_marginTop="12dp"
-        android:text="Add Condition"
-        android:textSize="12dp"
+        android:text="@string/add_condition"
+        android:textSize="12sp"
         app:backgroundTint="@color/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.95"
@@ -95,7 +96,7 @@
         android:layout_width="match_parent"
         android:layout_height="20dp"
         android:layout_marginTop="30dp"
-        android:text="Actions"
+        android:text="@string/actions"
         android:padding="2dp"
         app:layout_constraintTop_toBottomOf="@+id/add_condition_button" />
 
@@ -120,7 +121,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="Add an action"/>
+                    android:hint="@string/add_an_action"/>
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
@@ -131,8 +132,8 @@
         android:layout_width="160dp"
         android:layout_height="50dp"
         android:layout_marginTop="12dp"
-        android:text="Add Action"
-        android:textSize="12dp"
+        android:text="@string/add_action"
+        android:textSize="12sp"
         app:backgroundTint="@color/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.95"
@@ -160,8 +161,8 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="12dp"
-        android:text="Apply"
-        android:textSize="12dp"
+        android:text="@string/apply"
+        android:textSize="12sp"
         app:backgroundTint="@color/colorPrimaryDark"
 
         app:layout_constraintEnd_toEndOf="parent"
