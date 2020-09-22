@@ -12,7 +12,8 @@ import com.takusemba.spotlight.effet.Effect
 import java.util.concurrent.TimeUnit
 
 /**
- * Draws an ripple effects.
+ * Draws an ripple effects in a round rectangle shape - an implementation of the Effect interface
+ * of the Spotlight library.
  */
 class RectangleRippleEffect @JvmOverloads constructor(
     private val height: Float,

@@ -24,6 +24,10 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 
+/**
+ * An activity that allows the user to choose an area on the map in which his\her task's actions
+ * should be performed.
+ */
 class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
 
     private var centerLatLng = LatLng(31.772915, 35.218016) //todo
@@ -48,7 +52,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
     }
 
     /**
-     * Sets the views of the activity and the map fragment
+     * Sets the views of the activity and the map fragment.
      */
     private fun setViewsAndFragment() {
         setSeekBar()
@@ -58,7 +62,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
     }
 
     /**
-     * Sets the OK button and its' onClickListener
+     * Sets the OK button and its' onClickListener.
      */
     private fun setOkButton() {
         val OkButton = findViewById<Button>(R.id.approveLocationButton)
@@ -72,7 +76,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
     }
 
     /**
-     * Sets the seek bar with which the user can define a radius
+     * Sets the seek bar with which the user can define a radius.
      */
     private fun setSeekBar() {
         radiusSeekBar = findViewById<View>(R.id.RadiusSeekBar) as SeekBar
@@ -89,7 +93,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
     }
 
     /**
-     * Updates the marker's location to be the last one known and set the circle's center to be it
+     * Updates the marker's location to be the last one known and set the circle's center to be it.
      */
     private val lastLocation: Unit
         private get() {

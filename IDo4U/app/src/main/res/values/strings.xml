@@ -23,6 +23,9 @@
     <string name="open_location_settings">\"open location settings\"</string>
     <string name="Cancel">Cancel</string>
 
+    <string name="notification_message"> Waiting for a condition to be fulfilled…</string>
+    <string name="sticky_channel">stickyChannel</string>
+
     <string name="start_spotlight">Start Spotlight</string>
     <string name="next_tutorial_text">Next</string>
     <string name="next_target">Next Target</string>

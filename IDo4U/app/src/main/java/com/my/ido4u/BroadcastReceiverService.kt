@@ -26,6 +26,10 @@ import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.*
 import com.google.gson.Gson
 
+/**
+ * The service that runs in the foreground, listens to the relevant broadcasts (via
+ * broadcastReceiver) and performs the actions of tasks whose conditions became fulfilled.
+ */
 class BroadcastReceiverService : Service() {
     private var mReceiver: BroadcastReceiver? = null
     private var actionsToListenTo : HashSet<String> = HashSet()
@@ -68,9 +72,9 @@ class BroadcastReceiverService : Service() {
             "Stop listening",
             quitPendingIntent
         )
-        return NotificationCompat.Builder(this, Ido4uApp.CHANNEL_ID)
-            .setContentTitle("Ido4u")
-            .setContentText("Waiting for a condition to be filled...")
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle(getString(R.string.app_name))
+            .setContentText(getString(R.string.notification_message))
             .setSmallIcon(R.drawable.ic_baseline_hearing_24)
             .addAction(action)
             .setContentIntent(pendingIntent)
@@ -81,9 +85,9 @@ class BroadcastReceiverService : Service() {
 
     //////////////////////////////// location tracking methods /////////////////////////////////////
 
-    @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission") //todo - problematic for google play?
     /**
-     * Initializes location tracking using fuseLocation
+     * Initializes location tracking using fuseLocation.
      */
     private fun initializeLocationTracking() {
         if (!locationTrackingStarted) {
@@ -98,7 +102,7 @@ class BroadcastReceiverService : Service() {
     }
 
     /**
-     * Requests location updates periodically
+     * Requests location updates periodically.
      */
     @SuppressLint("MissingPermission")
     private fun requestNewLocationData() {
@@ -119,7 +123,7 @@ class BroadcastReceiverService : Service() {
     /**
      * Goes through all the tasks in taskList and for each task:
      * - Checks whether it's location-conditioned
-     * - If so, checks if the distance between  current location and the one in the condition is
+     * - If so, checks if the distance between current location and the one in the condition is
      *   smaller or equal to the condition's radius.
      * - If so, it executes the task's actions.
      */
@@ -149,7 +153,7 @@ class BroadcastReceiverService : Service() {
     }
 
     /**
-     * Returns true if curLocation satisfies the location condition of task, false otherwise
+     * Returns true if curLocation satisfies the location condition of task, false otherwise.
      */
     private fun doesLocationConditionApply(task: Task, curLocation: Location): Boolean {
         val curLon = curLocation.longitude
@@ -181,7 +185,6 @@ class BroadcastReceiverService : Service() {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
      * The BroadcastReceiver of the Service, it listens to the relevant broadcasts.
      */
@@ -203,7 +206,7 @@ class BroadcastReceiverService : Service() {
 
     @RequiresApi(Build.VERSION_CODES.M)
     /**
-     * Handles conditions of BLUETOOTH type
+     * Handles Bluetooth conditions.
      */
     private fun handleBluetoothCondition(intent : Intent) {
         val device : BluetoothDevice? = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
@@ -251,7 +254,7 @@ class BroadcastReceiverService : Service() {
 
     @RequiresApi(Build.VERSION_CODES.M)
     /**
-     * Handles all the actions of a task
+     * Handles all the actions of a task.
      */
     private fun handleActions(task: Task) {
         for (action in task.actions) {
@@ -267,7 +270,7 @@ class BroadcastReceiverService : Service() {
     }
 
     /**
-     * Tries to open the relevant app
+     * Tries to open the relevant app.
      */
     private fun handleAppOpenningAction(action: Task.Action) {
         val rawData = action.extraData
@@ -279,7 +282,7 @@ class BroadcastReceiverService : Service() {
 
     @RequiresApi(Build.VERSION_CODES.M)
     /**
-     * Handles screen brightness actions
+     * Handles screen brightness actions.
      */
     private fun handleBrightnessActions(action : Task.Action) {
         val rawData = gson.fromJson(action.extraData, BrightnessActionData::class.java)
@@ -294,14 +297,17 @@ class BroadcastReceiverService : Service() {
     /**
      * Handles volume actions.
      */
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun handleVolumeActions(action : Task.Action) {
         val audioMngr = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val actionData = gson.fromJson(action.extraData, VolumeActionData::class.java)
-        checkSoundPermissions(applicationContext)
+        checkActionsPermissions(Task.ActionEnum.BRIGHTNESS, applicationContext)
         when (actionData.volumeAction) {
             VolumeActionData.VolumeAction.SOUND -> changeRingerVolume(audioMngr, actionData)
-            VolumeActionData.VolumeAction.VIBRATE -> silenceDevice(audioMngr, AudioManager.RINGER_MODE_VIBRATE)
-            VolumeActionData.VolumeAction.MUTE -> silenceDevice(audioMngr, AudioManager.RINGER_MODE_SILENT)
+            VolumeActionData.VolumeAction.VIBRATE ->
+                                        silenceDevice(audioMngr, AudioManager.RINGER_MODE_VIBRATE)
+            VolumeActionData.VolumeAction.MUTE ->
+                                        silenceDevice(audioMngr, AudioManager.RINGER_MODE_SILENT)
         }
     }
 
@@ -317,7 +323,7 @@ class BroadcastReceiverService : Service() {
     }
 
     /**
-     * Changes the cellPhones the sound level of all 4 sound streams (ringer, music, notifications
+     * Changes the sound level of all 4 sound streams (ringer, music, notifications
      * and system) to the target sound stored in actionData.
      */
     private fun changeRingerVolume(audioMngr: AudioManager, actionData: VolumeActionData) {
@@ -338,8 +344,8 @@ class BroadcastReceiverService : Service() {
     }
 
     /**
-     * Adds to a filter all the actions to whom the broadcastReceiver should listen, creates the
-     * broadcastReceiver using the filter. Finally, register the broadcastReceiver with the filter.
+     * Adds to a filter all the actions to whom the broadcastReceiver should listen and creates the
+     * broadcastReceiver using the filter. Finally, registers the broadcastReceiver with the filter.
      */
     private fun createAndRegisterBroadcastReceiver() {
         for(task in taskList){ //todo - should we check here if task is on?

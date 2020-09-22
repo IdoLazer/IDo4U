@@ -13,7 +13,6 @@ class Ido4uApp : Application() {
     }
 
     companion object {
-        const val CHANNEL_ID = "stickyChannel"
         private var instance: Ido4uApp? = null
 
         fun applicationContext(): Context {
@@ -26,11 +25,14 @@ class Ido4uApp : Application() {
         createNotificationChannel()
     }
 
+    /**
+     * Creates a notification channel.
+     */
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val serviceChannel = NotificationChannel(
                 CHANNEL_ID,
-                "stickyChannel",
+                getString(R.string.sticky_channel),
                 NotificationManager.IMPORTANCE_DEFAULT
             )
             val manager = getSystemService(NotificationManager::class.java)

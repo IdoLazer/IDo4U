@@ -30,8 +30,15 @@ import com.takusemba.spotlight.Target
 import com.takusemba.spotlight.shape.RoundedRectangle
 import java.util.*
 
+
+/**
+ * A file common to all classes and activities, in which all the constants and methods that are
+ * being used by several components.
+ */
+
 ///////////////////////////////////////// Constants ////////////////////////////////////////////////
-const val DEFAULT_BSSID = "02:00:00:00:00:00"
+const val CHANNEL_ID = "stickyChannel"
+
 const val QUIT = "quit"
 const val QUIT_ID = 0
 const val FOREGROUND_ID = 1
@@ -39,11 +46,8 @@ const val WIFI_CHANGED_BROADCAST = WifiManager.NETWORK_STATE_CHANGED_ACTION
 const val BLUETOOTH_CHANGED_BROADCAST = BluetoothDevice.ACTION_ACL_CONNECTED
 const val THRESHOLD_ACCURACY = 50
 const val LOCATION_REQUEST_INTERVALS: Long = 5
-
 const val WIFI_PERMISSION_REQUEST_CODE = 0
 const val  BLUETOOTH_PERMISSIONS_REQUEST_CODE = 1
-const val LOCATION_PERMISSION_REQUEST_CODE = 3
-
 const val MAP_PIN_LOCATION_REQUEST_CODE = 5
 const val DEFAULT_RADIUS = 500f
 const val RADIUS_MAX_IN_METERS = 5000
@@ -51,10 +55,13 @@ const val CENTER_MARKER = "centerMarker"
 const val MAP_LOCATION_ACTION = "mapLocationAction"
 const val MARKER_LAT_LNG = "markerLatLng"
 const val RADIUS = "radius"
-
 const val CHOOSE_APP_REQUEST_CODE = 6
 
 /////////////////////////// Permission - related methods ///////////////////////////////////////////
+/**
+ * Checks if all the relevant permissions for the condition type "type" has been granted and
+ * requests those who has'nt been granted yet.
+ */
 fun checkConditionsPermissions(type: Task.ConditionEnum, activity: Activity) : Boolean{
     when(type){
         Task.ConditionEnum.WIFI -> checkSpecificPermissions(
@@ -73,8 +80,7 @@ fun checkConditionsPermissions(type: Task.ConditionEnum, activity: Activity) : B
             BLUETOOTH_PERMISSIONS_REQUEST_CODE, activity
         )
 
-        Task.ConditionEnum.TIME -> {
-        } //todo
+        Task.ConditionEnum.TIME -> {} //todo
 
         Task.ConditionEnum.LOCATION -> checkSpecificPermissions(
             mutableListOf(
@@ -88,8 +94,22 @@ fun checkConditionsPermissions(type: Task.ConditionEnum, activity: Activity) : B
 }
 
 /**
- * Checks a if all permissions in permissionsList are granted - if so returns true, else - calls
- * ActivityCompat.requestPermissions on all the ungranted permissions.
+ * Shows a dialog that says the location service is unavailable
+ * @param context a context
+ */
+fun noLocationDialog(context: Context?) {
+    AlertDialog.Builder(context).setMessage(R.string.gps_network_not_enabled)
+        .setPositiveButton(
+            R.string.open_location_settings
+        ) { _, _ ->
+            context?.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+        }
+        .show()
+}
+
+/**
+ * Checks if all the permissions in permissionsList has been granted - if so returns true,
+ * else - calls ActivityCompat.requestPermissions on all the un-granted permissions.
  */
 private fun checkSpecificPermissions(
     permissionsList: MutableList<String>,
@@ -104,47 +124,63 @@ private fun checkSpecificPermissions(
     if (unGrantedPermissionsList.size > 0) {
         ActivityCompat.requestPermissions(
             activity,
-            unGrantedPermissionsList.toTypedArray(), requestCode
+            unGrantedPermissionsList.toTypedArray(),
+            requestCode
         )
         return false
     }
     return true
 }
 
+/**
+ * Return true if permission has been granted, false otherwise.
+ */
 private fun checkPermission(permission: String, context: Context) : Boolean{
     val granted = PackageManager.PERMISSION_GRANTED
     return ContextCompat.checkSelfPermission(context, permission)!= granted
 }
 
+@RequiresApi(Build.VERSION_CODES.M)
 /**
- * Shows a dialog that says the location service is unavailable
- * @param context a context
+ * Checks if all the relevant permissions for the action type "type" has been granted and
+ * requests those who has'nt been granted yet.
  */
- fun noLocationDialog(context: Context?) {
-    AlertDialog.Builder(context).setMessage(R.string.gps_network_not_enabled)
-        .setPositiveButton(
-            R.string.open_location_settings
-        ) { _, _ ->
-            context?.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-        }
-        .show()
+fun checkActionsPermissions(type: Task.ActionEnum, context: Context) : Boolean{
+    when(type){
+        Task.ActionEnum.VOLUME -> checkSoundPermissions(context)
+        Task.ActionEnum.BRIGHTNESS -> checkBrightnessPermission(context)
+    }
+    return true
+
 }
 
 @RequiresApi(Build.VERSION_CODES.M)
 /**
- * todo
+ * Checks if the application is allowed to change screen brightness.
+ * If it is - the method returns true, else -  asks the permission from the user and sends him\her
+ * to an activity in which it could be granted.
  */
-fun askBrightnessPermission(context: Context) { //todo - delete and check permissions in task creation
+fun checkBrightnessPermission(context: Context): Boolean {
     if (!Settings.System.canWrite(context)) {
         context.startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
+        return true
     }
+    return false
 }
 
-fun checkSoundPermissions(context: Context){
+/**
+ * Checks if the application is allowed to change the device's volume mode and level.
+ * If it is - the method returns true, else -  asks the permission from the user and sends him\her
+ * to an activity in which it could be granted.
+ */
+fun checkSoundPermissions(context: Context): Boolean{
     val notificationMngr = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !notificationMngr.isNotificationPolicyAccessGranted) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+        !notificationMngr.isNotificationPolicyAccessGranted) {
         context.startActivity(Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
+        return false
     }
+    return true
 }
 
 /**
@@ -182,7 +218,7 @@ fun createSpotlightWhenViewIsInflated(
     views[0].viewTreeObserver.addOnGlobalLayoutListener(
         object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                var targets: MutableList<Target> = mutableListOf()
+                val targets: MutableList<Target> = mutableListOf()
                 for (view in views) {
                     targets.add(createTarget(view, layout))
                 }
@@ -197,9 +233,7 @@ fun createSpotlightWhenViewIsInflated(
                         targetText.text = textIterator.next()
                     }
                 }
-                val stopSpotlight = View.OnClickListener {
-                    spotlight.finish()
-                }
+                val stopSpotlight = View.OnClickListener { spotlight.finish() }
                 layout.findViewById<View>(R.id.close_spotlight)
                     .setOnClickListener(nextSpotlight)
                 layout.findViewById<View>(R.id.next_button).setOnClickListener(stopSpotlight)
@@ -286,12 +320,20 @@ private fun scanFailure() {
 }
 
 ///////////////////////////// Bluetooth related methods ////////////////////////////////////////////
+/**
+ * Returns a list of all the bluetooth devices that were paired with the device.
+ */
 fun getPairedBluetoothDevices(): Set<BluetoothDevice>? {
     val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
     val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
     return pairedDevices
 }
 
+/**
+ * Opens a pop-up that allows the user to choose an application from his\her device.
+ * In order to get the chosen app's information the programmer should override the
+ * onActivityResult in the calling activity and use data.getComponent().
+ */
 fun chooseApp(activity: Activity){
     val mainIntent = Intent(Intent.ACTION_MAIN, null)
     mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -310,8 +352,6 @@ fun chooseApp(activity: Activity){
     //            }
     //        }
     //    }
-
-
 }
 
 

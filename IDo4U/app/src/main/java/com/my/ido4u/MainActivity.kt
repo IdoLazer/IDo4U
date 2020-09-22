@@ -3,7 +3,6 @@ package com.my.ido4u
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.net.wifi.WifiManager
@@ -25,9 +24,8 @@ class MainActivity : AppCompatActivity() {
 
     private var wifiManager: WifiManager? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
-    private var wifiScanReceiver: BroadcastReceiver? = null
     private var gson: Gson = Gson()
-    var recycler: RecyclerView? = null
+    private var recycler: RecyclerView? = null
     private var adapter = TaskAdapter(object : TaskAdapter.TaskClickListener {
 
         override fun onTaskClicked(id: Int) {
@@ -46,13 +44,12 @@ class MainActivity : AppCompatActivity() {
 
         initializeViews()
         wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-//        wifiScanReceiver = scanWifi(this@MainActivity, wifiManager) //todo -remove
         createMockTasks() //todo - remove
         createMainActivityTutorial()
     }
 
     /**
-     * Creates tutorial for MainActivity
+     * Creates tutorial for MainActivity.
      */
     private fun createMainActivityTutorial() {
         recycler!!.viewTreeObserver.addOnGlobalLayoutListener(
@@ -85,21 +82,8 @@ class MainActivity : AppCompatActivity() {
             })
     }
 
-//    fun setMobileDataState(mobileDataEnabled: Boolean) { //todo - No Carrier Privilege
-//        try {
-//            val telephonyService = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-//            val setMobileDataEnabledMethod = telephonyService.javaClass.getDeclaredMethod(
-//                    "setDataEnabled",
-//                    Boolean::class.javaPrimitiveType
-//                )
-//            setMobileDataEnabledMethod.invoke(telephonyService, mobileDataEnabled)
-//        } catch (ex: Exception) {
-//            Log.e("FragmentActivity.TAG", ex.cause.toString(), ex)
-//        }
-//    }
-
     /**
-     * Initializes the MainActivities' views
+     * Initializes the MainActivities' views.
      */
     private fun initializeViews() {
         recycler = findViewById(R.id.task_recycler)
@@ -114,6 +98,45 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Opens an activity which presents the profile of the task with the id given.
+     */
+    private fun openTaskProfile(id: Int) {
+        val intent = Intent(this, TaskProfileActivity::class.java)
+        intent.putExtra("id", id)
+        startActivity(intent)
+    }
+
+    /**
+     * Adds task to the task list of TaskManager and starts the service again.
+     */
+    private fun addNewTask(newTask: Task) {
+        TaskManager.addTask(newTask)
+        adapter.notifyDataSetChanged()
+        startService()
+    }
+
+    /**
+     * Starts the service that continuously listens to relevant broadcasts and checks if any
+     * task condition became fulfilled.
+     */
+    private fun startService() {
+        val serviceIntent = Intent(this, BroadcastReceiverService::class.java)
+        startService(serviceIntent)
+    }
+
+    //////////////////////////// permission related code ///////////////////////////////////////////
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when(requestCode){
+            //todo - add cases!
+        }
+    }
+
+    /////////////////////////// override of activity methods s///////////////////////////////////////
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) { //todo - remove
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -127,50 +150,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Opens an activity which presents the profile of the task with the id given
-     */
-    private fun openTaskProfile(id: Int) {
-        val intent = Intent(this, TaskProfileActivity::class.java)
-        intent.putExtra("id", id)
-        startActivity(intent)
-    }
-
-    /**
-     * Adds task to the task list of TaskManager and starts the service again
-     */
-    private fun addNewTask(newTask: Task) {
-        TaskManager.addTask(newTask)
-        adapter.notifyDataSetChanged()
-        startService()
-    }
-
-    /**
-     * Starts the service that continuously checks for conditions.
-     */
-    private fun startService() {
-        val serviceIntent = Intent(this, BroadcastReceiverService::class.java)
-        serviceIntent.putExtra("inputExtra", "listening")
-        startService(serviceIntent)
-    }
-
-    //////////////////////////// permission related code ///////////////////////////////////////////
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when(requestCode){
-            WIFI_PERMISSION_REQUEST_CODE -> scanWifi(this@MainActivity, wifiManager) //todo
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////
     override fun onDestroy() { //todo make sure all relevant broadcastReceivers are unregistered here
         super.onDestroy()
-        if(wifiScanReceiver != null){
-            unregisterReceiver(wifiScanReceiver)
-        }
     }
 
     ////////////////////////////////////// todo change /////////////////////////////////////////////
@@ -253,7 +234,7 @@ class MainActivity : AppCompatActivity() {
         addNewTask(newTask)
 
         /////////////////////////////////// brightness action //////////////////////////////////////
-        askBrightnessPermission(this)
+        checkActionsPermissions(Task.ActionEnum.BRIGHTNESS,this)
         val actData2 = BrightnessActionData(170)
         val action2 : Task.Action = Task.Action(
             Task.ActionEnum.BRIGHTNESS,
