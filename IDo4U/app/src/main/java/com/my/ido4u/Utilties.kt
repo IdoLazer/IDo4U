@@ -43,10 +43,15 @@ const val DEFAULT_RADIUS = 500f
 const val RADIUS_MAX_IN_METERS = 5000
 const val CENTER_MARKER = "centerMarker"
 const val MAP_LOCATION_ACTION = "mapLocationAction"
+const val CHOOSE_CONDITION_ACTION = "chooseConditionAction"
 const val MARKER_LAT_LNG = "markerLatLng"
 const val RADIUS = "radius"
+const val CONDITION = "condition"
 
 const val CHOOSE_APP_REQUEST_CODE = 6
+const val CHOOSE_LOCATION_REQUEST_CODE = 7
+const val CHOOSE_CONDITION_REQUEST_CODE = 8
+
 
 /////////////////////////// Permission - related methods ///////////////////////////////////////////
 fun checkConditionsPermissions(type : Task.ConditionEnum, activity: Activity) : Boolean{

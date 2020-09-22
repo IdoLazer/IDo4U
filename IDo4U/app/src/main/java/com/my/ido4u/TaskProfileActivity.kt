@@ -1,5 +1,6 @@
 package com.my.ido4u
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.EditText
@@ -9,14 +10,17 @@ import androidx.fragment.app.FragmentActivity
 import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
 
+const val MAX_ACTIONS = 10
+
 class TaskProfileActivity : FragmentActivity() {
 
-    val MAX_ACTIONS = 10
-
-    var condition: Task.Condition? = null
-    var actions: MutableList<Task.Action> = mutableListOf()
-    var gson = Gson()
     var id = -1
+    private var condition: Task.Condition? = null
+    private var actions: MutableList<Task.Action> = mutableListOf()
+    private var gson = Gson()
+
+    private lateinit var conditionScrollViewLL: LinearLayout
+    private lateinit var actionsScrollViewLL: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,13 +29,13 @@ class TaskProfileActivity : FragmentActivity() {
     }
 
     private fun initializeViews() {
+        conditionScrollViewLL = findViewById(R.id.condition_scrollView_linearLayout)
+        actionsScrollViewLL = findViewById(R.id.actions_scrollView_linearLayout)
+
         val editTaskTitle: EditText = findViewById(R.id.edit_task_title)
         val addConditionButton: MaterialButton = findViewById(R.id.add_condition_button)
         val addActionButton: MaterialButton = findViewById(R.id.add_action_button)
         val applyNewTaskButton: MaterialButton = findViewById(R.id.apply_new_task_button)
-        val conditionScrollViewLL: LinearLayout =
-            findViewById(R.id.condition_scrollView_linearLayout)
-        val actionsScrollViewLL: LinearLayout = findViewById(R.id.actions_scrollView_linearLayout)
         val removeConditionButton: MaterialButton = findViewById(R.id.remove_condition_button)
         val removeActionButton: MaterialButton = findViewById(R.id.remove_action_button)
 
@@ -44,7 +48,7 @@ class TaskProfileActivity : FragmentActivity() {
             if (conditionScrollViewLL.childCount == 1) {
                 editCondition()
             } else {
-                addCondition(conditionScrollViewLL)
+                addCondition()
                 addConditionButton.text = getString(R.string.edit_condition)
             }
 
@@ -118,7 +122,7 @@ class TaskProfileActivity : FragmentActivity() {
         addConditionButton.text = getString(R.string.edit_condition)
         val task = TaskManager.getPosition(id)
         editTaskTitle.setText(task.name)
-        createCondition(task.condition, conditionScrollViewLL)
+        createCondition(task.condition)
         for (action in task.actions) {
             createAction(action, actionsScrollViewLL)
         }
@@ -128,10 +132,10 @@ class TaskProfileActivity : FragmentActivity() {
         TODO("Not yet implemented")
     }
 
-    private fun addCondition(conditionScrollViewLL: LinearLayout) {
+    private fun addCondition() {
         val intent = Intent(this, CreateConditionActivity::class.java)
-        startActivity(intent)
-//        createCondition(newCondition, conditionScrollViewLL) // TODO call when returning value
+        startActivityForResult(intent, CHOOSE_CONDITION_REQUEST_CODE)
+//        createCondition(newCondition) // TODO call when returning value
     }
 
     private fun createAction(action: Task.Action, actionsScrollViewLL: LinearLayout) {
@@ -147,10 +151,24 @@ class TaskProfileActivity : FragmentActivity() {
         actionsScrollViewLL.addView(tv)
     }
 
-    private fun createCondition(newCondition: Task.Condition, conditionScrollViewLL: LinearLayout) {
+    private fun createCondition(newCondition: Task.Condition) {
         condition = newCondition
         val tv = TextView(this)
         tv.text = newCondition.description
         conditionScrollViewLL.addView(tv)
+    }
+
+    override fun onActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?
+    ) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == CHOOSE_CONDITION_REQUEST_CODE &&
+            resultCode == Activity.RESULT_OK && data != null
+        ) {
+            createCondition(Gson().fromJson(data.getStringExtra(CONDITION), Task.Condition::class.java))
+        }
     }
 }

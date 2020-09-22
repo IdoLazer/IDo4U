@@ -23,6 +23,7 @@ import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.gson.Gson
 
 class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
 
@@ -64,8 +65,16 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
         val OkButton = findViewById<Button>(R.id.approveLocationButton)
         OkButton.setOnClickListener(View.OnClickListener {
             val resultIntent = Intent(MAP_LOCATION_ACTION)
-            resultIntent.putExtra(MARKER_LAT_LNG, centerLatLng)
-            resultIntent.putExtra(RADIUS, radius)
+            val locationConditionData =
+                LocationConditionData(centerLatLng.longitude, centerLatLng.latitude, radius)
+            val condition = Task.Condition(
+                Task.ConditionEnum.LOCATION,
+                Gson().toJson(locationConditionData),
+                locationConditionData.toString()
+            )
+//            resultIntent.putExtra(MARKER_LAT_LNG, centerLatLng)
+//            resultIntent.putExtra(RADIUS, radius)
+            resultIntent.putExtra(CONDITION, Gson().toJson(condition))
             setResult(RESULT_OK, resultIntent)
             finish()
         })
@@ -83,6 +92,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
                 radius = cur / seekBerMax * RADIUS_MAX_IN_METERS
                 mapCircle!!.radius = radius.toDouble()
             }
+
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
             override fun onStopTrackingTouch(seekBar: SeekBar) {}
         })
@@ -117,7 +127,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
         centerMarker = mapAPI!!.addMarker(
             MarkerOptions().position(centerLatLng).draggable(true).title(CENTER_MARKER)
         )
-        if(centerMarker != null) {
+        if (centerMarker != null) {
             mapCircle = mapAPI!!.addCircle(
                 CircleOptions()
                     .center(centerMarker!!.getPosition())

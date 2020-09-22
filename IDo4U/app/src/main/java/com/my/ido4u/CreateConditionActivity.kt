@@ -1,18 +1,23 @@
 package com.my.ido4u
 
-import android.graphics.drawable.Drawable
-import androidx.appcompat.app.AppCompatActivity
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
+import com.google.android.gms.maps.model.LatLng
+import com.google.gson.Gson
+
 
 class CreateConditionActivity : AppCompatActivity() {
 
-    data class MenuItem(
+    private data class MenuItem(
         var item_name: String,
         var icon_src: Int,
         var onClickListener: View.OnClickListener
@@ -25,7 +30,7 @@ class CreateConditionActivity : AppCompatActivity() {
     }
 
     private fun createMainConditionMenu() {
-        var conditionMenuLinearLayout: LinearLayout = findViewById(R.id.condition_menu_linearLayout)
+        val conditionMenuLinearLayout: LinearLayout = findViewById(R.id.condition_menu_linearLayout)
 
         val menuItems = mutableListOf(
             MenuItem(
@@ -52,7 +57,8 @@ class CreateConditionActivity : AppCompatActivity() {
 
         for (item in menuItems) {
             val menuItemLayout =
-                LayoutInflater.from(this).inflate(R.layout.item_menu, conditionMenuLinearLayout, false)
+                LayoutInflater.from(this)
+                    .inflate(R.layout.item_menu, conditionMenuLinearLayout, false)
             menuItemLayout.findViewById<TextView>(R.id.menu_item_name).text = item.item_name
             menuItemLayout.findViewById<ImageView>(R.id.menu_item_icon)
                 .setImageResource(item.icon_src)
@@ -66,7 +72,10 @@ class CreateConditionActivity : AppCompatActivity() {
     }
 
     private fun clickedOnLocation() {
-        
+        if (!checkConditionsPermissions(Task.ConditionEnum.LOCATION, this)) return
+
+        val intent = Intent(this, ChooseLocationActivity::class.java)
+        startActivityForResult(intent, CHOOSE_LOCATION_REQUEST_CODE)
     }
 
     private fun clickedOnWifi() {
@@ -75,5 +84,20 @@ class CreateConditionActivity : AppCompatActivity() {
 
     private fun clickedOnBluetooth() {
 
+    }
+
+    override fun onActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?
+    ) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == CHOOSE_LOCATION_REQUEST_CODE &&
+            resultCode == Activity.RESULT_OK && data != null
+        ) {
+            setResult(FragmentActivity.RESULT_OK, data)
+            finish()
+        }
     }
 }
