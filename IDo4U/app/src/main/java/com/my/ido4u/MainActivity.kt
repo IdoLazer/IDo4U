@@ -48,9 +48,13 @@ class MainActivity : AppCompatActivity() {
         wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 //        wifiScanReceiver = scanWifi(this@MainActivity, wifiManager) //todo -remove
         createMockTasks() //todo - remove
+        createMainActivityTutorial()
+    }
 
-
-
+    /**
+     * Creates tutorial for MainActivity
+     */
+    private fun createMainActivityTutorial() {
         recycler!!.viewTreeObserver.addOnGlobalLayoutListener(
             object : ViewTreeObserver.OnGlobalLayoutListener {
                 override fun onGlobalLayout() {
@@ -62,25 +66,23 @@ class MainActivity : AppCompatActivity() {
                         getString(R.string.task_recycler_explanation),
                         getString(R.string.task_switch_explanation)
                     )
-                    val arr = if(firstTaskLayout != null && firstTaskSwitch != null) {
+                    val arr = if (firstTaskLayout != null && firstTaskSwitch != null) {
                         arrayOf(
                             findViewById(R.id.add_task_button),
                             firstTaskLayout,
                             firstTaskSwitch
                         )
-                    }else {
+                    } else {
                         arrayOf(
                             findViewById(R.id.add_task_button),
                             findViewById(R.id.task_recycler)
                         )
                     }
 
-                    createTutorial(this@MainActivity, texts,*arr)
+                    createTutorial(this@MainActivity, texts, *arr)
                     recycler!!.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 }
             })
-
-
     }
 
 //    fun setMobileDataState(mobileDataEnabled: Boolean) { //todo - No Carrier Privilege
@@ -241,7 +243,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         /////////////////////////////////////// volume action //////////////////////////////////////
-        val actData = VolumeActionData(VolumeActionData.VolumeAction.SOUND, 3.0f)
+        val actData = VolumeActionData(VolumeActionData.VolumeAction.VIBRATE, 3.0f)
         val action : Task.Action = Task.Action(
             Task.ActionEnum.VOLUME,
             gson.toJson(actData),

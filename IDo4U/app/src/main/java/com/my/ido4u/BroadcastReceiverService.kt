@@ -2,7 +2,6 @@ package com.my.ido4u
 
 import android.annotation.SuppressLint
 import android.app.Notification
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.bluetooth.BluetoothDevice
@@ -224,6 +223,9 @@ class BroadcastReceiverService : Service() {
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
+    /**
+     * Handles WiFi conditions.
+     */
     private fun handleWifiCondition() {
         var curSsid : String? = null
         for (task in taskList) {
@@ -290,7 +292,7 @@ class BroadcastReceiverService : Service() {
     }
 
     /**
-     * Handles volume actions
+     * Handles volume actions.
      */
     private fun handleVolumeActions(action : Task.Action) {
         val audioMngr = getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -298,18 +300,33 @@ class BroadcastReceiverService : Service() {
         checkSoundPermissions(applicationContext)
         when (actionData.volumeAction) {
             VolumeActionData.VolumeAction.SOUND -> changeRingerVolume(audioMngr, actionData)
-            VolumeActionData.VolumeAction.VIBRATE -> audioMngr.ringerMode = AudioManager.RINGER_MODE_VIBRATE
-            VolumeActionData.VolumeAction.MUTE -> audioMngr.ringerMode = AudioManager.RINGER_MODE_SILENT
+            VolumeActionData.VolumeAction.VIBRATE -> silenceDevice(audioMngr, AudioManager.RINGER_MODE_VIBRATE)
+            VolumeActionData.VolumeAction.MUTE -> silenceDevice(audioMngr, AudioManager.RINGER_MODE_SILENT)
         }
     }
 
     /**
-     * Changes the cellPhones ringing sound to the target sound stored in actionData
+     * Changes the ringer mode of the device to mode and silences all other sound streams (music,
+     * notifications and system).
+     */
+    private fun silenceDevice(audioMngr: AudioManager, mode: Int){
+        audioMngr.ringerMode = mode
+        audioMngr.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0)
+        audioMngr.setStreamVolume(AudioManager.STREAM_SYSTEM, 0, 0)
+        audioMngr.setStreamVolume(AudioManager.STREAM_NOTIFICATION, 0, 0)
+    }
+
+    /**
+     * Changes the cellPhones the sound level of all 4 sound streams (ringer, music, notifications
+     * and system) to the target sound stored in actionData.
      */
     private fun changeRingerVolume(audioMngr: AudioManager, actionData: VolumeActionData) {
         audioMngr.ringerMode = AudioManager.RINGER_MODE_NORMAL
         val targetVolume = actionData.volumeLevel.toInt()
         audioMngr.setStreamVolume(AudioManager.STREAM_RING, targetVolume, 0)
+        audioMngr.setStreamVolume(AudioManager.STREAM_MUSIC, targetVolume, 0)
+        audioMngr.setStreamVolume(AudioManager.STREAM_NOTIFICATION, targetVolume, 0)
+        audioMngr.setStreamVolume(AudioManager.STREAM_SYSTEM, targetVolume, 0)
     }
 
     private fun createAndShowToast(action : Task.Action) { //todo - delete
