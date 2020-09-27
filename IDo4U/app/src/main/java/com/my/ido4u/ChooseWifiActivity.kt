@@ -4,14 +4,13 @@ import android.content.Context
 import android.content.Intent
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
@@ -25,9 +24,13 @@ class ChooseWifiActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_choose_wifi)
 
+        initializeViews()
+    }
+
+    private fun initializeViews() {
         scanResultsLinearLayout = findViewById(R.id.choose_wifi_linearLayout)
         chooseWifiEditText = findViewById(R.id.choose_wifi_edit_text)
-        val confirmWifiButton : MaterialButton = findViewById(R.id.confirm_wifi_network_button)
+        val confirmWifiButton: MaterialButton = findViewById(R.id.confirm_wifi_network_button)
         confirmWifiButton.setOnClickListener {
             if (chooseWifiEditText.text.isNotEmpty()) {
                 onNetworkChosen("", chooseWifiEditText.text.toString())

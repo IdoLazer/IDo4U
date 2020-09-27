@@ -3,17 +3,13 @@ package com.my.ido4u
 import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
-import android.net.wifi.WifiNetworkSpecifier
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
@@ -55,12 +51,20 @@ const val RADIUS = "radius"
 const val CONDITION = "condition"
 
 const val CHOOSE_APP_REQUEST_CODE = 6
-const val CHOOSE_LOCATION_REQUEST_CODE = 7
-const val CHOOSE_WIFI_REQUEST_CODE = 8
-const val CHOOSE_CONDITION_REQUEST_CODE = 9
 
-/* IMPORTANT: add all new request codes to this list*/
-val CONDITION_REQUEST_CODES = listOf(CHOOSE_LOCATION_REQUEST_CODE, CHOOSE_WIFI_REQUEST_CODE)
+/* Condition Request Codes */
+const val CHOOSE_LOCATION_CONDITION_REQUEST_CODE = 7
+const val CHOOSE_WIFI_CONDITION_REQUEST_CODE = 8
+const val CHOOSE_BLUETOOTH_CONDITION_REQUEST_CODE = 9
+const val CHOOSE_CONDITION_REQUEST_CODE = 10
+
+/* IMPORTANT: add all new condition request codes to this list*/
+val CONDITION_REQUEST_CODES =
+    listOf(
+        CHOOSE_LOCATION_CONDITION_REQUEST_CODE,
+        CHOOSE_WIFI_CONDITION_REQUEST_CODE,
+        CHOOSE_BLUETOOTH_CONDITION_REQUEST_CODE
+    )
 
 /////////////////////////// Permission - related methods ///////////////////////////////////////////
 fun checkConditionsPermissions(type: Task.ConditionEnum, activity: Activity): Boolean {
@@ -301,7 +305,11 @@ fun chooseApp(activity: Activity) {
     //        }
     //    }
 
+}
 
+fun getBluetoothDevices(): Set<BluetoothDevice>? {
+    val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+    return bluetoothAdapter?.bondedDevices
 }
 
 

@@ -1,12 +1,8 @@
 package com.my.ido4u
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
-import android.net.wifi.ScanResult
-import android.net.wifi.WifiManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
@@ -14,8 +10,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
-import com.google.android.gms.maps.model.LatLng
-import com.google.gson.Gson
 
 
 class CreateConditionActivity : AppCompatActivity() {
@@ -78,18 +72,21 @@ class CreateConditionActivity : AppCompatActivity() {
         if (!checkConditionsPermissions(Task.ConditionEnum.LOCATION, this)) return
 
         val intent = Intent(this, ChooseLocationActivity::class.java)
-        startActivityForResult(intent, CHOOSE_LOCATION_REQUEST_CODE)
+        startActivityForResult(intent, CHOOSE_LOCATION_CONDITION_REQUEST_CODE)
     }
 
     private fun clickedOnWifi() {
         if (!checkConditionsPermissions(Task.ConditionEnum.WIFI, this)) return
 
         val intent = Intent(this, ChooseWifiActivity::class.java)
-        startActivityForResult(intent, CHOOSE_WIFI_REQUEST_CODE)
+        startActivityForResult(intent, CHOOSE_WIFI_CONDITION_REQUEST_CODE)
     }
 
     private fun clickedOnBluetooth() {
+        if (!checkConditionsPermissions(Task.ConditionEnum.BLUETOOTH, this)) return
 
+        val intent = Intent(this, ChooseBluetoothActivity::class.java)
+        startActivityForResult(intent, CHOOSE_BLUETOOTH_CONDITION_REQUEST_CODE)
     }
 
     override fun onActivityResult(

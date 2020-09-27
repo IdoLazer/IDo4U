@@ -1,7 +1,5 @@
 package com.my.ido4u
 
-import android.location.Location
-
 data class BrightnessActionData (var brightness: Int){} //todo toString with %
 
 data class OpenAppActionData(var packageName : String){} //todo toString with app name
