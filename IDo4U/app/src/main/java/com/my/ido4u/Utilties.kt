@@ -50,13 +50,12 @@ const val MARKER_LAT_LNG = "markerLatLng"
 const val RADIUS = "radius"
 const val CONDITION = "condition"
 
-const val CHOOSE_APP_REQUEST_CODE = 6
-
 /* Condition Request Codes */
+const val CHOOSE_CONDITION_REQUEST_CODE = 6
+
 const val CHOOSE_LOCATION_CONDITION_REQUEST_CODE = 7
 const val CHOOSE_WIFI_CONDITION_REQUEST_CODE = 8
 const val CHOOSE_BLUETOOTH_CONDITION_REQUEST_CODE = 9
-const val CHOOSE_CONDITION_REQUEST_CODE = 10
 
 /* IMPORTANT: add all new condition request codes to this list*/
 val CONDITION_REQUEST_CODES =
@@ -65,6 +64,18 @@ val CONDITION_REQUEST_CODES =
         CHOOSE_WIFI_CONDITION_REQUEST_CODE,
         CHOOSE_BLUETOOTH_CONDITION_REQUEST_CODE
     )
+
+/* Action Request Codes*/
+const val CHOOSE_ACTION_REQUEST_CODE = 10
+
+const val CHOOSE_APP_ACTION_REQUEST_CODE = 11
+
+/* IMPORTANT: add all new action request codes to this list*/
+val ACTION_REQUEST_CODES =
+    listOf(
+        CHOOSE_APP_ACTION_REQUEST_CODE
+    )
+
 
 /////////////////////////// Permission - related methods ///////////////////////////////////////////
 fun checkConditionsPermissions(type: Task.ConditionEnum, activity: Activity): Boolean {
@@ -291,7 +302,7 @@ fun chooseApp(activity: Activity) {
     mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
     val pickIntent = Intent(Intent.ACTION_PICK_ACTIVITY)
     pickIntent.putExtra(Intent.EXTRA_INTENT, mainIntent)
-    activity.startActivityForResult(pickIntent, CHOOSE_APP_REQUEST_CODE)
+    activity.startActivityForResult(pickIntent, CHOOSE_APP_ACTION_REQUEST_CODE)
     // todo - add this code to the calling app:
     //    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
     //        super.onActivityResult(requestCode, resultCode, data)

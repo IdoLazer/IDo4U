@@ -51,7 +51,6 @@ class TaskProfileActivity : FragmentActivity() {
                 addCondition()
                 addConditionButton.text = getString(R.string.edit_condition)
             }
-
         }
 
         removeConditionButton.setOnClickListener {
@@ -68,13 +67,7 @@ class TaskProfileActivity : FragmentActivity() {
                 actionsScrollViewLL.removeAllViewsInLayout()
             }
             if (actionsScrollViewLL.childCount < MAX_ACTIONS) {
-                val volumeAction = VolumeActionData(VolumeActionData.VolumeAction.SOUND, 0.5f)
-                val action = Task.Action(
-                    Task.ActionEnum.VOLUME,
-                    gson.toJson(volumeAction),
-                    volumeAction.toString()
-                )
-                createAction(action, actionsScrollViewLL)
+                addAction()
             }
         }
 
@@ -135,7 +128,11 @@ class TaskProfileActivity : FragmentActivity() {
     private fun addCondition() {
         val intent = Intent(this, CreateConditionActivity::class.java)
         startActivityForResult(intent, CHOOSE_CONDITION_REQUEST_CODE)
-//        createCondition(newCondition) // TODO call when returning value
+    }
+
+    private fun addAction() {
+        val intent = Intent(this, CreateActionActivity::class.java)
+        startActivityForResult(intent, CHOOSE_ACTION_REQUEST_CODE)
     }
 
     private fun createAction(action: Task.Action, actionsScrollViewLL: LinearLayout) {

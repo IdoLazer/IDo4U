@@ -29,7 +29,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="false"
         android:theme="@style/AppTheme">
-        <activity android:name=".ChooseBluetoothActivity"></activity>
+        <activity android:name=".CreateActionActivity"></activity>
+        <activity android:name=".ChooseBluetoothActivity" />
         <activity
             android:name=".ChooseWifiActivity"
             android:windowSoftInputMode="adjustNothing" />
