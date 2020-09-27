@@ -136,9 +136,9 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when(requestCode){
-            WIFI_PERMISSION_REQUEST_CODE -> scanWifi(this@MainActivity, wifiManager) //todo
-        }
+//        when(requestCode){
+//            WIFI_PERMISSION_REQUEST_CODE -> scanWifi(this@MainActivity, wifiManager) //todo
+//        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,12 +150,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     ////////////////////////////////////// todo change /////////////////////////////////////////////
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun createMockTasks() { // todo - remove
-        mockWifi()
-        mockBluetooth()
-        mockLocation()
-    }
+//    @RequiresApi(Build.VERSION_CODES.M)
+//    private fun createMockTasks() { // todo - remove
+//        mockWifi()
+//        mockBluetooth()
+//        mockLocation()
+//    }
 
     private fun mockBluetooth(){
         checkConditionsPermissions(Task.ConditionEnum.LOCATION, this)
@@ -199,35 +199,35 @@ class MainActivity : AppCompatActivity() {
         addNewTask(newTask)
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun mockWifi(){ //todo delete!
-
-        if (!Settings.System.canWrite(applicationContext)) startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
-        val conData : WifiConditionData = WifiConditionData("10:be:f5:3c:48:e6") //"10:5a:f7:07:6f:88")
-        val cond : Task.Condition = Task.Condition(
-            Task.ConditionEnum.WIFI,
-            gson.toJson(conData),
-            conData.toString()
-        )
-
-        /////////////////////////////////////// volume action //////////////////////////////////////
-        val actData = VolumeActionData(VolumeActionData.VolumeAction.SOUND, 3.0f)
-        val action : Task.Action = Task.Action(
-            Task.ActionEnum.VOLUME,
-            gson.toJson(actData),
-            actData.toString()
-        )
-        val newTask : Task = Task("wifi task1", true, cond, arrayOf(action))
-        addNewTask(newTask)
-
-        /////////////////////////////////// brightness action //////////////////////////////////////
-        val actData2 = BrightnessActionData(170)
-        val action2 : Task.Action = Task.Action(
-            Task.ActionEnum.BRIGHTNESS,
-            gson.toJson(actData2),
-            actData2.toString()
-        )
-        val newTask2 = Task("wifi task2", true, cond, arrayOf(action2))
-        addNewTask(newTask2)
-    }
+//    @RequiresApi(Build.VERSION_CODES.M)
+//    private fun mockWifi(){ //todo delete!
+//
+//        if (!Settings.System.canWrite(applicationContext)) startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
+//        val conData : WifiConditionData = WifiConditionData("10:be:f5:3c:48:e6") //"10:5a:f7:07:6f:88")
+//        val cond : Task.Condition = Task.Condition(
+//            Task.ConditionEnum.WIFI,
+//            gson.toJson(conData),
+//            conData.toString()
+//        )
+//
+//        /////////////////////////////////////// volume action //////////////////////////////////////
+//        val actData = VolumeActionData(VolumeActionData.VolumeAction.SOUND, 3.0f)
+//        val action : Task.Action = Task.Action(
+//            Task.ActionEnum.VOLUME,
+//            gson.toJson(actData),
+//            actData.toString()
+//        )
+//        val newTask : Task = Task("wifi task1", true, cond, arrayOf(action))
+//        addNewTask(newTask)
+//
+//        /////////////////////////////////// brightness action //////////////////////////////////////
+//        val actData2 = BrightnessActionData(170)
+//        val action2 : Task.Action = Task.Action(
+//            Task.ActionEnum.BRIGHTNESS,
+//            gson.toJson(actData2),
+//            actData2.toString()
+//        )
+//        val newTask2 = Task("wifi task2", true, cond, arrayOf(action2))
+//        addNewTask(newTask2)
+//    }
 }

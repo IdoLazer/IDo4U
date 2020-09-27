@@ -1,7 +1,10 @@
 package com.my.ido4u
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.net.wifi.ScanResult
+import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -79,7 +82,10 @@ class CreateConditionActivity : AppCompatActivity() {
     }
 
     private fun clickedOnWifi() {
+        if (!checkConditionsPermissions(Task.ConditionEnum.WIFI, this)) return
 
+        val intent = Intent(this, ChooseWifiActivity::class.java)
+        startActivityForResult(intent, CHOOSE_WIFI_REQUEST_CODE)
     }
 
     private fun clickedOnBluetooth() {
@@ -93,7 +99,7 @@ class CreateConditionActivity : AppCompatActivity() {
     ) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == CHOOSE_LOCATION_REQUEST_CODE &&
+        if (requestCode in CONDITION_REQUEST_CODES &&
             resultCode == Activity.RESULT_OK && data != null
         ) {
             setResult(FragmentActivity.RESULT_OK, data)
@@ -101,3 +107,4 @@ class CreateConditionActivity : AppCompatActivity() {
         }
     }
 }
+

@@ -2,9 +2,9 @@ package com.my.ido4u
 
 import android.location.Location
 
-data class WifiConditionData(var bssid: String) {
+data class WifiConditionData(var bssid: String, var ssid: String) {
     override fun toString(): String {
-        return "Wifi network connected: $bssid"
+        return "Wifi network connected: $ssid"
     }
 }
 

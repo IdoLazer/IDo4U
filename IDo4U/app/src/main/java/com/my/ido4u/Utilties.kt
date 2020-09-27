@@ -7,7 +7,13 @@ import android.bluetooth.BluetoothDevice
 import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
+import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
+import android.net.wifi.WifiNetworkSpecifier
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
@@ -35,7 +41,7 @@ const val THRESHOLD_ACCURACY = 50
 const val LOCATION_REQUEST_INTERVALS: Long = 5
 
 const val WIFI_PERMISSION_REQUEST_CODE = 0
-const val  BLUETOOTH_PERMISSIONS_REQUEST_CODE = 1
+const val BLUETOOTH_PERMISSIONS_REQUEST_CODE = 1
 const val LOCATION_PERMISSION_REQUEST_CODE = 3
 
 const val MAP_PIN_LOCATION_REQUEST_CODE = 5
@@ -50,28 +56,41 @@ const val CONDITION = "condition"
 
 const val CHOOSE_APP_REQUEST_CODE = 6
 const val CHOOSE_LOCATION_REQUEST_CODE = 7
-const val CHOOSE_CONDITION_REQUEST_CODE = 8
+const val CHOOSE_WIFI_REQUEST_CODE = 8
+const val CHOOSE_CONDITION_REQUEST_CODE = 9
 
+/* IMPORTANT: add all new request codes to this list*/
+val CONDITION_REQUEST_CODES = listOf(CHOOSE_LOCATION_REQUEST_CODE, CHOOSE_WIFI_REQUEST_CODE)
 
 /////////////////////////// Permission - related methods ///////////////////////////////////////////
-fun checkConditionsPermissions(type : Task.ConditionEnum, activity: Activity) : Boolean{
-    when(type){
-        Task.ConditionEnum.WIFI -> checkSpecificPermissions(mutableListOf(
-            Manifest.permission.ACCESS_WIFI_STATE,
-            Manifest.permission.CHANGE_WIFI_STATE,
-            Manifest.permission.ACCESS_COARSE_LOCATION),
-            WIFI_PERMISSION_REQUEST_CODE, activity)
+fun checkConditionsPermissions(type: Task.ConditionEnum, activity: Activity): Boolean {
+    when (type) {
+        Task.ConditionEnum.WIFI -> checkSpecificPermissions(
+            mutableListOf(
+                Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.CHANGE_WIFI_STATE,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ),
+            WIFI_PERMISSION_REQUEST_CODE, activity
+        )
 
-        Task.ConditionEnum.BLUETOOTH -> checkSpecificPermissions(mutableListOf(
-            Manifest.permission.ACCESS_COARSE_LOCATION),
-            BLUETOOTH_PERMISSIONS_REQUEST_CODE, activity)
+        Task.ConditionEnum.BLUETOOTH -> checkSpecificPermissions(
+            mutableListOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ),
+            BLUETOOTH_PERMISSIONS_REQUEST_CODE, activity
+        )
 
-        Task.ConditionEnum.TIME -> {} //todo
+        Task.ConditionEnum.TIME -> {
+        } //todo
 
-        Task.ConditionEnum.LOCATION -> checkSpecificPermissions(mutableListOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION),
-            WIFI_PERMISSION_REQUEST_CODE, activity)
+        Task.ConditionEnum.LOCATION -> checkSpecificPermissions(
+            mutableListOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ),
+            WIFI_PERMISSION_REQUEST_CODE, activity
+        )
     }
     return true // todo
 }
@@ -80,32 +99,36 @@ fun checkConditionsPermissions(type : Task.ConditionEnum, activity: Activity) : 
  * Checks a if all permissions in permissionsList are granted - if so returns true, else - calls
  * ActivityCompat.requestPermissions on all the ungranted permissions.
  */
-private fun checkSpecificPermissions(permissionsList: MutableList<String>,
-                             requestCode : Int, activity : Activity): Boolean {
+private fun checkSpecificPermissions(
+    permissionsList: MutableList<String>,
+    requestCode: Int, activity: Activity
+): Boolean {
     val unGrantedPermissionsList: MutableList<String> = ArrayList()
-    for(permission in permissionsList){
+    for (permission in permissionsList) {
         if (checkPermission(permission, activity)) {
             unGrantedPermissionsList.add(permission)
         }
     }
     if (unGrantedPermissionsList.size > 0) {
-        ActivityCompat.requestPermissions(activity,
-            unGrantedPermissionsList.toTypedArray(), requestCode)
+        ActivityCompat.requestPermissions(
+            activity,
+            unGrantedPermissionsList.toTypedArray(), requestCode
+        )
         return false
     }
     return true
 }
 
-private fun checkPermission(permission : String, context: Context) : Boolean{
+private fun checkPermission(permission: String, context: Context): Boolean {
     val granted = PackageManager.PERMISSION_GRANTED
-    return ContextCompat.checkSelfPermission(context, permission)!= granted
+    return ContextCompat.checkSelfPermission(context, permission) != granted
 }
 
 /**
  * Shows a dialog that says the location service is unavailable
  * @param context a context
  */
- fun noLocationDialog(context: Context?) {
+fun noLocationDialog(context: Context?) {
     AlertDialog.Builder(context).setMessage(R.string.gps_network_not_enabled)
         .setPositiveButton(
             R.string.open_location_settings
@@ -116,10 +139,13 @@ private fun checkPermission(permission : String, context: Context) : Boolean{
 }
 
 @RequiresApi(Build.VERSION_CODES.M)
-/**
- * todo
- */
-fun askBrightnessPermission(task: Task, context: Context) { //todo - delete and check permissions in task creation
+        /**
+         * todo
+         */
+fun askBrightnessPermission(
+    task: Task,
+    context: Context
+) { //todo - delete and check permissions in task creation
     for (action in task.actions) {
         if (action.actionType == Task.ActionEnum.BRIGHTNESS) {
             if (!Settings.System.canWrite(context)) {
@@ -194,7 +220,11 @@ fun createTutorial(activity: Activity, viewId: Int) {
     val firstRoot = FrameLayout(activity)
     val layout = activity.layoutInflater.inflate(R.layout.layout_target, firstRoot)
     val button = activity.findViewById<View>(viewId)
-    createSpotlightWhenViewIsInflated(button, layout, activity) //todo - should only happen at first launch!
+    createSpotlightWhenViewIsInflated(
+        button,
+        layout,
+        activity
+    ) //todo - should only happen at first launch!
 }
 
 //////////////////////////// Wifi - related methods ////////////////////////////////////////////
@@ -203,8 +233,12 @@ fun createTutorial(activity: Activity, viewId: Int) {
  * scan's results. This method also initializes wifiManager, so its' return value should be used as
  * one.
  */
-fun scanWifi(activity: Activity, wifiManager: WifiManager?): BroadcastReceiver?{
-    if (checkConditionsPermissions(Task.ConditionEnum.WIFI, activity)){
+fun scanWifi(
+    activity: Activity,
+    wifiManager: WifiManager?,
+    onRecieveNetworks: (_: List<ScanResult>) -> Unit
+): BroadcastReceiver? {
+    if (checkConditionsPermissions(Task.ConditionEnum.WIFI, activity)) {
         val wifiScanReceiver = object : BroadcastReceiver() {
 
             @RequiresApi(api = Build.VERSION_CODES.M)
@@ -213,7 +247,10 @@ fun scanWifi(activity: Activity, wifiManager: WifiManager?): BroadcastReceiver?{
                     WifiManager.EXTRA_RESULTS_UPDATED,
                     false
                 )
-                if (success) scanSuccess(wifiManager) else scanFailure()
+                if (success) {
+//                    scanSuccess(wifiManager)
+                    onRecieveNetworks(wifiManager!!.scanResults)
+                } else scanFailure()
             }
         }
         val intentFilter = IntentFilter()
@@ -231,7 +268,9 @@ fun scanWifi(activity: Activity, wifiManager: WifiManager?): BroadcastReceiver?{
  */
 private fun scanSuccess(wifiManager: WifiManager?) { //todo - present results to user (Lazer)
     val results = wifiManager!!.scanResults
-    Log.e("found_wifi_start", results.toString())
+    for (result in results) {
+        Log.e("found_wifi_start", result.SSID)
+    }
 }
 
 /**
@@ -243,7 +282,7 @@ private fun scanFailure() {
     Log.e("found_wifi_start", "wifi scan problem!")
 }
 
-fun chooseApp(activity: Activity){
+fun chooseApp(activity: Activity) {
     val mainIntent = Intent(Intent.ACTION_MAIN, null)
     mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
     val pickIntent = Intent(Intent.ACTION_PICK_ACTIVITY)
