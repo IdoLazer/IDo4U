@@ -86,7 +86,7 @@ class TaskProfileActivity : FragmentActivity() {
             } else {
                 TaskManager.setPosition(id, task)
             }
-//            startService(this) // todo: uncomment when solved
+            startService(this) // todo: uncomment when solved
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
