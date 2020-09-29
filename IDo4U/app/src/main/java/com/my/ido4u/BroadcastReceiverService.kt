@@ -11,7 +11,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
 import android.location.Location
-import android.location.LocationManager
 import android.media.AudioManager
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
@@ -245,7 +244,7 @@ class BroadcastReceiverService : Service() {
                 Task.ActionEnum.TOAST -> createAndShowToast(action)  // todo - delete
                 Task.ActionEnum.VOLUME -> handleVolumeActions(action)
                 Task.ActionEnum.BRIGHTNESS -> handleBrightnessActions(action)
-                Task.ActionEnum.APPS -> handleAppOpenningAction(action)
+                Task.ActionEnum.APPS -> handleAppOpeningAction(action)
                 Task.ActionEnum.COMMUNICATION -> {} //todo
                 Task.ActionEnum.DATA -> {} //todo
             }
@@ -255,7 +254,7 @@ class BroadcastReceiverService : Service() {
     /**
      * Tries to open the relevant app.
      */
-    private fun handleAppOpenningAction(action: Task.Action) {
+    private fun handleAppOpeningAction(action: Task.Action) {
         val rawData = action.extraData
         val actionData = gson.fromJson(rawData, OpenAppActionData::class.java)
         val packageName = actionData.packageName
@@ -311,11 +310,33 @@ class BroadcastReceiverService : Service() {
      */
     private fun changeRingerVolume(audioMngr: AudioManager, actionData: VolumeActionData) {
         audioMngr.ringerMode = AudioManager.RINGER_MODE_NORMAL
-        val targetVolume = actionData.volumeLevel.toInt()
-        audioMngr.setStreamVolume(AudioManager.STREAM_RING, targetVolume, 0)
-        audioMngr.setStreamVolume(AudioManager.STREAM_MUSIC, targetVolume, 0)
-        audioMngr.setStreamVolume(AudioManager.STREAM_NOTIFICATION, targetVolume, 0)
-        audioMngr.setStreamVolume(AudioManager.STREAM_SYSTEM, targetVolume, 0)
+
+        val ringerMax = audioMngr.getStreamMaxVolume(AudioManager.STREAM_RING)
+        val musicMax = audioMngr.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+        val systemMax = audioMngr.getStreamMaxVolume(AudioManager.STREAM_SYSTEM)
+        val notificationMAx = audioMngr.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION)
+        val targetVolume = actionData.volumeLevel / 100
+
+        audioMngr.setStreamVolume(
+            AudioManager.STREAM_RING,
+            (targetVolume * ringerMax).toInt(),
+            0
+        )
+        audioMngr.setStreamVolume(
+            AudioManager.STREAM_MUSIC,
+            (targetVolume * musicMax).toInt(),
+            0
+        )
+        audioMngr.setStreamVolume(
+            AudioManager.STREAM_NOTIFICATION,
+            (targetVolume * notificationMAx).toInt(),
+            0
+        )
+        audioMngr.setStreamVolume(
+            AudioManager.STREAM_SYSTEM,
+            (targetVolume * systemMax).toInt(),
+            0
+        )
     }
 
     private fun createAndShowToast(action : Task.Action) { //todo - delete
