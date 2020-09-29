@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CreateConditionActivity"
+    tools:context=".CreateActionActivity"
     android:background="@color/colorPrimary">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="18dp"
-        android:text="@string/choose_a_condition"
+        android:text="@string/choose_an_action"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -20,13 +20,11 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
-        android:id="@+id/condition_menu_linearLayout"
+        android:id="@+id/action_menu_linearLayout"
         android:layout_width="match_parent"
         android:layout_height="650dp"
         android:background="@color/colorBackGround"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent" />
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

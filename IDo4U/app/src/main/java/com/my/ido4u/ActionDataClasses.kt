@@ -1,10 +1,12 @@
 package com.my.ido4u
 
+
 import android.location.Location
 
 /**
  * A class that contains all the data needed for an action that changes screen brightness
  */
+
 data class BrightnessActionData (var brightness: Int){} //todo toString with %
 
 /**

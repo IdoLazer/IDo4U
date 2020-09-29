@@ -1,5 +1,6 @@
 package com.my.ido4u
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.EditText
@@ -9,82 +10,129 @@ import androidx.fragment.app.FragmentActivity
 import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
 
+const val MAX_ACTIONS = 10
+
 class TaskProfileActivity : FragmentActivity() {
 
-    val MAX_ACTIONS = 10
-
-    var condition: Task.Condition? = null
-    var actions: MutableList<Task.Action> = mutableListOf()
-    var gson = Gson()
     var id = -1
+    private var condition: Task.Condition? = null
+    private var actions: MutableList<Task.Action> = mutableListOf()
+    private var gson = Gson()
+
+    private lateinit var conditionScrollViewLL: LinearLayout
+    private lateinit var actionsScrollViewLL: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.task_profile)
+        initializeViews()
+    }
+
+    private fun initializeViews() {
+        conditionScrollViewLL = findViewById(R.id.condition_scrollView_linearLayout)
+        actionsScrollViewLL = findViewById(R.id.actions_scrollView_linearLayout)
 
         val editTaskTitle: EditText = findViewById(R.id.edit_task_title)
         val addConditionButton: MaterialButton = findViewById(R.id.add_condition_button)
         val addActionButton: MaterialButton = findViewById(R.id.add_action_button)
         val applyNewTaskButton: MaterialButton = findViewById(R.id.apply_new_task_button)
-        val conditionScrollViewLL: LinearLayout =
-            findViewById(R.id.condition_scrollView_linearLayout)
-        val actionsScrollViewLL: LinearLayout = findViewById(R.id.actions_scrollView_linearLayout)
+        val removeConditionButton: MaterialButton = findViewById(R.id.remove_condition_button)
+        val removeActionButton: MaterialButton = findViewById(R.id.remove_action_button)
 
         id = intent.getIntExtra("id", -1)
 
         addConditionButton.setOnClickListener {
-            if (conditionScrollViewLL.childCount == 1) {
+            if (condition == null) {
                 conditionScrollViewLL.removeAllViewsInLayout()
-            } else {
-                addConditionButton.text = "Edit Condition"
             }
-            val wifiCondition = WifiConditionData("fAk3_n3Tw0Rk")
-            var newCondition = Task.Condition(
-                Task.ConditionEnum.WIFI,
-                gson.toJson(wifiCondition),
-                wifiCondition.toString()
-            )
-            createCondition(newCondition, conditionScrollViewLL)
+            if (conditionScrollViewLL.childCount == 1) {
+                editCondition()
+            } else {
+                addCondition()
+                addConditionButton.text = getString(R.string.edit_condition)
+            }
+        }
+
+        removeConditionButton.setOnClickListener {
+            condition = null
+            addConditionButton.text = getString(R.string.add_condition)
+            conditionScrollViewLL.removeAllViewsInLayout()
+            val tv = TextView(this)
+            tv.hint = getString(R.string.add_a_condition)
+            conditionScrollViewLL.addView(tv)
         }
 
         addActionButton.setOnClickListener {
-            if (actionsScrollViewLL.childCount < MAX_ACTIONS) {
-                val volumeAction = VolumeActionData(VolumeActionData.VolumeAction.SOUND, 0.5f)
-                val action = Task.Action(
-                    Task.ActionEnum.VOLUME,
-                    gson.toJson(volumeAction),
-                    volumeAction.toString()
-                )
-                createAction(action, actionsScrollViewLL)
+            if (actions.size == 0) {
+                actionsScrollViewLL.removeAllViewsInLayout()
             }
+            if (actionsScrollViewLL.childCount < MAX_ACTIONS) {
+                addAction()
+            }
+        }
+
+        removeActionButton.setOnClickListener {
+            actions = mutableListOf()
+            actionsScrollViewLL.removeAllViewsInLayout()
+            val tv = TextView(this)
+            tv.hint = "Add an action"
+            actionsScrollViewLL.addView(tv)
         }
 
         applyNewTaskButton.setOnClickListener {
-            if (condition == null || actions.size == 0) {
+            if (condition == null || actions.size == 0 || editTaskTitle.text.isEmpty())
+                return@setOnClickListener
+
+            val task =
+                Task(editTaskTitle.text.toString(), true, condition!!, actions.toTypedArray())
+            if (id == -1) {
+                TaskManager.addTask(task)
             } else {
-                val task =
-                    Task(editTaskTitle.text.toString(), true, condition!!, actions.toTypedArray())
-                if (id == -1) {
-                    TaskManager.addTask(task)
-                } else {
-                    TaskManager.setPosition(id, task)
-                }
-                var intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
+                TaskManager.setPosition(id, task)
             }
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
         }
 
-        if (id == -1) {
-            return
+        if (id != -1) {
+            populateFieldsForExistingTask(
+                conditionScrollViewLL,
+                actionsScrollViewLL,
+                addConditionButton,
+                editTaskTitle
+            )
         }
+    }
 
-        addConditionButton.text = "Edit Condition"
-        var task = TaskManager.getPosition(id)
+    private fun populateFieldsForExistingTask(
+        conditionScrollViewLL: LinearLayout,
+        actionsScrollViewLL: LinearLayout,
+        addConditionButton: MaterialButton,
+        editTaskTitle: EditText
+    ) {
+        conditionScrollViewLL.removeAllViewsInLayout()
+        actionsScrollViewLL.removeAllViewsInLayout()
+        addConditionButton.text = getString(R.string.edit_condition)
+        val task = TaskManager.getPosition(id)
         editTaskTitle.setText(task.name)
-        createCondition(task.condition, conditionScrollViewLL)
+        createCondition(task.condition)
         for (action in task.actions) {
             createAction(action, actionsScrollViewLL)
         }
+    }
+
+    private fun editCondition() {
+        TODO("Not yet implemented")
+    }
+
+    private fun addCondition() {
+        val intent = Intent(this, CreateConditionActivity::class.java)
+        startActivityForResult(intent, CHOOSE_CONDITION_REQUEST_CODE)
+    }
+
+    private fun addAction() {
+        val intent = Intent(this, CreateActionActivity::class.java)
+        startActivityForResult(intent, CHOOSE_ACTION_REQUEST_CODE)
     }
 
     private fun createAction(action: Task.Action, actionsScrollViewLL: LinearLayout) {
@@ -100,10 +148,24 @@ class TaskProfileActivity : FragmentActivity() {
         actionsScrollViewLL.addView(tv)
     }
 
-    private fun createCondition(newCondition: Task.Condition, conditionScrollViewLL: LinearLayout) {
+    private fun createCondition(newCondition: Task.Condition) {
         condition = newCondition
         val tv = TextView(this)
         tv.text = newCondition.description
         conditionScrollViewLL.addView(tv)
+    }
+
+    override fun onActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?
+    ) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == CHOOSE_CONDITION_REQUEST_CODE &&
+            resultCode == Activity.RESULT_OK && data != null
+        ) {
+            createCondition(Gson().fromJson(data.getStringExtra(CONDITION), Task.Condition::class.java))
+        }
     }
 }

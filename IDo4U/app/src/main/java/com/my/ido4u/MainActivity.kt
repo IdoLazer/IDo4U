@@ -43,7 +43,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         initializeViews()
-        wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+
+//        wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+//        wifiScanReceiver = scanWifi(this@MainActivity, wifiManager) //todo -remove
         createMockTasks() //todo - remove
         createMainActivityTutorial()
     }
@@ -131,30 +133,20 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
         when(requestCode){
             //todo - add cases!
         }
     }
 
     /////////////////////////// override of activity methods s///////////////////////////////////////
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) { //todo - remove
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if(resultCode == Activity.RESULT_OK){
-            if(requestCode == 0){
-                if (data != null) {
-                    Log.e("location selected: ", "${data.getParcelableExtra<LatLng>(MARKER_LAT_LNG)}")
-                    Log.e("radius", "${data.getFloatExtra(RADIUS, 0f)}")
-                }
-            }
-        }
-    }
 
     override fun onDestroy() { //todo make sure all relevant broadcastReceivers are unregistered here
         super.onDestroy()
     }
 
     ////////////////////////////////////// todo change /////////////////////////////////////////////
+
     @RequiresApi(Build.VERSION_CODES.M)
     private fun createMockTasks() { // todo - remove
         mockWifi()
@@ -166,12 +158,12 @@ class MainActivity : AppCompatActivity() {
         checkConditionsPermissions(Task.ConditionEnum.LOCATION, this)
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
-        val pairedDevices: Set<BluetoothDevice>? = getPairedBluetoothDevices()
-        pairedDevices?.forEach { device ->
-            val deviceName = device.name
-            val deviceHardwareAddress = device.address // MAC address
-            Log.e("paired bluetooth", "$deviceName is paired with MAC address $deviceHardwareAddress")
-        }
+//        val pairedDevices: Set<BluetoothDevice>? = getPairedBluetoothDevices()
+//        pairedDevices?.forEach { device ->
+//            val deviceName = device.name
+//            val deviceHardwareAddress = device.address // MAC address
+//            Log.e("paired bluetooth", "$deviceName is paired with MAC address $deviceHardwareAddress")
+//        }
 
         if(checkConditionsPermissions(Task.ConditionEnum.BLUETOOTH, this)){
             val conData = BluetoothConditionData("LE-Ido's Bose QC35 II", "4C:87:5D:CB:9B:CD")
@@ -216,7 +208,7 @@ class MainActivity : AppCompatActivity() {
     private fun mockWifi(){ //todo delete!
 
         if (!Settings.System.canWrite(applicationContext)) startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
-        val conData : WifiConditionData = WifiConditionData("Ido")//"10:be:f5:3c:48:e6")
+        val conData : WifiConditionData = WifiConditionData("", "Ido")//"10:be:f5:3c:48:e6") //todo
         val cond : Task.Condition = Task.Condition(
             Task.ConditionEnum.WIFI,
             gson.toJson(conData),
@@ -244,4 +236,5 @@ class MainActivity : AppCompatActivity() {
         val newTask2 = Task("wifi task2", true, cond, arrayOf(action2))
         addNewTask(newTask2)
     }
+
 }

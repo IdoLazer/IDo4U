@@ -17,7 +17,7 @@ object TaskManager {
         .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
 
     init {
-        sp.edit().clear().commit() //todo - remove
+        sp.edit().clear().apply() //todo - remove
         val taskListJsonString = sp.getString(TASK_LIST, null)
         if (taskListJsonString != null) {
             val groupListType: Type = object : TypeToken<ArrayList<Task>>() {}.type
@@ -54,7 +54,6 @@ object TaskManager {
 
     fun switchTask(i: Int, isSwitched: Boolean) {
         taskList[i].isOn = isSwitched
-        Log.d("tag", "switchedddddddddddddddddddddddddddddddddddddd") //todo - remove?
         refreshSharedPreferences()
     }
 

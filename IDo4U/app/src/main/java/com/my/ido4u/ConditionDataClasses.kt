@@ -1,10 +1,13 @@
 package com.my.ido4u
 
+
 /**
  * A class that contains all the data needed for a WiFi condition.
  * ssid: the name of the WiFi connection.
  */
-data class WifiConditionData(var ssid: String) {
+
+data class WifiConditionData(var bssid: String, var ssid: String) {
+
     override fun toString(): String {
         return "Wifi network connected: $ssid"
     }
@@ -29,7 +32,7 @@ data class BluetoothConditionData(var bluetoothName: String, var hardwareAddress
  */
 data class LocationConditionData(var longitude: Double, var latitude: Double, var radius: Float) {
     override fun toString(): String {
-        return "Location is within radius of $radius from location ($latitude, $longitude"
+        return "Location is within radius of $radius from location ($latitude, $longitude)"
     }
 }
 

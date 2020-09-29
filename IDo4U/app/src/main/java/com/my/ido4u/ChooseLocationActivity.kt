@@ -23,6 +23,7 @@ import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.gson.Gson
 
 /**
  * An activity that allows the user to choose an area on the map in which his\her task's actions
@@ -48,7 +49,18 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
 
         checkConditionsPermissions(Task.ConditionEnum.LOCATION, this@ChooseLocationActivity)
         setViewsAndFragment()
-//        createTutorial(this@ChooseLocationActivity, R.id.RadiusSeekBar) //todo
+        var listOfViews = arrayOf<View>(
+            findViewById(R.id.mapAPI),
+            findViewById(R.id.RadiusSeekBar),
+            findViewById(R.id.approveLocationButton)
+        )
+        var listOfStrings = listOf(
+            "Press the marker and drag it to the center of you condition area",
+            "Slide this bar to choose the radius of the area in which your condition is fulfilled.",
+            "Press this button to approve the area chosen as a condition."
+        )
+        createTutorial(this@ChooseLocationActivity, listOfStrings, *listOfViews) //todo
+
     }
 
     /**
@@ -68,8 +80,16 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
         val OkButton = findViewById<Button>(R.id.approveLocationButton)
         OkButton.setOnClickListener(View.OnClickListener {
             val resultIntent = Intent(MAP_LOCATION_ACTION)
-            resultIntent.putExtra(MARKER_LAT_LNG, centerLatLng)
-            resultIntent.putExtra(RADIUS, radius)
+            val locationConditionData =
+                LocationConditionData(centerLatLng.longitude, centerLatLng.latitude, radius)
+            val condition = Task.Condition(
+                Task.ConditionEnum.LOCATION,
+                Gson().toJson(locationConditionData),
+                locationConditionData.toString()
+            )
+//            resultIntent.putExtra(MARKER_LAT_LNG, centerLatLng)
+//            resultIntent.putExtra(RADIUS, radius)
+            resultIntent.putExtra(CONDITION, Gson().toJson(condition))
             setResult(RESULT_OK, resultIntent)
             finish()
         })
@@ -87,6 +107,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
                 radius = cur / seekBerMax * RADIUS_MAX_IN_METERS
                 mapCircle!!.radius = radius.toDouble()
             }
+
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
             override fun onStopTrackingTouch(seekBar: SeekBar) {}
         })
@@ -121,7 +142,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
         centerMarker = mapAPI!!.addMarker(
             MarkerOptions().position(centerLatLng).draggable(true).title(CENTER_MARKER)
         )
-        if(centerMarker != null) {
+        if (centerMarker != null) {
             mapCircle = mapAPI!!.addCircle(
                 CircleOptions()
                     .center(centerMarker!!.getPosition())
