@@ -29,10 +29,11 @@
     <TextView
         android:id="@+id/condition_text_view"
         android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:layout_marginTop="100dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="50dp"
         android:text="@string/condition"
         android:padding="2dp"
+        android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@+id/edit_task_title_linearLayout" />
 
     <LinearLayout
@@ -94,9 +95,10 @@
     <TextView
         android:id="@+id/actions_text_view"
         android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:layout_marginTop="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="10dp"
         android:text="@string/actions"
+        android:textSize="16sp"
         android:padding="2dp"
         app:layout_constraintTop_toBottomOf="@+id/add_condition_button" />
 
@@ -160,7 +162,7 @@
         android:id="@+id/apply_new_task_button"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="15dp"
         android:text="@string/apply"
         android:textSize="12sp"
         app:backgroundTint="@color/colorPrimaryDark"
@@ -168,6 +170,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/add_action_button" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/delete_task_button"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="@string/delete_task"
+        android:textSize="12sp"
+        app:backgroundTint="@color/colorAccent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintTop_toBottomOf="@+id/apply_new_task_button" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

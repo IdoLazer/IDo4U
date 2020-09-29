@@ -36,6 +36,7 @@ class TaskProfileActivity : FragmentActivity() {
         val addConditionButton: MaterialButton = findViewById(R.id.add_condition_button)
         val addActionButton: MaterialButton = findViewById(R.id.add_action_button)
         val applyNewTaskButton: MaterialButton = findViewById(R.id.apply_new_task_button)
+        val deleteTaskButton: MaterialButton = findViewById(R.id.delete_task_button)
         val removeConditionButton: MaterialButton = findViewById(R.id.remove_condition_button)
         val removeActionButton: MaterialButton = findViewById(R.id.remove_action_button)
 
@@ -87,6 +88,14 @@ class TaskProfileActivity : FragmentActivity() {
                 TaskManager.setPosition(id, task)
             }
             startService(this) // todo: uncomment when solved
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
+
+        deleteTaskButton.setOnClickListener {
+            if (id != -1) {
+                TaskManager.removeTask(id)
+            }
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
