@@ -49,15 +49,17 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
 
         checkConditionsPermissions(Task.ConditionEnum.LOCATION, this@ChooseLocationActivity)
         setViewsAndFragment()
-        var listOfViews = arrayOf<View>(
+        val listOfViews = arrayOf<View>(
+            findViewById(R.id.fragmentLayout),
             findViewById(R.id.mapAPI),
             findViewById(R.id.RadiusSeekBar),
             findViewById(R.id.approveLocationButton)
         )
-        var listOfStrings = listOf(
-            "Press the marker and drag it to the center of you condition area",
-            "Slide this bar to choose the radius of the area in which your condition is fulfilled.",
-            "Press this button to approve the area chosen as a condition."
+        val listOfStrings = listOf(
+            getString(R.string.choose_location_tutorial),
+            getString(R.string.drag_marker_tutorial),
+            getString(R.string.radius_bar_tutorial),
+            getString(R.string.approve_location_tutorial)
         )
         createTutorial(this@ChooseLocationActivity, listOfStrings, *listOfViews) //todo
 

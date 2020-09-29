@@ -300,10 +300,25 @@ fun createSpotlightWhenViewIsInflated(
                 val textIterator = texts.iterator()
                 val targetText = layout.findViewById<TextView>(R.id.target_text)
                 targetText.text = textIterator.next()
+                if(
+                    targetText.text == activity.getString(R.string.drag_marker_tutorial) ||
+                    targetText.text == activity.getString(R.string.choose_location_tutorial)
+                ){
+                    targetText.setBackgroundColor(
+                        ContextCompat.getColor(activity, R.color.colorPrimaryDark)
+                    )
+                }
                 val nextSpotlight = View.OnClickListener {
                     spotlight.next()
+
                     if (textIterator.hasNext()) {
                         targetText.text = textIterator.next()
+                        if(
+                            targetText.text != activity.getString(R.string.drag_marker_tutorial) &&
+                            targetText.text != activity.getString(R.string.choose_location_tutorial)
+                        ){ //todo
+                            targetText.setBackgroundColor(Color.TRANSPARENT)
+                        }
                     }
                 }
                 val stopSpotlight = View.OnClickListener { spotlight.finish() }

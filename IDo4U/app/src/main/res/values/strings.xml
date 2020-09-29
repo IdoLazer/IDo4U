@@ -41,6 +41,19 @@
     <string name="title_activity_maps">Map</string>
     <string name="ok">OK</string>
     <string name="skip_tutorial">Skip Tutorial</string>
+    <string name="choose_location_tutorial">
+        Here, you\'ll choose a geographical area, we\'ll call it the \"condition area\".
+        When you\'ll be inside this area your task\'s actions will be performed!
+    </string>
+    <string name="drag_marker_tutorial">
+        Press the marker and drag it to the center of you condition area
+    </string>
+    <string name="radius_bar_tutorial">
+       Slide this bar to choose the radius of the condition area.
+    </string>
+    <string name="approve_location_tutorial">
+      Press this button to approve the area chosen as a condition.
+    </string>
 
     <string name="choose_a_condition">Choose A Condition</string>
     <string name="sample_task">Sample Task</string>
