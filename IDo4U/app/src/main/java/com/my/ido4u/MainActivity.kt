@@ -216,7 +216,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         /////////////////////////////////////// volume action //////////////////////////////////////
-        val actData = VolumeActionData(VolumeActionData.VolumeAction.VIBRATE, 3.0f)
+        val actData = VolumeActionData(VolumeActionData.VolumeAction.SOUND, 30f)
         val action : Task.Action = Task.Action(
             Task.ActionEnum.VOLUME,
             gson.toJson(actData),
