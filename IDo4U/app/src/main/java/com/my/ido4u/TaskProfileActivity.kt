@@ -166,7 +166,8 @@ class TaskProfileActivity : FragmentActivity() {
                 )
             )
         }
-        if (requestCode == CHOOSE_ACTION_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
+        if (requestCode == CHOOSE_ACTION_REQUEST_CODE &&
+            resultCode == Activity.RESULT_OK && data != null) {
             createAction(gson.fromJson(data.getStringExtra(ACTION), Task.Action::class.java))
         }
     }

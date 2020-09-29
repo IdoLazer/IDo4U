@@ -30,11 +30,11 @@ class CreateConditionActivity : AppCompatActivity() {
         val conditionMenuLinearLayout: LinearLayout = findViewById(R.id.condition_menu_linearLayout)
 
         val menuItems = mutableListOf(
-            MenuItem(
-                "Date and Time",
-                R.drawable.ic_baseline_access_time_24,
-                View.OnClickListener { clickedOnDateAndTime() }
-            ),
+//            MenuItem(
+//                "Date and Time",
+//                R.drawable.ic_baseline_access_time_24,
+//                View.OnClickListener { clickedOnDateAndTime() }
+//            ), //todo: Add date and time
             MenuItem(
                 "Location",
                 R.drawable.ic_baseline_location_on_24,

@@ -81,13 +81,14 @@ val CONDITION_REQUEST_CODES =
 
 /** Action Request Codes*/
 const val CHOOSE_ACTION_REQUEST_CODE = 10
-
 const val CHOOSE_APP_ACTION_REQUEST_CODE = 11
+const val CHOOSE_VOLUME_ACTION_REQUEST_CODE = 12
 
 /** IMPORTANT: add all new action request codes to this list*/
 val ACTION_REQUEST_CODES =
     listOf(
-        CHOOSE_APP_ACTION_REQUEST_CODE
+        CHOOSE_APP_ACTION_REQUEST_CODE,
+        CHOOSE_VOLUME_ACTION_REQUEST_CODE
     )
 
 
@@ -192,7 +193,7 @@ private fun checkPermission(permission: String, context: Context): Boolean {
     return ContextCompat.checkSelfPermission(context, permission) != granted
 }
 
-@RequiresApi(Build.VERSION_CODES.M)
+//@RequiresApi(Build.VERSION_CODES.M)
 /**
  * Checks if all the relevant permissions for the action type "type" has been granted and
  * requests those who has'nt been granted yet.
@@ -201,7 +202,10 @@ private fun checkPermission(permission: String, context: Context): Boolean {
 fun checkActionsPermissions(type: Task.ActionEnum, context: Context) : Boolean{
     when(type){
         Task.ActionEnum.VOLUME -> checkSoundPermissions(context)
-        Task.ActionEnum.BRIGHTNESS -> checkBrightnessPermission(context)
+        Task.ActionEnum.BRIGHTNESS -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            checkBrightnessPermission(context)
+        }
+        else -> return false
     }
     return true
 

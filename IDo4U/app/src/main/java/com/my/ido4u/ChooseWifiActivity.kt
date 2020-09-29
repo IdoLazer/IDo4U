@@ -17,8 +17,8 @@ import com.google.gson.Gson
 
 class ChooseWifiActivity : AppCompatActivity() {
 
-    lateinit var scanResultsLinearLayout: LinearLayout
-    lateinit var chooseWifiEditText: EditText
+    private lateinit var scanResultsLinearLayout: LinearLayout
+    private lateinit var chooseWifiEditText: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +37,7 @@ class ChooseWifiActivity : AppCompatActivity() {
             }
         }
         val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        scanWifi(this, wifiManager, ::populateList)
     }
 
     private fun populateList(list: List<ScanResult>) {

@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CreateConditionActivity"
-    android:background="@color/colorPrimary">
+    android:background="@color/colorPrimary"
+    tools:context=".CreateConditionActivity">
 
     <TextView
         android:layout_width="wrap_content"
@@ -26,7 +26,6 @@
         android:background="@color/colorBackGround"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent" />
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

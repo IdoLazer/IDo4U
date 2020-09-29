@@ -166,6 +166,10 @@
     <string name="enter_bluetooth_device_name">Enter Bluetooth Device Name</string>
     <string name="enter_or_choose_a_device">Enter or Choose a Device</string>
     <string name="choose_an_action">Choose an Action</string>
+    <string name="choose_one_volume_action">Choose One Volume Action</string>
+    <string name="put_phone_on_vibrate">Put Phone On Vibrate</string>
+    <string name="put_phone_on_mute">Put Phone On Mute</string>
+    <string name="set_custom_volume_level">Set Custom Volume Level</string>
 
 
 </resources>

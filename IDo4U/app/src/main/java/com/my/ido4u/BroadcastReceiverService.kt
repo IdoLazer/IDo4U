@@ -284,7 +284,7 @@ class BroadcastReceiverService : Service() {
     private fun handleVolumeActions(action : Task.Action) {
         val audioMngr = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val actionData = gson.fromJson(action.extraData, VolumeActionData::class.java)
-        checkActionsPermissions(Task.ActionEnum.BRIGHTNESS, applicationContext)
+        checkActionsPermissions(Task.ActionEnum.VOLUME, applicationContext)
         when (actionData.volumeAction) {
             VolumeActionData.VolumeAction.SOUND -> changeRingerVolume(audioMngr, actionData)
             VolumeActionData.VolumeAction.VIBRATE ->

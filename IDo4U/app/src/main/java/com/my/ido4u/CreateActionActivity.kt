@@ -31,6 +31,7 @@ class CreateActionActivity : AppCompatActivity() {
         val backButton: MaterialButton = findViewById(R.id.actions_menu_back_button)
         backButton.visibility = View.INVISIBLE
         val actionMenuLinearLayout: LinearLayout = findViewById(R.id.action_menu_linearLayout)
+        actionMenuLinearLayout.removeAllViewsInLayout()
 
         val menuItems = mutableListOf(
             MenuItem(
@@ -42,12 +43,12 @@ class CreateActionActivity : AppCompatActivity() {
                 "Apps",
                 R.drawable.ic_baseline_apps_24,
                 View.OnClickListener { clickedOnApps() }
-            ),
-            MenuItem(
-                "Communication",
-                R.drawable.ic_baseline_message_24,
-                View.OnClickListener { clickedOnCommunication() }
             )
+//            ,MenuItem(
+//                "Communication",
+//                R.drawable.ic_baseline_message_24,
+//                View.OnClickListener { clickedOnCommunication() }
+//            ) //todo: add Communication action
         )
 
         for (item in menuItems) {
@@ -103,11 +104,28 @@ class CreateActionActivity : AppCompatActivity() {
 
 
     private fun clickedOnBrightness() {
-        TODO("Not yet implemented")
+        if (!checkActionsPermissions(Task.ActionEnum.BRIGHTNESS, this)) return
+
+//        val intent = Intent(this, BrightnessActionActivity::class.java)
+//        startActivityForResult(intent, CHOOSE_BRIGHTNESS_ACTION_REQUEST_CODE)
     }
-    
+
     private fun clickedOnVolume() {
-        TODO("Not yet implemented")
+        if (!checkActionsPermissions(Task.ActionEnum.VOLUME, this)) return
+
+        val intent = Intent(this, VolumeActionActivity::class.java)
+        startActivityForResult(intent, CHOOSE_VOLUME_ACTION_REQUEST_CODE)
+//        val resultIntent = Intent()
+//        val volumeActionData =
+//            VolumeActionData(VolumeActionData.VolumeAction.SOUND, 0.0f)
+//        val condition = Task.Action(
+//            Task.ActionEnum.VOLUME,
+//            Gson().toJson(volumeActionData),
+//            volumeActionData.toString()
+//        )
+//        resultIntent.putExtra(CONDITION, Gson().toJson(condition))
+//        setResult(FragmentActivity.RESULT_OK, resultIntent)
+//        finish()
     }
 
     private fun clickedOnApps() {

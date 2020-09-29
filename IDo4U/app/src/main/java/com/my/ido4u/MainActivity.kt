@@ -41,12 +41,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+//        startService(this)
         initializeViews()
 
 //        wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 //        wifiScanReceiver = scanWifi(this@MainActivity, wifiManager) //todo -remove
-        createMockTasks() //todo - remove
+//        createMockTasks() //todo - remove
         createMainActivityTutorial()
     }
 
