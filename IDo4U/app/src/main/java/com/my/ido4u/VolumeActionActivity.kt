@@ -44,8 +44,8 @@ class VolumeActionActivity : AppCompatActivity() {
         setVolumeLevelCheckBox.setOnClickListener {
             setVolumeLevel()
         }
-        val confirmWifiButton: MaterialButton = findViewById(R.id.confirm_volume_action_button)
-        confirmWifiButton.setOnClickListener {
+        val confirmVolumeButton: MaterialButton = findViewById(R.id.confirm_volume_action_button)
+        confirmVolumeButton.setOnClickListener {
             confirmVolumeAction()
         }
     }

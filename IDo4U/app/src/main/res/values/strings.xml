@@ -170,6 +170,8 @@
     <string name="put_phone_on_vibrate">Put Phone On Vibrate</string>
     <string name="put_phone_on_mute">Put Phone On Mute</string>
     <string name="set_custom_volume_level">Set Custom Volume Level</string>
+    <string name="set_desired_brightness_level">Set Desired Brightness Level</string>
+    <string name="drag_the_slider_to_the_desired_brightness_level">Drag the Slider to the Desired Brightness Level</string>
 
 
 </resources>

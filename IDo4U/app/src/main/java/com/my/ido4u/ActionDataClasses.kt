@@ -7,7 +7,11 @@ import android.location.Location
  * A class that contains all the data needed for an action that changes screen brightness
  */
 
-data class BrightnessActionData (var brightness: Int){} //todo toString with %
+data class BrightnessActionData (var brightness: Int){
+    override fun toString(): String {
+        return "Put brightness level at ${(brightness.toFloat() * (100.0/255.0)).toInt()}%"
+    }
+}
 
 /**
  * A class that contains all the data needed for an action that opens another application
@@ -15,7 +19,7 @@ data class BrightnessActionData (var brightness: Int){} //todo toString with %
 data class OpenAppActionData(var packageName : String){
     override fun toString(): String {
         val appName = packageName.removePrefix("com.").substringBefore('.')
-        return "Open App: $packageName"
+        return "Open app: $packageName"
     }
 }
 

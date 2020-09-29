@@ -102,12 +102,11 @@ class CreateActionActivity : AppCompatActivity() {
         }
     }
 
-
     private fun clickedOnBrightness() {
         if (!checkActionsPermissions(Task.ActionEnum.BRIGHTNESS, this)) return
 
-//        val intent = Intent(this, BrightnessActionActivity::class.java)
-//        startActivityForResult(intent, CHOOSE_BRIGHTNESS_ACTION_REQUEST_CODE)
+        val intent = Intent(this, BrightnessActionActivity::class.java)
+        startActivityForResult(intent, CHOOSE_BRIGHTNESS_ACTION_REQUEST_CODE)
     }
 
     private fun clickedOnVolume() {
@@ -115,17 +114,6 @@ class CreateActionActivity : AppCompatActivity() {
 
         val intent = Intent(this, VolumeActionActivity::class.java)
         startActivityForResult(intent, CHOOSE_VOLUME_ACTION_REQUEST_CODE)
-//        val resultIntent = Intent()
-//        val volumeActionData =
-//            VolumeActionData(VolumeActionData.VolumeAction.SOUND, 0.0f)
-//        val condition = Task.Action(
-//            Task.ActionEnum.VOLUME,
-//            Gson().toJson(volumeActionData),
-//            volumeActionData.toString()
-//        )
-//        resultIntent.putExtra(CONDITION, Gson().toJson(condition))
-//        setResult(FragmentActivity.RESULT_OK, resultIntent)
-//        finish()
     }
 
     private fun clickedOnApps() {
