@@ -92,7 +92,7 @@ class BroadcastReceiverService : Service() {
     private fun initializeLocationTracking() {
         if (!locationTrackingStarted) {
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-            if (hasLocationPermissions(applicationContext) && isLocationEnabled()) {
+            if (hasLocationPermissions(applicationContext) && isLocationEnabled(applicationContext)) {
                 fusedLocationClient!!.lastLocation.addOnCompleteListener {
                     requestNewLocationData()
                 }
@@ -165,24 +165,7 @@ class BroadcastReceiverService : Service() {
         return results[0] <= data.radius
     }
 
-    /**
-     * Checks whether or not the location services are enabled.
-     * @return true if yes, false otherwise.
-     */
-    private fun isLocationEnabled(): Boolean {
-        val lm = context?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        var gpsEnabled = false
-        var networkEnabled = false
-        try {
-            gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
-        } catch (ex: Exception) {
-        }
-        try {
-            networkEnabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-        } catch (ex: Exception) {
-        }
-        return gpsEnabled && networkEnabled
-    }
+
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     /**

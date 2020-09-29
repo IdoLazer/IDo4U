@@ -13,6 +13,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.LocationManager
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.provider.Settings
@@ -105,6 +106,25 @@ fun noLocationDialog(context: Context?) {
             context?.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
         }
         .show()
+}
+
+/**
+ * Checks whether or not the location services are enabled.
+ * @return true if yes, false otherwise.
+ */
+fun isLocationEnabled(context: Context): Boolean {
+    val lm = context?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    var gpsEnabled = false
+    var networkEnabled = false
+    try {
+        gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    } catch (ex: Exception) {
+    }
+    try {
+        networkEnabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    } catch (ex: Exception) {
+    }
+    return gpsEnabled && networkEnabled
 }
 
 /**
