@@ -5,14 +5,14 @@ import android.content.ComponentName
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Debug
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.FragmentActivity
+import com.google.android.material.button.MaterialButton
+import com.google.gson.Gson
 
 class CreateActionActivity : AppCompatActivity() {
     private data class MenuItem(
@@ -28,7 +28,9 @@ class CreateActionActivity : AppCompatActivity() {
     }
 
     private fun createMainConditionMenu() {
-        val conditionMenuLinearLayout: LinearLayout = findViewById(R.id.action_menu_linearLayout)
+        val backButton: MaterialButton = findViewById(R.id.actions_menu_back_button)
+        backButton.visibility = View.INVISIBLE
+        val actionMenuLinearLayout: LinearLayout = findViewById(R.id.action_menu_linearLayout)
 
         val menuItems = mutableListOf(
             MenuItem(
@@ -51,17 +53,61 @@ class CreateActionActivity : AppCompatActivity() {
         for (item in menuItems) {
             val menuItemLayout =
                 LayoutInflater.from(this)
-                    .inflate(R.layout.item_menu, conditionMenuLinearLayout, false)
+                    .inflate(R.layout.item_menu, actionMenuLinearLayout, false)
             menuItemLayout.findViewById<TextView>(R.id.menu_item_name).text = item.item_name
             menuItemLayout.findViewById<ImageView>(R.id.menu_item_icon)
                 .setImageResource(item.icon_src)
             menuItemLayout.setOnClickListener(item.onClickListener)
-            conditionMenuLinearLayout.addView(menuItemLayout)
+            actionMenuLinearLayout.addView(menuItemLayout)
         }
     }
 
     private fun clickedOnPhoneSettings() {
+        createPhoneSettingsMenu()
+    }
 
+    private fun createPhoneSettingsMenu() {
+        val backButton: MaterialButton = findViewById(R.id.actions_menu_back_button)
+        backButton.visibility = View.VISIBLE
+        backButton.setOnClickListener {
+            createMainConditionMenu()
+        }
+        val phoneSettingsActionMenuLinearLayout: LinearLayout =
+            findViewById(R.id.action_menu_linearLayout)
+        phoneSettingsActionMenuLinearLayout.removeAllViewsInLayout()
+
+        val menuItems = mutableListOf(
+            MenuItem(
+                "Volume",
+                R.drawable.ic_baseline_volume_mute_24,
+                View.OnClickListener { clickedOnVolume() }
+            ),
+            MenuItem(
+                "Brightness",
+                R.drawable.ic_baseline_brightness_6_24,
+                View.OnClickListener { clickedOnBrightness() }
+            )
+        )
+
+        for (item in menuItems) {
+            val menuItemLayout =
+                LayoutInflater.from(this)
+                    .inflate(R.layout.item_menu, phoneSettingsActionMenuLinearLayout, false)
+            menuItemLayout.findViewById<TextView>(R.id.menu_item_name).text = item.item_name
+            menuItemLayout.findViewById<ImageView>(R.id.menu_item_icon)
+                .setImageResource(item.icon_src)
+            menuItemLayout.setOnClickListener(item.onClickListener)
+            phoneSettingsActionMenuLinearLayout.addView(menuItemLayout)
+        }
+    }
+
+
+    private fun clickedOnBrightness() {
+        TODO("Not yet implemented")
+    }
+    
+    private fun clickedOnVolume() {
+        TODO("Not yet implemented")
     }
 
     private fun clickedOnApps() {
@@ -81,15 +127,25 @@ class CreateActionActivity : AppCompatActivity() {
         if (requestCode in ACTION_REQUEST_CODES &&
             resultCode == Activity.RESULT_OK && data != null
         ) {
-            val componentName: ComponentName? = data.component
-                        if(componentName != null) {
-                            val packageName = componentName.packageName
-                            val activityName = componentName.className
-                            Log.d("tag", packageName)
-                            Log.d("tag", activityName)
-                        }
-//            setResult(FragmentActivity.RESULT_OK, data)
-//            finish()
+            if (requestCode == CHOOSE_APP_ACTION_REQUEST_CODE) {
+                data.putExtra(ACTION, Gson().toJson(createOpenAppAction(data)))
+            }
+            setResult(FragmentActivity.RESULT_OK, data)
+            finish()
         }
+    }
+
+    private fun createOpenAppAction(data: Intent): Task.Action? {
+        val componentName: ComponentName? = data.component
+        if (componentName != null) {
+            val openAppActionData = OpenAppActionData(componentName.packageName)
+            val action = Task.Action(
+                Task.ActionEnum.APPS,
+                Gson().toJson(openAppActionData),
+                openAppActionData.toString()
+            )
+            return action
+        }
+        return null
     }
 }

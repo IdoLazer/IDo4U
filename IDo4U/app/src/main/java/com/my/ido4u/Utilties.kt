@@ -63,6 +63,7 @@ const val RADIUS = "radius"
 const val CHOOSE_APP_REQUEST_CODE = 6 // todo - needed?
 
 const val CONDITION = "condition"
+const val ACTION = "action"
 
 /** Condition Request Codes */
 const val CHOOSE_CONDITION_REQUEST_CODE = 6
@@ -445,6 +446,15 @@ fun chooseApp(activity: Activity) {
 fun getBluetoothDevices(): Set<BluetoothDevice>? {
     val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
     return bluetoothAdapter?.bondedDevices
+}
+
+/**
+ * Starts the service that continuously checks for conditions.
+ */
+public fun startService(context: Context) {
+    val serviceIntent = Intent(context, BroadcastReceiverService::class.java)
+    serviceIntent.putExtra("inputExtra", "listening")
+    context.startService(serviceIntent)
 }
 
 

@@ -45,12 +45,8 @@ class TaskProfileActivity : FragmentActivity() {
             if (condition == null) {
                 conditionScrollViewLL.removeAllViewsInLayout()
             }
-            if (conditionScrollViewLL.childCount == 1) {
-                editCondition()
-            } else {
-                addCondition()
-                addConditionButton.text = getString(R.string.edit_condition)
-            }
+            addCondition()
+            addConditionButton.text = getString(R.string.edit_condition)
         }
 
         removeConditionButton.setOnClickListener {
@@ -90,6 +86,7 @@ class TaskProfileActivity : FragmentActivity() {
             } else {
                 TaskManager.setPosition(id, task)
             }
+//            startService(this) // todo: uncomment when solved
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
@@ -117,12 +114,8 @@ class TaskProfileActivity : FragmentActivity() {
         editTaskTitle.setText(task.name)
         createCondition(task.condition)
         for (action in task.actions) {
-            createAction(action, actionsScrollViewLL)
+            createAction(action)
         }
-    }
-
-    private fun editCondition() {
-        TODO("Not yet implemented")
     }
 
     private fun addCondition() {
@@ -135,7 +128,7 @@ class TaskProfileActivity : FragmentActivity() {
         startActivityForResult(intent, CHOOSE_ACTION_REQUEST_CODE)
     }
 
-    private fun createAction(action: Task.Action, actionsScrollViewLL: LinearLayout) {
+    private fun createAction(action: Task.Action) {
         actions.add(
             action
         )
@@ -152,6 +145,7 @@ class TaskProfileActivity : FragmentActivity() {
         condition = newCondition
         val tv = TextView(this)
         tv.text = newCondition.description
+        conditionScrollViewLL.removeAllViewsInLayout()
         conditionScrollViewLL.addView(tv)
     }
 
@@ -165,7 +159,15 @@ class TaskProfileActivity : FragmentActivity() {
         if (requestCode == CHOOSE_CONDITION_REQUEST_CODE &&
             resultCode == Activity.RESULT_OK && data != null
         ) {
-            createCondition(Gson().fromJson(data.getStringExtra(CONDITION), Task.Condition::class.java))
+            createCondition(
+                gson.fromJson(
+                    data.getStringExtra(CONDITION),
+                    Task.Condition::class.java
+                )
+            )
+        }
+        if (requestCode == CHOOSE_ACTION_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            createAction(gson.fromJson(data.getStringExtra(ACTION), Task.Action::class.java))
         }
     }
 }
