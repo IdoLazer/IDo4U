@@ -349,59 +349,59 @@ fun createSpotlight(activity: Activity, vararg targets: Target): Spotlight {
 
 
 //////////////////////////// Wifi - related methods ////////////////////////////////////////////
-///**
-// * Scans the available wifi access points and registers a broadcastListener that listens to the
-// * scan's results. This method also initializes wifiManager, so its' return value should be used as
-// * one.
-// */
-//fun scanWifi(
-//    activity: Activity,
-//    wifiManager: WifiManager?,
-//    onRecieveNetworks: (_: List<ScanResult>) -> Unit
-//): BroadcastReceiver? {
-//    if (checkConditionsPermissions(Task.ConditionEnum.WIFI, activity)) {
-//        val wifiScanReceiver = object : BroadcastReceiver() {
-//
-//            @RequiresApi(api = Build.VERSION_CODES.M)
-//            override fun onReceive(c: Context, intent: Intent) {
-//                val success = intent.getBooleanExtra(
-//                    WifiManager.EXTRA_RESULTS_UPDATED,
-//                    false
-//                )
-//                if (success) {
-////                    scanSuccess(wifiManager)
-//                    onRecieveNetworks(wifiManager!!.scanResults)
-//                } else scanFailure()
-//            }
-//        }
-//        val intentFilter = IntentFilter()
-//        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
-//        activity.registerReceiver(wifiScanReceiver, intentFilter)
-//        val success = wifiManager!!.startScan()
-//        if (!success) scanFailure()
-//        return wifiScanReceiver
-//    }
-//    return null
-//}
-//
-///**
-// * Handles wifi scan success
-// */
-//private fun scanSuccess(wifiManager: WifiManager?) { //todo - present results to user (Lazer)
-//    val results = wifiManager!!.scanResults
-//    for (result in results) {
-//        Log.e("found_wifi_start", result.SSID)
-//    }
-//}
-//
-///**
-// * Handles failure: new scan did NOT succeed
-// */
-//private fun scanFailure() {
-//    //todo consider using old scan results: these are the OLD results:
-//    // val results = wifiManager!!.scanResults
-//    Log.e("found_wifi_start", "wifi scan problem!")
-//}
+/**
+ * Scans the available wifi access points and registers a broadcastListener that listens to the
+ * scan's results. This method also initializes wifiManager, so its' return value should be used as
+ * one.
+ */
+fun scanWifi(
+    activity: Activity,
+    wifiManager: WifiManager?,
+    onRecieveNetworks: (_: List<ScanResult>) -> Unit
+): BroadcastReceiver? {
+    if (checkConditionsPermissions(Task.ConditionEnum.WIFI, activity)) {
+        val wifiScanReceiver = object : BroadcastReceiver() {
+
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            override fun onReceive(c: Context, intent: Intent) {
+                val success = intent.getBooleanExtra(
+                    WifiManager.EXTRA_RESULTS_UPDATED,
+                    false
+                )
+                if (success) {
+//                    scanSuccess(wifiManager)
+                    onRecieveNetworks(wifiManager!!.scanResults)
+                } else scanFailure()
+            }
+        }
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
+        activity.registerReceiver(wifiScanReceiver, intentFilter)
+        val success = wifiManager!!.startScan()
+        if (!success) scanFailure()
+        return wifiScanReceiver
+    }
+    return null
+}
+
+/**
+ * Handles wifi scan success
+ */
+private fun scanSuccess(wifiManager: WifiManager?) { //todo - present results to user (Lazer)
+    val results = wifiManager!!.scanResults
+    for (result in results) {
+        Log.e("found_wifi_start", result.SSID)
+    }
+}
+
+/**
+ * Handles failure: new scan did NOT succeed
+ */
+private fun scanFailure() {
+    //todo consider using old scan results: these are the OLD results:
+    // val results = wifiManager!!.scanResults
+    Log.e("found_wifi_start", "wifi scan problem!")
+}
 
 
 ///////////////////////////// Bluetooth related methods ////////////////////////////////////////////
