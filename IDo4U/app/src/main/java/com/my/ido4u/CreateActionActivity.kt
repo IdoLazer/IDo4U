@@ -27,9 +27,9 @@ class CreateActionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_action)
+
         createMainConditionMenu()
         progressBar = findViewById(R.id.progressBar_cyclic)
-
     }
 
     override fun onResume() {

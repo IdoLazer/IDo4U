@@ -8,10 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
@@ -20,6 +17,7 @@ class ChooseWifiActivity : AppCompatActivity() {
 
     private lateinit var scanResultsLinearLayout: LinearLayout
     private lateinit var chooseWifiEditText: EditText
+    private var progressBar: ProgressBar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,11 +32,16 @@ class ChooseWifiActivity : AppCompatActivity() {
             }
         }
         val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        progressBar = findViewById(R.id.progressBar_cyclic_wifi)
+        if(wifiManager.isWifiEnabled) {
+            progressBar!!.visibility = ProgressBar.VISIBLE
+        }
         scanWifi(this, wifiManager, ::populateList)
     }
 
     private fun populateList(list: List<ScanResult>) {
         scanResultsLinearLayout.removeAllViewsInLayout()
+        progressBar!!.visibility = ProgressBar.INVISIBLE
         for (item in list) {
             val scanResultLayout =
                 LayoutInflater.from(this)
