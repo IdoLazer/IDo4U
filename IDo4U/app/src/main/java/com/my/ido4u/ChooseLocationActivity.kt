@@ -49,6 +49,14 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
 
         checkConditionsPermissions(Task.ConditionEnum.LOCATION, this@ChooseLocationActivity)
         setViewsAndFragment()
+        createChooseLocationTutorial()
+
+    }
+
+    /**
+     * Creates a tutorial for the ChooseLocationActivity
+     */
+    private fun createChooseLocationTutorial() {
         val listOfViews = arrayOf<View>(
             findViewById(R.id.fragmentLayout),
             findViewById(R.id.mapAPI),
@@ -62,7 +70,6 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
             getString(R.string.approve_location_tutorial)
         )
         createTutorial(this@ChooseLocationActivity, listOfStrings, *listOfViews) //todo
-
     }
 
     /**
@@ -103,6 +110,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
     private fun setSeekBar() {
         radiusSeekBar = findViewById<View>(R.id.RadiusSeekBar) as SeekBar
         seekBerMax = radiusSeekBar!!.max
+        radiusSeekBar!!.progress = (radius / RADIUS_MAX_IN_METERS * seekBerMax ).toInt()
         radiusSeekBar!!.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
                 val cur = radiusSeekBar!!.progress.toFloat()

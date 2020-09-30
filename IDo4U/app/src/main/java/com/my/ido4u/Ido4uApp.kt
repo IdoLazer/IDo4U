@@ -23,7 +23,10 @@ class Ido4uApp : Application() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+
+
     }
+
 
     /**
      * Creates a notification channel.
