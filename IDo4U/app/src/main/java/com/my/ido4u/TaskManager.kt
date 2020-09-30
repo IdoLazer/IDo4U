@@ -8,8 +8,6 @@ import java.lang.reflect.Type
 
 
 object TaskManager {
-    private const val SHARED_PREFERENCES_NAME = "TaskManagerSharedPreferences"
-    private const val TASK_LIST = "taskList"
 
     private var taskList = ArrayList<Task>()
     private val gson = Gson()
@@ -17,7 +15,6 @@ object TaskManager {
         .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
 
     init {
-        sp.edit().clear().apply() //todo - remove
         val taskListJsonString = sp.getString(TASK_LIST, null)
         if (taskListJsonString != null) {
             val groupListType: Type = object : TypeToken<ArrayList<Task>>() {}.type

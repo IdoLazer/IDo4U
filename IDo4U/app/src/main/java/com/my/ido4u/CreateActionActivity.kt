@@ -9,12 +9,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
 
 class CreateActionActivity : AppCompatActivity() {
+
+    private var progressBar: ProgressBar? = null
     private data class MenuItem(
         var item_name: String,
         var icon_src: Int,
@@ -24,7 +27,15 @@ class CreateActionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_action)
+
         createMainConditionMenu()
+        progressBar = findViewById(R.id.progressBar_cyclic)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        progressBar!!.visibility = ProgressBar.INVISIBLE
     }
 
     private fun createMainConditionMenu() {
@@ -117,6 +128,7 @@ class CreateActionActivity : AppCompatActivity() {
     }
 
     private fun clickedOnApps() {
+        progressBar!!.visibility = ProgressBar.VISIBLE
         chooseApp(this)
     }
 
@@ -134,6 +146,7 @@ class CreateActionActivity : AppCompatActivity() {
             resultCode == Activity.RESULT_OK && data != null
         ) {
             if (requestCode == CHOOSE_APP_ACTION_REQUEST_CODE) {
+                progressBar!!.visibility = ProgressBar.INVISIBLE
                 data.putExtra(ACTION, Gson().toJson(createOpenAppAction(data)))
             }
             setResult(FragmentActivity.RESULT_OK, data)

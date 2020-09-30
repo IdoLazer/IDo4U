@@ -193,5 +193,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/apply_new_task_button" />
 
-
 </androidx.constraintlayout.widget.ConstraintLayout>
