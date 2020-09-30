@@ -177,6 +177,11 @@
     <string name="volume_icon">Volume Icon</string>
     <string name="mute_icon">Mute Icon</string>
     <string name="vibrate_icon">Vibrate Icon</string>
+    <string name="volume_permissions_explanation">
+        "Hey there! :)\nWe need your permission to change your device\'s sound in order to"
+        "perform sound Actions. If that's OK, click \"OK\" and in the next screen"
+        "turn on the switch of IDo4U."
+    </string>
 
 
 </resources>

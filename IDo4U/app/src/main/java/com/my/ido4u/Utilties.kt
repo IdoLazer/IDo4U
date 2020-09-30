@@ -6,11 +6,8 @@ import android.app.AlertDialog
 import android.app.NotificationManager
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.content.BroadcastReceiver
-import android.content.Context
+import android.content.*
 import android.content.Context.NOTIFICATION_SERVICE
-import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.LocationManager
@@ -26,6 +23,7 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat
 import com.takusemba.spotlight.Spotlight
 import com.takusemba.spotlight.Target
@@ -114,7 +112,8 @@ fun checkConditionsPermissions(type: Task.ConditionEnum, activity: Activity): Bo
             BLUETOOTH_PERMISSIONS_REQUEST_CODE, activity
         )
 
-        Task.ConditionEnum.TIME -> {} //todo
+        Task.ConditionEnum.TIME -> {
+        } //todo
 
         Task.ConditionEnum.LOCATION -> checkSpecificPermissions(
             mutableListOf(
@@ -203,7 +202,7 @@ private fun checkPermission(permission: String, context: Context): Boolean {
 
 fun checkActionsPermissions(type: Task.ActionEnum, context: Context) : Boolean{
     when(type){
-        Task.ActionEnum.VOLUME -> checkSoundPermissions(context)
+        Task.ActionEnum.VOLUME -> return checkSoundPermissions(context)
         Task.ActionEnum.BRIGHTNESS -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkBrightnessPermission(context)
         }
@@ -226,7 +225,6 @@ fun checkBrightnessPermission(context: Context): Boolean {
     }
     return false
 }
-
 
 //@RequiresApi(Build.VERSION_CODES.M)
 //        /**
@@ -256,10 +254,27 @@ fun checkSoundPermissions(context: Context): Boolean{
     val notificationMngr = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
         !notificationMngr.isNotificationPolicyAccessGranted) {
-        context.startActivity(Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
         return false
     }
     return true
+}
+
+/**
+ * Shows a dialog in which we ask the user to give us permissions to modify notification do not
+ * disturb policy in order to perform sound Actions.
+ */
+fun showVolumePermissionsDialog(activity: Activity){
+    AlertDialog.Builder(activity)
+        .setTitle("Sound Permissions")
+        .setMessage(activity.getString(R.string.volume_permissions_explanation))
+        .setPositiveButton(android.R.string.yes, object : DialogInterface.OnClickListener {
+            override fun onClick(dialog: DialogInterface?, which: Int) {
+                activity.startActivity(Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
+            }
+        })
+        .setNegativeButton(android.R.string.no, null)
+        .setIcon(R.drawable.ic_baseline_volume_up_24)
+        .show()
 }
 
 /**
@@ -306,10 +321,10 @@ fun createSpotlightWhenViewIsInflated(
                 val textIterator = texts.iterator()
                 val targetText = layout.findViewById<TextView>(R.id.target_text)
                 targetText.text = textIterator.next()
-                if(
+                if (
                     targetText.text == activity.getString(R.string.drag_marker_tutorial) ||
                     targetText.text == activity.getString(R.string.choose_location_tutorial)
-                ){
+                ) {
                     targetText.setBackgroundColor(
                         ContextCompat.getColor(activity, R.color.colorPrimaryDark)
                     )
@@ -319,10 +334,10 @@ fun createSpotlightWhenViewIsInflated(
 
                     if (textIterator.hasNext()) {
                         targetText.text = textIterator.next()
-                        if(
+                        if (
                             targetText.text != activity.getString(R.string.drag_marker_tutorial) &&
                             targetText.text != activity.getString(R.string.choose_location_tutorial)
-                        ){ //todo
+                        ) { //todo
                             targetText.setBackgroundColor(Color.TRANSPARENT)
                         }
                     }
@@ -350,7 +365,8 @@ private fun createTarget(view: View, layout: View): Target {
                 view.width.toFloat(),
                 100f,
                 200f,
-                Color.argb(30, 124, 255, 90))
+                Color.argb(30, 124, 255, 90)
+            )
         )
         .setOverlay(layout)
         .build()
@@ -469,7 +485,7 @@ fun getBluetoothDevices(): Set<BluetoothDevice>? {
     return bluetoothAdapter?.bondedDevices
 }
 
-fun checkPermissionsForAllExistingTasks(activity: Activity){
+fun checkPermissionsForAllExistingTasks(activity: Activity){ //todo - needed?
     for(task in TaskManager.getTaskList()){
         checkConditionsPermissions(task.condition.conditionType, activity)
         for(action in task.actions){

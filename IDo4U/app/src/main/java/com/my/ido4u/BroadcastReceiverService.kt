@@ -46,7 +46,6 @@ class BroadcastReceiverService : Service() {
      */
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         context = applicationContext
-        lastLocation = null
         taskList = TaskManager.getTaskList()
         createAndRegisterBroadcastReceiver()
         startForeground(FOREGROUND_ID, createStickyNotification())

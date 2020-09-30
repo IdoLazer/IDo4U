@@ -121,9 +121,7 @@ class CreateActionActivity : AppCompatActivity() {
     }
 
     private fun clickedOnVolume() {
-        if (!checkActionsPermissions(Task.ActionEnum.VOLUME, this)) return
-
-        val intent = Intent(this, VolumeActionActivity::class.java)
+        val intent = Intent(this@CreateActionActivity, VolumeActionActivity::class.java)
         startActivityForResult(intent, CHOOSE_VOLUME_ACTION_REQUEST_CODE)
     }
 

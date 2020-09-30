@@ -35,18 +35,17 @@ class VolumeActionActivity : AppCompatActivity() {
         setVolumeSlider = findViewById(R.id.choose_volume_slider)
         setVolumeLinearLayout = findViewById(R.id.set_custom_volume_level_linearLayout)
 
-        putPhoneOnMuteCheckBox.setOnClickListener {
-            putOnMute()
-        }
-        putPhoneOnVibrateCheckBox.setOnClickListener {
-            putOnVibrate()
-        }
-        setVolumeLevelCheckBox.setOnClickListener {
-            setVolumeLevel()
-        }
+        putPhoneOnMuteCheckBox.setOnClickListener { putOnMute() }
+        putPhoneOnVibrateCheckBox.setOnClickListener { putOnVibrate() }
+        setVolumeLevelCheckBox.setOnClickListener { setVolumeLevel() }
         val confirmVolumeButton: MaterialButton = findViewById(R.id.confirm_volume_action_button)
         confirmVolumeButton.setOnClickListener {
-            confirmVolumeAction()
+            if (!checkActionsPermissions(Task.ActionEnum.VOLUME, this)){
+                showVolumePermissionsDialog(this)
+            }
+            else {
+                confirmVolumeAction()
+            }
         }
     }
 
@@ -80,7 +79,7 @@ class VolumeActionActivity : AppCompatActivity() {
         }
     }
 
-    private fun confirmVolumeAction() {
+    fun confirmVolumeAction() {
         val resultIntent = Intent()
         val volumeActionData =
             VolumeActionData(volumeActionType, setVolumeSlider.value)
