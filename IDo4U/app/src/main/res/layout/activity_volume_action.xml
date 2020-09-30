@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
+    android:background="@color/colorPrimaryDark"
     tools:context=".VolumeActionActivity">
 
     <TextView
@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="18dp"
         android:text="@string/choose_one_volume_action"
+        android:textColor="@color/colorBackGround"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -22,10 +23,10 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="600dp"
+        android:layout_height="650dp"
         android:background="@color/colorBackGround"
         android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/confirm_volume_action_button">
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:id="@+id/set_custom_volume_level_linearLayout"
@@ -49,16 +50,18 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="4"
                     android:layout_gravity="center"
+                    android:layout_weight="4"
                     android:text="@string/set_custom_volume_level"
+                    android:textColor="@color/colorPrimaryDark"
                     android:textSize="20sp" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
-                    android:layout_weight="1"
                     android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/volume_icon"
                     android:src="@drawable/ic_baseline_volume_up_24" />
             </LinearLayout>
 
@@ -67,10 +70,12 @@
                 android:layout_width="380dp"
                 android:layout_height="40dp"
                 android:layout_gravity="center"
+                android:stepSize="1"
                 android:valueFrom="0"
                 android:valueTo="100"
-                android:stepSize="1"
-                app:trackHeight="4dp" />
+                app:thumbColor="@color/colorPrimaryDark"
+                app:trackColor="@color/colorPrimaryDark"
+                app:trackHeight="2dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -88,9 +93,10 @@
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="4"
                 android:layout_gravity="center"
+                android:layout_weight="4"
                 android:text="@string/put_phone_on_mute"
+                android:textColor="@color/colorPrimaryDark"
                 android:textSize="20sp" />
 
             <ImageView
@@ -98,6 +104,7 @@
                 android:layout_height="50dp"
                 android:layout_gravity="center"
                 android:layout_weight="1"
+                android:contentDescription="@string/mute_icon"
                 android:src="@drawable/ic_baseline_volume_mute_24" />
         </LinearLayout>
 
@@ -116,29 +123,40 @@
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_weight="4"
                 android:text="@string/put_phone_on_vibrate"
-                android:layout_gravity="center"
+                android:textColor="@color/colorPrimaryDark"
                 android:textSize="20sp" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
-                android:layout_weight="1"
                 android:layout_gravity="center"
+                android:layout_weight="1"
+                android:contentDescription="@string/vibrate_icon"
                 android:src="@drawable/ic_baseline_vibration_24" />
         </LinearLayout>
-    </LinearLayout>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/confirm_volume_action_button"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:text="@string/confirm"
-        android:textSize="12sp"
-        app:backgroundTint="@color/colorPrimaryDark"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorBackGround"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toTopOf="@+id/scrollView3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/confirm_volume_action_button"
+                android:layout_width="150dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:text="@string/confirm"
+                android:textSize="12sp"
+                app:backgroundTint="@color/colorPrimaryDark" />
+        </LinearLayout>
+    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

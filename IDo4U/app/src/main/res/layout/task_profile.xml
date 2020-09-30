@@ -9,20 +9,21 @@
         android:id="@+id/edit_task_title_linearLayout"
         android:layout_width="match_parent"
         android:layout_height="60dp"
+        android:background="@color/colorPrimaryDark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="@color/colorBackGroundDarker">
+        app:layout_constraintTop_toTopOf="parent">
+
         <EditText
-            android:padding="10dp"
             android:id="@+id/edit_task_title"
             android:layout_width="match_parent"
             android:layout_height="58dp"
             android:layout_marginTop="1dp"
-            android:hint="@string/enter_task_title"
-            android:background="@color/colorBackGround"
             android:autofillHints="The task title"
-            android:inputType="text" />
+            android:background="@color/colorBackGround"
+            android:hint="@string/enter_task_title"
+            android:inputType="text"
+            android:padding="10dp" />
     </LinearLayout>
 
 
@@ -31,8 +32,9 @@
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:layout_marginTop="50dp"
-        android:text="@string/condition"
         android:padding="2dp"
+        android:text="@string/condition"
+        android:textColor="@color/colorPrimaryDark"
         android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@+id/edit_task_title_linearLayout" />
 
@@ -41,23 +43,26 @@
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:layout_marginTop="20dp"
-        app:layout_constraintTop_toBottomOf="@+id/condition_text_view"
-        android:background="@color/colorBackGroundDarker">
+        android:background="@color/colorBackGroundDarker"
+        app:layout_constraintTop_toBottomOf="@+id/condition_text_view">
+
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="78dp"
             android:layout_marginTop="1dp"
-            android:padding="10dp"
-            android:background="@color/colorBackGround">
+            android:background="@color/colorBackGround"
+            android:padding="10dp">
+
             <LinearLayout
                 android:id="@+id/condition_scrollView_linearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="@string/add_a_condition"/>
+                    android:hint="@string/add_a_condition" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
@@ -69,7 +74,7 @@
         android:layout_marginTop="12dp"
         android:text="@string/add_condition"
         android:textSize="12sp"
-        app:backgroundTint="@color/colorPrimary"
+        app:backgroundTint="@color/colorPrimaryDark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.95"
         app:layout_constraintStart_toStartOf="parent"
@@ -81,12 +86,12 @@
         android:layout_width="40dp"
         android:layout_height="50dp"
         android:layout_marginTop="12dp"
-        app:icon="@drawable/ic_baseline_delete_24"
-        app:iconTint="@color/colorBackGround"
-        app:iconSize="30dp"
-        app:iconPadding="0dp"
-        app:iconGravity="textStart"
         android:backgroundTint="@color/colorPrimary"
+        app:icon="@drawable/ic_baseline_delete_24"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconSize="30dp"
+        app:iconTint="@color/colorBackGround"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -97,9 +102,10 @@
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:layout_marginTop="10dp"
-        android:text="@string/actions"
-        android:textSize="16sp"
         android:padding="2dp"
+        android:text="@string/actions"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@+id/add_condition_button" />
 
     <LinearLayout
@@ -109,21 +115,24 @@
         android:layout_marginTop="20dp"
         android:background="@color/colorBackGroundDarker"
         app:layout_constraintTop_toBottomOf="@+id/actions_text_view">
+
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="158dp"
-            android:padding="10dp"
             android:layout_marginTop="1dp"
-            android:background="@color/colorBackGround">
+            android:background="@color/colorBackGround"
+            android:padding="10dp">
+
             <LinearLayout
                 android:id="@+id/actions_scrollView_linearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="@string/add_an_action"/>
+                    android:hint="@string/add_an_action" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
@@ -136,7 +145,7 @@
         android:layout_marginTop="12dp"
         android:text="@string/add_action"
         android:textSize="12sp"
-        app:backgroundTint="@color/colorPrimary"
+        app:backgroundTint="@color/colorPrimaryDark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.95"
         app:layout_constraintStart_toStartOf="parent"
@@ -147,12 +156,12 @@
         android:layout_width="40dp"
         android:layout_height="50dp"
         android:layout_marginTop="12dp"
-        app:icon="@drawable/ic_baseline_delete_24"
-        app:iconTint="@color/colorBackGround"
-        app:iconSize="30dp"
-        app:iconPadding="0dp"
-        app:iconGravity="textStart"
         android:backgroundTint="@color/colorPrimary"
+        app:icon="@drawable/ic_baseline_delete_24"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconSize="30dp"
+        app:iconTint="@color/colorBackGround"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -175,13 +184,13 @@
         android:id="@+id/delete_task_button"
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:layout_marginBottom="20dp"
         android:text="@string/delete_task"
         android:textSize="12sp"
         app:backgroundTint="@color/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="20dp"
         app:layout_constraintTop_toBottomOf="@+id/apply_new_task_button" />
 
 

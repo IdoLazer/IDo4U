@@ -5,12 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ChooseBluetoothActivity"
-    android:background="@color/colorPrimary">
+    android:background="@color/colorPrimaryDark">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="18dp"
+        android:textColor="@color/colorBackGround"
         android:text="@string/enter_or_choose_a_device"
         android:textSize="16sp"
         android:textStyle="bold"
@@ -23,7 +24,7 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:background="@color/colorBackGroundDarker"
-        app:layout_constraintBottom_toTopOf="@+id/confirm_bluetooth_network_button"
+        app:layout_constraintBottom_toTopOf="@+id/confirm_bluetooth_network_button_linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent">
@@ -40,16 +41,26 @@
             android:padding="10dp" />
     </LinearLayout>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/confirm_bluetooth_network_button"
+    <LinearLayout
+        android:id="@+id/confirm_bluetooth_network_button_linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:text="@string/confirm"
-        android:textSize="12sp"
-        app:backgroundTint="@color/colorPrimaryDark"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/scrollView4" />
+        app:layout_constraintBottom_toTopOf="@+id/scrollView4"
+        android:background="@color/colorBackGround"
+        android:orientation="vertical">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/confirm_bluetooth_network_button"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:text="@string/confirm"
+            android:textSize="12sp"
+            app:backgroundTint="@color/colorPrimaryDark"
+            android:layout_gravity="center"
+            />
+    </LinearLayout>
 
     <ScrollView
         android:id="@+id/scrollView4"

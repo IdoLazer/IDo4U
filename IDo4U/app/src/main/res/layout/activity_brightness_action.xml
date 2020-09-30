@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
+    android:background="@color/colorPrimaryDark"
 
     tools:context=".BrightnessActionActivity">
 
@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="18dp"
         android:text="@string/set_desired_brightness_level"
+        android:textColor="@color/colorBackGround"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -22,37 +23,29 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="600dp"
+        android:layout_height="650dp"
         android:background="@color/colorBackGround"
         android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/confirm_brightness_action_button">
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:orientation="horizontal"
-                >
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/drag_the_slider_to_the_desired_brightness_level"
-                    android:textSize="16sp" />
-            </LinearLayout>
-
+                android:gravity="center"
+                android:text="@string/drag_the_slider_to_the_desired_brightness_level"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="16sp" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_gravity="center"
-            android:layout_height="80dp">
+            android:layout_height="80dp"
+            android:layout_gravity="center">
 
             <com.google.android.material.slider.Slider
                 android:id="@+id/choose_brightness_slider"
@@ -62,18 +55,30 @@
                 android:stepSize="1"
                 android:valueFrom="0"
                 android:valueTo="100"
-                app:trackHeight="4dp" />
+                app:thumbColor="@color/colorPrimaryDark"
+                app:trackColor="@color/colorPrimaryDark"
+                app:trackHeight="2dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorBackGround"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toTopOf="@+id/scrollView3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/confirm_brightness_action_button"
+                android:layout_width="150dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:text="@string/confirm"
+                android:textSize="12sp"
+                app:backgroundTint="@color/colorPrimaryDark" />
         </LinearLayout>
 
     </LinearLayout>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/confirm_brightness_action_button"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:text="@string/confirm"
-        android:textSize="12sp"
-        app:backgroundTint="@color/colorPrimaryDark"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

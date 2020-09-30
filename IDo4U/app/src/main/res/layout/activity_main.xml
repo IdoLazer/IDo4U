@@ -4,13 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    android:background="@color/colorPrimary">
+    android:background="@color/colorPrimaryDark"
+    tools:context=".MainActivity">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:layout_width="match_parent"
-        android:layout_height="98dp"
-        android:src="@drawable/i_do_4_u_logo"
+        android:layout_height="200dp"
+        android:src="@mipmap/ic_app_banner3"
+        android:layout_marginEnd="120dp"
+        android:layout_marginBottom="0dp"
         app:layout_constraintBottom_toTopOf="@+id/task_recycler"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -21,19 +23,19 @@
         android:layout_gravity="end|bottom"
         android:layout_marginEnd="28dp"
         android:layout_marginBottom="40dp"
+        android:backgroundTint="@color/colorAccent"
         android:clickable="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:focusable="true"
-        android:backgroundTint="@color/colorPrimaryDark"
-        android:src="@drawable/ic_baseline_add_24"/>
+        android:src="@drawable/ic_baseline_add_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/task_recycler"
-        android:background="@color/colorBackGround"
         android:layout_width="match_parent"
         android:layout_height="600dp"
+        android:background="@color/colorBackGround"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.975" />
