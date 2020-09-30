@@ -114,8 +114,6 @@ class CreateActionActivity : AppCompatActivity() {
     }
 
     private fun clickedOnBrightness() {
-        if (!checkActionsPermissions(Task.ActionEnum.BRIGHTNESS, this)) return
-
         val intent = Intent(this, BrightnessActionActivity::class.java)
         startActivityForResult(intent, CHOOSE_BRIGHTNESS_ACTION_REQUEST_CODE)
     }

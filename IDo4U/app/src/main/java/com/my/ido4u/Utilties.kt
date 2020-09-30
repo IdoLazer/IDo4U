@@ -25,10 +25,13 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
+import com.google.gson.Gson
 import com.takusemba.spotlight.Spotlight
 import com.takusemba.spotlight.Target
 import com.takusemba.spotlight.shape.RoundedRectangle
 import java.util.*
+import kotlin.math.roundToInt
 
 
 /**
@@ -204,7 +207,7 @@ fun checkActionsPermissions(type: Task.ActionEnum, context: Context) : Boolean{
     when(type){
         Task.ActionEnum.VOLUME -> return checkSoundPermissions(context)
         Task.ActionEnum.BRIGHTNESS -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            checkBrightnessPermission(context)
+            return checkBrightnessPermission(context)
         }
         else -> return false
     }
@@ -214,16 +217,10 @@ fun checkActionsPermissions(type: Task.ActionEnum, context: Context) : Boolean{
 
 @RequiresApi(Build.VERSION_CODES.M)
 /**
- * Checks if the application is allowed to change screen brightness.
- * If it is - the method returns true, else -  asks the permission from the user and sends him\her
- * to an activity in which it could be granted.
+ * Returns true if the application is allowed to change screen brightness, false otherwise.
  */
 fun checkBrightnessPermission(context: Context): Boolean {
-    if (!Settings.System.canWrite(context)) {
-        context.startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
-        return true
-    }
-    return false
+    return Settings.System.canWrite(context)
 }
 
 //@RequiresApi(Build.VERSION_CODES.M)
@@ -274,6 +271,20 @@ fun showVolumePermissionsDialog(activity: Activity){
         })
         .setNegativeButton(android.R.string.no, null)
         .setIcon(R.drawable.ic_baseline_volume_up_24)
+        .show()
+}
+
+fun showBrightnessPermissionsDialog(activity: Activity, brightness: Float){
+    AlertDialog.Builder(activity)
+        .setTitle("Brightness Permissions")
+        .setMessage(activity.getString(R.string.brightness_permissions_explanation))
+        .setPositiveButton(android.R.string.yes, object : DialogInterface.OnClickListener {
+            override fun onClick(dialog: DialogInterface?, which: Int) {
+                activity.startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
+            }
+        })
+        .setNegativeButton(android.R.string.no, null)
+        .setIcon(R.drawable.ic_baseline_brightness_6_24)
         .show()
 }
 

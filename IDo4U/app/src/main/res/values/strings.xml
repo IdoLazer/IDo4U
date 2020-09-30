@@ -182,6 +182,10 @@
         "perform sound Actions. If that's OK, click \"OK\" and in the next screen"
         "turn on the switch of IDo4U."
     </string>
+    <string name="brightness_permissions_explanation">
+        "Hey there! :)\nWe need your permission to change your screen\'s brightness."
+        "If it's OK, click \"OK\" and in the next screen turn on the switch of IDo4U."
+    </string>
 
 
 </resources>

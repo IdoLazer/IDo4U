@@ -31,16 +31,23 @@ class BrightnessActionActivity : AppCompatActivity() {
     }
 
     private fun confirmBrightnessAction() {
-        val resultIntent = Intent()
-        val brightnessActionData =
-            BrightnessActionData((setBrightnessSlider.value * (255.0/100.0)).roundToInt())
-        val action = Task.Action(
-            Task.ActionEnum.BRIGHTNESS,
-            Gson().toJson(brightnessActionData),
-            brightnessActionData.toString()
-        )
-        resultIntent.putExtra(ACTION, Gson().toJson(action))
-        setResult(FragmentActivity.RESULT_OK, resultIntent)
-        finish()
+        if (!checkActionsPermissions(Task.ActionEnum.BRIGHTNESS, this)){
+            showBrightnessPermissionsDialog(this, setBrightnessSlider.value)
+        }
+        else{
+            val resultIntent = Intent()
+            val brightnessActionData =
+                BrightnessActionData((setBrightnessSlider.value * (255.0/100.0)).roundToInt())
+            val action = Task.Action(
+                Task.ActionEnum.BRIGHTNESS,
+                Gson().toJson(brightnessActionData),
+                brightnessActionData.toString()
+            )
+            resultIntent.putExtra(ACTION, Gson().toJson(action))
+
+            setResult(FragmentActivity.RESULT_OK, resultIntent)
+            finish()
+        }
+
     }
 }
