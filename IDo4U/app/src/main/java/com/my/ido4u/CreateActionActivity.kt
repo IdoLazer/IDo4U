@@ -29,6 +29,13 @@ class CreateActionActivity : AppCompatActivity() {
         setContentView(R.layout.activity_create_action)
         createMainConditionMenu()
         progressBar = findViewById(R.id.progressBar_cyclic)
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        progressBar!!.visibility = ProgressBar.INVISIBLE
     }
 
     private fun createMainConditionMenu() {
