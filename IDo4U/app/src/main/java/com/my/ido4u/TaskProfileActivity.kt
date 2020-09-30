@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.button.MaterialButton
@@ -18,6 +19,7 @@ class TaskProfileActivity : FragmentActivity() {
     private var condition: Task.Condition? = null
     private var actions: MutableList<Task.Action> = mutableListOf()
     private var gson = Gson()
+
 
     private lateinit var conditionScrollViewLL: LinearLayout
     private lateinit var actionsScrollViewLL: LinearLayout

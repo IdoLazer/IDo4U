@@ -168,7 +168,6 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
             override fun onMarkerDragStart(marker: Marker) {}
             override fun onMarkerDrag(marker: Marker) {}
             override fun onMarkerDragEnd(marker: Marker) {
-                val context = applicationContext
                 centerLatLng = marker.position
                 mapCircle!!.radius = radius.toDouble()
                 mapCircle!!.center = centerMarker!!.position
