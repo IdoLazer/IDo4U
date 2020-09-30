@@ -48,9 +48,6 @@ class MainActivity : AppCompatActivity() {
 //        wifiScanReceiver = scanWifi(this@MainActivity, wifiManager) //todo -remove
 //        createMockTasks() //todo - remove
         createMainActivityTutorial()
-        if(TaskManager.getSize() != 0){
-            startService()
-        }
     }
 
     /**

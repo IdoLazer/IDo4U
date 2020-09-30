@@ -23,7 +23,12 @@ class Ido4uApp : Application() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+
+        if(TaskManager.getSize() != 0){
+            startService(this)
+        }
     }
+
 
     /**
      * Creates a notification channel.
