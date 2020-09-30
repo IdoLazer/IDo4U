@@ -22,7 +22,6 @@ import com.google.gson.Gson
 
 class MainActivity : AppCompatActivity() {
 
-    private var wifiManager: WifiManager? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var gson: Gson = Gson()
     private var recycler: RecyclerView? = null
@@ -41,13 +40,17 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-//        startService(this)
-        initializeViews()
 
-//        wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-//        wifiScanReceiver = scanWifi(this@MainActivity, wifiManager) //todo -remove
-//        createMockTasks() //todo - remove
-        createMainActivityTutorial()
+        if(TaskManager.getSize() != 0){ //todo - is it too many activations?
+            startService(this)
+        }
+        initializeViews()
+        val sp = Ido4uApp.applicationContext()
+            .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
+        if(!sp.getBoolean(SHOWED_MAIN_ACTIVITY_TUTORIAL, false)) {
+            createMainActivityTutorial()
+            sp.edit().putBoolean(SHOWED_MAIN_ACTIVITY_TUTORIAL, true).apply()
+        }
     }
 
     /**
@@ -95,8 +98,8 @@ class MainActivity : AppCompatActivity() {
         val addButton: FloatingActionButton = findViewById(R.id.add_task_button)
 
         addButton.setOnClickListener {
-            val intent = Intent(this@MainActivity, TaskProfileActivity::class.java) //todo
-            startActivity(intent) // todo
+            val intent = Intent(this@MainActivity, TaskProfileActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -128,7 +131,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     //////////////////////////// permission related code ///////////////////////////////////////////
-    override fun onRequestPermissionsResult(
+    override fun onRequestPermissionsResult( // todo - needed?
         requestCode: Int, permissions: Array<out String>,
         grantResults: IntArray
     ) {
@@ -149,7 +152,7 @@ class MainActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun createMockTasks() { // todo - remove
-        mockWifi()
+//        mockWifi()
 //        mockBluetooth()
 //        mockLocation()
     }
@@ -157,13 +160,6 @@ class MainActivity : AppCompatActivity() {
     private fun mockBluetooth(){
         checkConditionsPermissions(Task.ConditionEnum.LOCATION, this)
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-
-//        val pairedDevices: Set<BluetoothDevice>? = getPairedBluetoothDevices()
-//        pairedDevices?.forEach { device ->
-//            val deviceName = device.name
-//            val deviceHardwareAddress = device.address // MAC address
-//            Log.e("paired bluetooth", "$deviceName is paired with MAC address $deviceHardwareAddress")
-//        }
 
         if(checkConditionsPermissions(Task.ConditionEnum.BLUETOOTH, this)){
             val conData = BluetoothConditionData("LE-Ido's Bose QC35 II", "4C:87:5D:CB:9B:CD")

@@ -40,6 +40,8 @@ import java.util.*
 
 ///////////////////////////////////////// Constants ////////////////////////////////////////////////
 const val CHANNEL_ID = "stickyChannel"
+const val SHARED_PREFERENCES_NAME = "TaskManagerSharedPreferences"
+const val TASK_LIST = "taskList"
 
 const val QUIT = "quit"
 const val QUIT_ID = 0
@@ -56,14 +58,12 @@ const val DEFAULT_RADIUS = 50f
 const val RADIUS_MAX_IN_METERS = 5000
 const val CENTER_MARKER = "centerMarker"
 const val MAP_LOCATION_ACTION = "mapLocationAction"
-const val CHOOSE_CONDITION_ACTION = "chooseConditionAction"
-const val MARKER_LAT_LNG = "markerLatLng"
-const val RADIUS = "radius"
-
-const val CHOOSE_APP_REQUEST_CODE = 6 // todo - needed?
 
 const val CONDITION = "condition"
 const val ACTION = "action"
+
+/** SP constants */
+const val SHOWED_MAIN_ACTIVITY_TUTORIAL = "showed mainActivity tutorial"
 
 /** Condition Request Codes */
 const val CHOOSE_CONDITION_REQUEST_CODE = 6
@@ -469,10 +469,18 @@ fun getBluetoothDevices(): Set<BluetoothDevice>? {
     return bluetoothAdapter?.bondedDevices
 }
 
+fun checkPermissionsForAllExistingTasks(activity: Activity){
+    for(task in TaskManager.getTaskList()){
+        checkConditionsPermissions(task.condition.conditionType, activity)
+        for(action in task.actions){
+            checkActionsPermissions(action.actionType, activity)
+        }
+    }
+}
 /**
  * Starts the service that continuously checks for conditions.
  */
-public fun startService(context: Context) {
+fun startService(context: Context) {
     val serviceIntent = Intent(context, BroadcastReceiverService::class.java)
     serviceIntent.putExtra("inputExtra", "listening")
     context.startService(serviceIntent)

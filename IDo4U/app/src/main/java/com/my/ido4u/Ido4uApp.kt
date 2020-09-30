@@ -24,9 +24,7 @@ class Ido4uApp : Application() {
         super.onCreate()
         createNotificationChannel()
 
-        if(TaskManager.getSize() != 0){
-            startService(this)
-        }
+
     }
 
 
