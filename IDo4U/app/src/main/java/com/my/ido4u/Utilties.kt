@@ -52,7 +52,7 @@ const val WIFI_PERMISSION_REQUEST_CODE = 0
 const val  BLUETOOTH_PERMISSIONS_REQUEST_CODE = 1
 
 const val MAP_PIN_LOCATION_REQUEST_CODE = 5
-const val DEFAULT_RADIUS = 500f
+const val DEFAULT_RADIUS = 50f
 const val RADIUS_MAX_IN_METERS = 5000
 const val CENTER_MARKER = "centerMarker"
 const val MAP_LOCATION_ACTION = "mapLocationAction"

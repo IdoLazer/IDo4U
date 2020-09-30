@@ -17,7 +17,7 @@ object TaskManager {
         .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
 
     init {
-        sp.edit().clear().apply() //todo - remove
+//        sp.edit().clear().apply() //todo - remove
         val taskListJsonString = sp.getString(TASK_LIST, null)
         if (taskListJsonString != null) {
             val groupListType: Type = object : TypeToken<ArrayList<Task>>() {}.type
