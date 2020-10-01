@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -38,6 +39,42 @@ class TaskProfileActivity : FragmentActivity() {
 
         initializeViews()
         restoreState(savedInstanceState)
+
+        performFirsLaunchOperations()
+    }
+
+    /**
+     * todo
+     */
+    private fun performFirsLaunchOperations() {
+        val sp = Ido4uApp.applicationContext()
+            .getSharedPreferences(SHARED_PREFERENCES_NAME, MODE_PRIVATE)
+        if (!sp.getBoolean(SHOWED_TASK_PROFILE_TUTORIAL, false)) {
+            createTaskProfileTutorial()
+        }
+    }
+
+    /**
+     * todo
+     */
+    private fun createTaskProfileTutorial() {
+        val views = arrayOf<View>(
+            findViewById(R.id.edit_task_title),
+            findViewById(R.id.conditions_information),
+            findViewById(R.id.add_condition_button),
+            findViewById(R.id.actions_information),
+            findViewById(R.id.add_action_button)
+        )
+
+        val texts = listOf<String>(
+            getString(R.string.task_name_tutorial),
+            getString(R.string.task_cond_info_tutorial),
+            getString(R.string.task_add_condit_tutorial),
+            getString(R.string.task_actions_info_tut),
+            getString(R.string.task_add_action_tutorial)
+        )
+
+        createTutorial(this@TaskProfileActivity, texts, SHOWED_TASK_PROFILE_TUTORIAL, *views)
     }
 
     private fun restoreState(bundle: Bundle?) {

@@ -40,10 +40,17 @@ class MainActivity : AppCompatActivity() {
             startService(this)
         }
         initializeViews()
+        performFirsLaunchOperations()
+    }
+
+    /**
+     * Creates a mock-task if needed and starts a tutorial if needed.
+     */
+    private fun performFirsLaunchOperations() {
         val sp = Ido4uApp.applicationContext()
-            .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
-        if(!sp.getBoolean(SHOWED_MAIN_ACTIVITY_TUTORIAL, false)) {
-            if(TaskManager.getSize() == 0) {
+            .getSharedPreferences(SHARED_PREFERENCES_NAME, MODE_PRIVATE)
+        if (!sp.getBoolean(SHOWED_MAIN_ACTIVITY_TUTORIAL, false)) {
+            if (TaskManager.getSize() == 0) {
                 mockBluetooth()
             }
             createMainActivityTutorial()

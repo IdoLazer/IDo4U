@@ -53,6 +53,22 @@
 
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/lower_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:gravity="center"
+            android:text="@string/add_task_explanation"
+            android:layout_gravity="right"
+            android:textAlignment="center"
+            android:textColor="@color/quantum_black_100"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:visibility="invisible"
+            IDo4U:layout_constraintStart_toStartOf="parent"
+            IDo4U:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
+
 
     </LinearLayout>
 

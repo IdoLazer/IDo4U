@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:IDo4U="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
 
     <LinearLayout
+        android:id="@+id/linearLayout2"
         android:layout_width="385dp"
         android:layout_height="254dp"
         android:orientation="vertical"
@@ -51,9 +53,26 @@
                 android:text="@string/skip_tutorial"
                 android:textColor="@color/colorPrimaryDark" />
 
+
         </LinearLayout>
 
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/lower_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="@string/add_task_explanation"
+        android:textAlignment="center"
+        android:textColor="@color/quantum_black_100"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:visibility="invisible"
+        IDo4U:layout_constraintEnd_toEndOf="parent"
+        IDo4U:layout_constraintStart_toStartOf="parent"
+        IDo4U:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

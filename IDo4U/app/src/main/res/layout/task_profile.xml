@@ -47,6 +47,7 @@
         app:layout_constraintTop_toBottomOf="@+id/condition_text_view">
 
         <ScrollView
+            android:id="@+id/conditions_information"
             android:layout_width="match_parent"
             android:layout_height="78dp"
             android:layout_marginTop="1dp"
@@ -117,6 +118,7 @@
         app:layout_constraintTop_toBottomOf="@+id/actions_text_view">
 
         <ScrollView
+            android:id="@+id/actions_information"
             android:layout_width="match_parent"
             android:layout_height="158dp"
             android:layout_marginTop="1dp"

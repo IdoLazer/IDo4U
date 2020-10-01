@@ -9,6 +9,7 @@ import android.bluetooth.BluetoothDevice
 import android.content.*
 import android.content.Context.NOTIFICATION_SERVICE
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Color
 import android.location.LocationManager
 import android.net.wifi.ScanResult
@@ -20,6 +21,7 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
@@ -64,6 +66,7 @@ const val BACKUP_CENTER_LOCATION = "backupCenterLocation"
 /** SP tutorial constants */
 const val SHOWED_MAIN_ACTIVITY_TUTORIAL = "showed mainActivity tutorial"
 const val SHOWED_LOCATION_CHOICE_ACTIVITY_TUTORIAL = "showed location choice tutorial"
+const val SHOWED_TASK_PROFILE_TUTORIAL = "showed_task_profile_tutorial"
 
 /** Condition Request Codes */
 const val CHOOSE_CONDITION_REQUEST_CODE = 6
@@ -313,60 +316,42 @@ fun createTutorial(activity: Activity, texts: List<String>, toSP: String, vararg
 /**
  * Adds a listener which create a target and spotlight around a view when it is inflated
  */
-fun createSpotlightWhenViewIsInflated(
-    layout: View,
-    activity: Activity,
-    texts: List<String>,
-    toSP: String,
-    vararg views: View
-) {
+fun createSpotlightWhenViewIsInflated(layout: View, activity: Activity, texts: List<String>,
+    toSP: String, vararg views: View) {
+
     views[0].viewTreeObserver.addOnGlobalLayoutListener(
         object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 val targets: MutableList<Target> = mutableListOf()
-                for (view in views) {
-                    targets.add(createTarget(view, layout))
-                }
+                for (view in views) { targets.add(createTarget(view, layout)) }
                 val targetsArray = targets.toTypedArray()
                 val spotlight = createSpotlight(activity, *targetsArray)
                 val textIterator = texts.iterator()
                 val targetText = layout.findViewById<TextView>(R.id.target_text)
                 val nextButton = layout.findViewById<View>(R.id.close_spotlight)
                 val skipTutorial = layout.findViewById<View>(R.id.next_button)
+                val lowerText = layout.findViewById<TextView>(R.id.lower_text)
+                val landscape = Configuration.ORIENTATION_LANDSCAPE ==
+                        activity.resources.configuration.orientation
+                val backDarker = ContextCompat.getColor(activity, R.color.colorBackGroundDarker)
+                nextButton.setBackgroundColor(backDarker)
+                skipTutorial.setBackgroundColor(backDarker)
                 val sp = Ido4uApp.applicationContext()
                     .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
                 targetText.text = textIterator.next()
                 if (
                     targetText.text == activity.getString(R.string.drag_marker_tutorial) ||
-                    targetText.text == activity.getString(R.string.choose_location_tutorial)
+                    targetText.text == activity.getString(R.string.choose_location_tutorial) ||
+                    targetText.text == activity.getString(R.string.task_name_tutorial)
                 ) {
                     targetText.setBackgroundColor(
                         ContextCompat.getColor(activity, R.color.spotlightTextBackground)
                     )
-                    nextButton.setBackgroundColor(
-                        ContextCompat.getColor(activity, R.color.colorBackGroundDarker)
-                    )
-                    skipTutorial.setBackgroundColor(
-                        ContextCompat.getColor(activity, R.color.colorBackGroundDarker)
-                    )
                 }
 
-                val nextSpotlight = View.OnClickListener {
-
-                    if (textIterator.hasNext()) {
-                        targetText.text = textIterator.next()
-                        if (
-                            targetText.text != activity.getString(R.string.drag_marker_tutorial) &&
-                            targetText.text != activity.getString(R.string.choose_location_tutorial)
-                        ) { //todo
-                            targetText.setBackgroundColor(Color.TRANSPARENT)
-                        }
-                    } else {
-                        sp.edit().putBoolean(toSP, true).apply()
-                    }
-
-                    spotlight.next()
-                }
+                val nextSpotlight = View.OnClickListener(
+                    nextSpot( textIterator, targetText, landscape, lowerText, sp, spotlight)
+                )
                 val stopSpotlight = View.OnClickListener {
                     sp.edit().putBoolean(toSP, true).apply()
                     spotlight.finish()
@@ -375,6 +360,47 @@ fun createSpotlightWhenViewIsInflated(
                 skipTutorial.setOnClickListener(stopSpotlight)
                 spotlight.start()
                 views[0].viewTreeObserver.removeOnGlobalLayoutListener(this)
+            }
+
+            /**
+             * todo
+             */
+            private fun nextSpot( textIterator: Iterator<String>,  targetText: TextView,
+                landscape: Boolean, lowerText: TextView,  sp: SharedPreferences,
+                                  spotlight: Spotlight ): (View) -> Unit {
+                return {
+
+                    if (textIterator.hasNext()) {
+                        targetText.text = textIterator.next()
+                        if (
+                            (targetText.text ==
+                            activity.getString(R.string.task_cond_info_tutorial) ||
+                            targetText.text ==
+                            activity.getString(R.string.task_add_condit_tutorial))
+                            && !landscape
+                        ) {
+                            targetText.visibility = View.INVISIBLE
+                            lowerText.visibility = View.VISIBLE
+                            lowerText.text = targetText.text
+                            lowerText.setBackgroundColor(
+                                ContextCompat.getColor(activity, R.color.spotlightTextBackground)
+                            )
+                        }
+                        if (
+                            targetText.text == activity.getString(R.string.task_actions_info_tut)
+                            && !landscape
+                        ) {
+                            targetText.visibility = View.VISIBLE
+                            lowerText.visibility = View.INVISIBLE
+                            lowerText.setBackgroundColor(Color.TRANSPARENT)
+                        }
+
+                    } else {
+                        sp.edit().putBoolean(toSP, true).apply()
+                    }
+
+                    spotlight.next()
+                }
             }
         })
 }
@@ -393,7 +419,7 @@ private fun createTarget(view: View, layout: View): Target {
                 view.width.toFloat(),
                 100f,
                 200f,
-                Color.argb(30, 124, 255, 90)
+                Color.argb(60, 124, 255, 90)
             )
         )
         .setOverlay(layout)

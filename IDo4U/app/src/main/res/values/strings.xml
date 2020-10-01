@@ -55,6 +55,23 @@
       Press this button to approve the condition area.
     </string>
 
+    <string name="task_name_tutorial">
+        "Enter the name of you task here (for example: \"Enter Home\")"
+    </string>
+    <string name="task_cond_info_tutorial">
+        "Here You\'ll see information about the condition of this task."
+    </string>
+    <string name="task_add_condit_tutorial">
+        "Press this button in order to add a new condition (or replace the existing one). "
+        "Each task can only have one condition."
+    </string>
+    <string name="task_actions_info_tut">
+         "Here you\'ll see information about the actions of this task."
+    </string>
+    <string name="task_add_action_tutorial">
+            "Press this button in order to add a new action to the task - each task can have several actions"
+    </string>
+
     <string name="choose_a_condition">Choose A Condition</string>
     <string name="sample_task">Sample Task</string>
     <string name="menu_item_icon">menu item icon</string>
