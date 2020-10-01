@@ -69,7 +69,11 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
             getString(R.string.radius_bar_tutorial),
             getString(R.string.approve_location_tutorial)
         )
-        createTutorial(this@ChooseLocationActivity, listOfStrings, *listOfViews) //todo
+        createTutorial(
+            this@ChooseLocationActivity,
+            listOfStrings,
+            SHOWED_LOCATION_CHOICE_ACTIVITY_TUTORIAL,
+            *listOfViews) //todo
     }
 
     /**

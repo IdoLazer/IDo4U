@@ -35,6 +35,7 @@ class TaskProfileActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.task_profile)
+
         initializeViews()
         restoreState(savedInstanceState)
     }
@@ -66,6 +67,7 @@ class TaskProfileActivity : FragmentActivity() {
                 }
             }
         }
+
     }
 
     private fun initializeViews() {
