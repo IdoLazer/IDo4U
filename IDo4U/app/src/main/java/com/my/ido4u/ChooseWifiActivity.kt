@@ -3,6 +3,7 @@ package com.my.ido4u
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
 import android.os.Bundle
@@ -15,6 +16,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type
+import java.util.jar.Manifest
 
 class ChooseWifiActivity : AppCompatActivity() {
 
@@ -53,6 +55,19 @@ class ChooseWifiActivity : AppCompatActivity() {
             )
 
             createTutorial(this@ChooseWifiActivity, texts, SHOWED_WIFI_TUTORIAL, *views)
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if(requestCode == WIFI_PERMISSION_REQUEST_CODE){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                initializeScan()
+            }
         }
     }
 

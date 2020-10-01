@@ -80,7 +80,6 @@
     </string>
     <string name="choose_ready_wifi_tutorial">
         "OR you can choose from this list of close WiFi connections (if there are any)."
-        "You will see options here the first time you\'ll enter this screen AFTER you\'ve approved location tracking."
     </string>
 
     <string name="choose_a_condition">Choose A Condition</string>
