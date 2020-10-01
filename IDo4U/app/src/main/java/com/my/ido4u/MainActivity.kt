@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        if(TaskManager.getSize() != 0){ //todo - is it too many activations?
+        if(TaskManager.getSize() != 0 && savedInstanceState == null){ //todo - is it too many activations?
             startService(this)
         }
         initializeViews()
@@ -233,4 +233,7 @@ class MainActivity : AppCompatActivity() {
         addNewTask(newTask2)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+    }
 }

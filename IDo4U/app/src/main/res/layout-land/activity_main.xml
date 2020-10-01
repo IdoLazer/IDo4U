@@ -9,9 +9,10 @@
 
     <com.google.android.material.imageview.ShapeableImageView
         android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:layout_marginEnd="40dp"
+        android:layout_height="100dp"
         android:src="@drawable/i_do_for_u_banner_long"
+        android:layout_marginEnd="420dp"
+        android:layout_marginBottom="0dp"
         app:layout_constraintBottom_toTopOf="@+id/task_recycler"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -33,7 +34,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/task_recycler"
         android:layout_width="match_parent"
-        android:layout_height="600dp"
+        android:layout_height="300dp"
         android:background="@color/colorBackGround"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"

@@ -160,10 +160,8 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
                     .strokeWidth(3f)
                     .strokeColor(Color.RED)
                     .fillColor(Color.argb(70, 150, 50, 50))
-
             )
-            radiusSeekBar!!.progress = (radius / RADIUS_MAX_IN_METERS).toInt()
-
+//            radiusSeekBar!!.progress = (radius / RADIUS_MAX_IN_METERS).toInt() //todo - remove I think
         }
     }
 

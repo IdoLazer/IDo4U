@@ -81,7 +81,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="@string/no_results_found" />
+                android:hint="@string/no_results_found_wifi" />
 
             <ProgressBar
                 android:id="@+id/progressBar_cyclic_wifi"

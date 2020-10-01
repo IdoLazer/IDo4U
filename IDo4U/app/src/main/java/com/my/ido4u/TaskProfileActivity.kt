@@ -1,17 +1,25 @@
 package com.my.ido4u
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.EditText
 import android.widget.LinearLayout
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.lang.reflect.Type
 
 const val MAX_ACTIONS = 10
+const val CONDITION_EXIST = "condition exist"
+const val RESTORE_CONDITION = "restore condition"
+const val ACTIONS_EXIST = "actions exist"
+const val RESTORE_ACTIONS = "restore actions"
 
 class TaskProfileActivity : FragmentActivity() {
 
@@ -23,19 +31,51 @@ class TaskProfileActivity : FragmentActivity() {
 
     private lateinit var conditionScrollViewLL: LinearLayout
     private lateinit var actionsScrollViewLL: LinearLayout
+    private lateinit var addConditionButton: MaterialButton
+    private lateinit var editTaskTitle: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.task_profile)
         initializeViews()
+        restoreState(savedInstanceState)
+    }
+
+    private fun restoreState(bundle: Bundle?) {
+        if (bundle != null) {
+            populateFieldsFromCurrentEdit(bundle)
+        } else if (id != -1) {
+            populateFieldsFromExistingTask()
+        }
+
+    }
+
+    private fun populateFieldsFromCurrentEdit(bundle: Bundle) {
+        if (bundle.getBoolean(CONDITION_EXIST)) {
+            val conditionString = bundle.getString(RESTORE_CONDITION, null)
+            if (conditionString != null) {
+                createCondition(gson.fromJson(conditionString, Task.Condition::class.java))
+            }
+        }
+        if (bundle.getBoolean(ACTIONS_EXIST)) {
+            val actionListJsonString = bundle.getString(RESTORE_ACTIONS, null)
+            if (actionListJsonString != null) {
+                val groupListType: Type = object : TypeToken<MutableList<Task.Action>>() {}.type
+                val actionList: MutableList<Task.Action> =
+                    gson.fromJson(actionListJsonString, groupListType)
+                for (action in actionList) {
+                    addAction(action)
+                }
+            }
+        }
     }
 
     private fun initializeViews() {
         conditionScrollViewLL = findViewById(R.id.condition_scrollView_linearLayout)
         actionsScrollViewLL = findViewById(R.id.actions_scrollView_linearLayout)
+        addConditionButton = findViewById(R.id.add_condition_button)
+        editTaskTitle = findViewById(R.id.edit_task_title)
 
-        val editTaskTitle: EditText = findViewById(R.id.edit_task_title)
-        val addConditionButton: MaterialButton = findViewById(R.id.add_condition_button)
         val addActionButton: MaterialButton = findViewById(R.id.add_action_button)
         val applyNewTaskButton: MaterialButton = findViewById(R.id.apply_new_task_button)
         val deleteTaskButton: MaterialButton = findViewById(R.id.delete_task_button)
@@ -45,11 +85,7 @@ class TaskProfileActivity : FragmentActivity() {
         id = intent.getIntExtra("id", -1)
 
         addConditionButton.setOnClickListener {
-            if (condition == null) {
-                conditionScrollViewLL.removeAllViewsInLayout()
-            }
             addCondition()
-            addConditionButton.text = getString(R.string.edit_condition)
         }
 
         removeConditionButton.setOnClickListener {
@@ -62,26 +98,20 @@ class TaskProfileActivity : FragmentActivity() {
         }
 
         addActionButton.setOnClickListener {
-            if (actions.size == 0) {
-                actionsScrollViewLL.removeAllViewsInLayout()
-            }
             if (actionsScrollViewLL.childCount < MAX_ACTIONS) {
                 addAction()
             }
         }
 
         removeActionButton.setOnClickListener {
-            actions = mutableListOf()
-            actionsScrollViewLL.removeAllViewsInLayout()
-            val tv = TextView(this)
-            tv.hint = "Add an action"
-            actionsScrollViewLL.addView(tv)
+            removeActions()
         }
 
         applyNewTaskButton.setOnClickListener {
-            if (condition == null || actions.size == 0 || editTaskTitle.text.isEmpty())
+            if (condition == null || actions.size == 0 || editTaskTitle.text.isEmpty()) {
+                showCantCreateTaskDialog()
                 return@setOnClickListener
-
+            }
             val task =
                 Task(editTaskTitle.text.toString(), true, condition!!, actions.toTypedArray())
             if (id == -1) {
@@ -101,31 +131,48 @@ class TaskProfileActivity : FragmentActivity() {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
-
-        if (id != -1) {
-            populateFieldsForExistingTask(
-                conditionScrollViewLL,
-                actionsScrollViewLL,
-                addConditionButton,
-                editTaskTitle
-            )
-        }
     }
 
-    private fun populateFieldsForExistingTask(
-        conditionScrollViewLL: LinearLayout,
-        actionsScrollViewLL: LinearLayout,
-        addConditionButton: MaterialButton,
-        editTaskTitle: EditText
-    ) {
+    private fun showCantCreateTaskDialog() {
+        var message: String = ""
+        when {
+            editTaskTitle.text.isEmpty() -> {
+                message = "Can't create a task without a title"
+            }
+            condition == null -> {
+                message = "Can't create a task with no condition"
+            }
+            actions.size == 0 -> {
+                message = "Can't create a task with no actions"
+            }
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Can't Create Task")
+            .setMessage(message)
+            .setNeutralButton(
+                android.R.string.ok
+            ) { _, _ -> }
+            .show()
+    }
+
+    private fun removeActions() {
+        actions = mutableListOf()
+        actionsScrollViewLL.removeAllViewsInLayout()
+        val tv = TextView(this)
+        tv.hint = "Add an action"
+        actionsScrollViewLL.addView(tv)
+    }
+
+    private fun populateFieldsFromExistingTask() {
+        val task = TaskManager.getPosition(id)
         conditionScrollViewLL.removeAllViewsInLayout()
         actionsScrollViewLL.removeAllViewsInLayout()
         addConditionButton.text = getString(R.string.edit_condition)
-        val task = TaskManager.getPosition(id)
         editTaskTitle.setText(task.name)
         createCondition(task.condition)
         for (action in task.actions) {
-            createAction(action)
+            addAction(action)
+
         }
     }
 
@@ -139,7 +186,10 @@ class TaskProfileActivity : FragmentActivity() {
         startActivityForResult(intent, CHOOSE_ACTION_REQUEST_CODE)
     }
 
-    private fun createAction(action: Task.Action) {
+    private fun addAction(action: Task.Action) {
+        if (actions.size == 0) {
+            actionsScrollViewLL.removeAllViewsInLayout()
+        }
         actions.add(
             action
         )
@@ -153,11 +203,13 @@ class TaskProfileActivity : FragmentActivity() {
     }
 
     private fun createCondition(newCondition: Task.Condition) {
+        conditionScrollViewLL.removeAllViewsInLayout()
         condition = newCondition
         val tv = TextView(this)
         tv.text = newCondition.description
         conditionScrollViewLL.removeAllViewsInLayout()
         conditionScrollViewLL.addView(tv)
+        addConditionButton.text = getString(R.string.edit_condition)
     }
 
     override fun onActivityResult(
@@ -178,8 +230,25 @@ class TaskProfileActivity : FragmentActivity() {
             )
         }
         if (requestCode == CHOOSE_ACTION_REQUEST_CODE &&
-            resultCode == Activity.RESULT_OK && data != null) {
-            createAction(gson.fromJson(data.getStringExtra(ACTION), Task.Action::class.java))
+            resultCode == Activity.RESULT_OK && data != null
+        ) {
+            addAction(gson.fromJson(data.getStringExtra(ACTION), Task.Action::class.java))
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (condition != null) {
+            outState.putBoolean(CONDITION_EXIST, true)
+            outState.putString(RESTORE_CONDITION, gson.toJson(condition))
+        } else {
+            outState.putBoolean(CONDITION_EXIST, false)
+        }
+        if (actions.size > 0) {
+            outState.putBoolean(ACTIONS_EXIST, true)
+            outState.putString(RESTORE_ACTIONS, gson.toJson(actions))
+        } else {
+            outState.putBoolean(ACTIONS_EXIST, false)
         }
     }
 }
