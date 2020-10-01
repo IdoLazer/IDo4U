@@ -23,15 +23,11 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
-import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
-import com.google.gson.Gson
 import com.takusemba.spotlight.Spotlight
 import com.takusemba.spotlight.Target
 import com.takusemba.spotlight.shape.RoundedRectangle
 import java.util.*
-import kotlin.math.roundToInt
 
 
 /**
@@ -52,7 +48,7 @@ const val BLUETOOTH_CHANGED_BROADCAST = BluetoothDevice.ACTION_ACL_CONNECTED
 const val THRESHOLD_ACCURACY = 50
 const val LOCATION_REQUEST_INTERVALS: Long = 5
 const val WIFI_PERMISSION_REQUEST_CODE = 0
-const val  BLUETOOTH_PERMISSIONS_REQUEST_CODE = 1
+const val LOCATION_PERMISSIONS_REQUEST_CODE = 1
 
 const val MAP_PIN_LOCATION_REQUEST_CODE = 5
 const val DEFAULT_RADIUS = 50f
@@ -96,52 +92,38 @@ val ACTION_REQUEST_CODES =
 
 
 /////////////////////////// Permission - related methods ///////////////////////////////////////////
+/**
+ * Return true if all the permissions relevant to the condition type are granted.
+ * Else, tries to request the user for the un-granted permissions.
+ * At the end - return true if all permissions were granted, false otherwise.
+ */
 fun checkConditionsPermissions(type: Task.ConditionEnum, activity: Activity): Boolean {
     when (type) {
 
-        Task.ConditionEnum.WIFI -> checkSpecificPermissions(
+        Task.ConditionEnum.WIFI -> return checkSpecificPermissions(
+                mutableListOf(
+                    Manifest.permission.ACCESS_WIFI_STATE,
+                    Manifest.permission.CHANGE_WIFI_STATE,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                WIFI_PERMISSION_REQUEST_CODE, activity
+            )
+
+
+//        Task.ConditionEnum.TIME -> {
+//        } //todo
+
+        Task.ConditionEnum.LOCATION -> return checkSpecificPermissions(
             mutableListOf(
-                Manifest.permission.ACCESS_WIFI_STATE,
-                Manifest.permission.CHANGE_WIFI_STATE,
-                Manifest.permission.ACCESS_COARSE_LOCATION
+                Manifest.permission.ACCESS_FINE_LOCATION
             ),
-            WIFI_PERMISSION_REQUEST_CODE, activity
+            LOCATION_PERMISSIONS_REQUEST_CODE, activity
         )
 
-        Task.ConditionEnum.BLUETOOTH -> checkSpecificPermissions(
-            mutableListOf(
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ),
-            BLUETOOTH_PERMISSIONS_REQUEST_CODE, activity
-        )
-
-        Task.ConditionEnum.TIME -> {
-        } //todo
-
-        Task.ConditionEnum.LOCATION -> checkSpecificPermissions(
-            mutableListOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ),
-            WIFI_PERMISSION_REQUEST_CODE, activity
-        )
+        else -> return false
     }
-    return true // todo
 }
 
-/**
- * Shows a dialog that says the location service is unavailable
- * @param context a context
- */
-fun noLocationDialog(context: Context?) {
-    AlertDialog.Builder(context).setMessage(R.string.gps_network_not_enabled)
-        .setPositiveButton(
-            R.string.open_location_settings
-        ) { _, _ ->
-            context?.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-        }
-        .show()
-}
 
 /**
  * Checks whether or not the location services are enabled.
@@ -163,8 +145,10 @@ fun isLocationEnabled(context: Context): Boolean {
 }
 
 /**
- * Checks if all the permissions in permissionsList has been granted - if so returns true,
- * else - calls ActivityCompat.requestPermissions on all the un-granted permissions.
+ * Checks if all the permissions in permissionsList has been granted. If one of them hasn't,
+ * the method presents an informative message explaining why we need the permission, after which
+ * the permission is requested from the user.
+ * Returns true if at the end of the process all permissions were granted, false otherwise
  */
 private fun checkSpecificPermissions(
     permissionsList: MutableList<String>,
@@ -172,32 +156,64 @@ private fun checkSpecificPermissions(
 ): Boolean {
     val unGrantedPermissionsList: MutableList<String> = ArrayList()
     for (permission in permissionsList) {
-        if (checkPermission(permission, activity)) {
+
+        if(!checkPermission(permission, activity)){
+            var text = ""
+            when (permission){
+                Manifest.permission.ACCESS_COARSE_LOCATION ->
+                    text = activity.getString(R.string.coarse_location_permission_explanation)
+
+                Manifest.permission.ACCESS_FINE_LOCATION ->
+                    text = activity.getString(R.string.fine_location_permission_explanation)
+
+                Manifest.permission.ACCESS_WIFI_STATE ->
+                    text = activity.getString(R.string.wifi_access_permission_explanation)
+
+                Manifest.permission.CHANGE_WIFI_STATE ->
+                    text = activity.getString(R.string.wifi_change_permission_explanation)
+
+            }
+            showPermissionRationalDialog(activity, text, permission, requestCode)
+        }
+
+        if (!checkPermission(permission, activity)) {
             unGrantedPermissionsList.add(permission)
         }
     }
-    if (unGrantedPermissionsList.size > 0) {
-        ActivityCompat.requestPermissions(
-            activity,
-            unGrantedPermissionsList.toTypedArray(),
-            requestCode
-
-        )
-        return false
-    }
-    return true
+    return unGrantedPermissionsList.size <= 0
 }
 
 
 /**
  * Return true if permission has been granted, false otherwise.
  */
-private fun checkPermission(permission: String, context: Context): Boolean {
+private fun checkPermission(permission: String, activity: Activity): Boolean {
     val granted = PackageManager.PERMISSION_GRANTED
-    return ContextCompat.checkSelfPermission(context, permission) != granted
+    return ContextCompat.checkSelfPermission(activity, permission) == granted
 }
 
-//@RequiresApi(Build.VERSION_CODES.M)
+/**
+ * Presents an informative message explaining why we need the permission, after which
+ * the permission is requested from the user.
+ */
+fun showPermissionRationalDialog(activity: Activity, text: String, permission: String, code: Int){
+    AlertDialog.Builder(activity)
+        .setTitle("We need your permission")
+        .setMessage(text)
+        .setPositiveButton(android.R.string.yes, object : DialogInterface.OnClickListener {
+            @RequiresApi(Build.VERSION_CODES.M) //todo
+            override fun onClick(dialog: DialogInterface?, which: Int) {
+                ActivityCompat.requestPermissions(
+                    activity,
+                    arrayOf(permission),
+                    code
+                )
+            }
+        })
+        .setIcon(R.drawable.ic_baseline_announcement_24)
+        .show()
+}
+
 /**
  * Checks if all the relevant permissions for the action type "type" has been granted and
  * requests those who has'nt been granted yet.
@@ -215,7 +231,7 @@ fun checkActionsPermissions(type: Task.ActionEnum, context: Context) : Boolean{
 
 }
 
-@RequiresApi(Build.VERSION_CODES.M)
+@RequiresApi(Build.VERSION_CODES.M) //todo
 /**
  * Returns true if the application is allowed to change screen brightness, false otherwise.
  */
@@ -223,24 +239,6 @@ fun checkBrightnessPermission(context: Context): Boolean {
     return Settings.System.canWrite(context)
 }
 
-//@RequiresApi(Build.VERSION_CODES.M)
-//        /**
-//         * todo
-//         */
-//fun askBrightnessPermission(
-//    task: Task,
-//    context: Context
-//) { //todo - delete and check permissions in task creation
-//    for (action in task.actions) {
-//        if (action.actionType == Task.ActionEnum.BRIGHTNESS) {
-//            if (!Settings.System.canWrite(context)) {
-//                context.startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
-//            }
-//        }
-//
-//    }
-//    return false
-//}
 
 /**
  * Checks if the application is allowed to change the device's volume mode and level.
@@ -249,11 +247,8 @@ fun checkBrightnessPermission(context: Context): Boolean {
  */
 fun checkSoundPermissions(context: Context): Boolean{
     val notificationMngr = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-        !notificationMngr.isNotificationPolicyAccessGranted) {
-        return false
-    }
-    return true
+    return !(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+        !notificationMngr.isNotificationPolicyAccessGranted)
 }
 
 /**
@@ -265,6 +260,7 @@ fun showVolumePermissionsDialog(activity: Activity){
         .setTitle("Sound Permissions")
         .setMessage(activity.getString(R.string.volume_permissions_explanation))
         .setPositiveButton(android.R.string.yes, object : DialogInterface.OnClickListener {
+            @RequiresApi(Build.VERSION_CODES.M) //todo
             override fun onClick(dialog: DialogInterface?, which: Int) {
                 activity.startActivity(Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
             }
@@ -274,11 +270,15 @@ fun showVolumePermissionsDialog(activity: Activity){
         .show()
 }
 
+/**
+ * todo
+ */
 fun showBrightnessPermissionsDialog(activity: Activity, brightness: Float){
     AlertDialog.Builder(activity)
         .setTitle("Brightness Permissions")
         .setMessage(activity.getString(R.string.brightness_permissions_explanation))
         .setPositiveButton(android.R.string.yes, object : DialogInterface.OnClickListener {
+            @RequiresApi(Build.VERSION_CODES.M) //todo
             override fun onClick(dialog: DialogInterface?, which: Int) {
                 activity.startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
             }
@@ -331,15 +331,24 @@ fun createSpotlightWhenViewIsInflated(
                 val spotlight = createSpotlight(activity, *targetsArray)
                 val textIterator = texts.iterator()
                 val targetText = layout.findViewById<TextView>(R.id.target_text)
+                val nextButton =  layout.findViewById<View>(R.id.close_spotlight)
+                val skipTutorial = layout.findViewById<View>(R.id.next_button)
                 targetText.text = textIterator.next()
                 if (
                     targetText.text == activity.getString(R.string.drag_marker_tutorial) ||
                     targetText.text == activity.getString(R.string.choose_location_tutorial)
                 ) {
                     targetText.setBackgroundColor(
-                        ContextCompat.getColor(activity, R.color.colorPrimaryDark)
+                        ContextCompat.getColor(activity, R.color.spotlightTextBackground)
+                    )
+                    nextButton.setBackgroundColor(
+                        ContextCompat.getColor(activity, R.color.colorBackGroundDarker)
+                    )
+                    skipTutorial.setBackgroundColor(
+                        ContextCompat.getColor(activity, R.color.colorBackGroundDarker)
                     )
                 }
+
                 val nextSpotlight = View.OnClickListener {
                     spotlight.next()
 
@@ -350,13 +359,13 @@ fun createSpotlightWhenViewIsInflated(
                             targetText.text != activity.getString(R.string.choose_location_tutorial)
                         ) { //todo
                             targetText.setBackgroundColor(Color.TRANSPARENT)
+//                            skipTutorial.setBackgroundColor()
                         }
                     }
                 }
                 val stopSpotlight = View.OnClickListener { spotlight.finish() }
-                layout.findViewById<View>(R.id.close_spotlight)
-                    .setOnClickListener(nextSpotlight)
-                layout.findViewById<View>(R.id.next_button).setOnClickListener(stopSpotlight)
+                nextButton.setOnClickListener(nextSpotlight)
+                skipTutorial.setOnClickListener(stopSpotlight)
                 spotlight.start()
                 views[0].viewTreeObserver.removeOnGlobalLayoutListener(this)
             }
@@ -364,7 +373,8 @@ fun createSpotlightWhenViewIsInflated(
 }
 
 /**
- * Creates a target for a tutorial spotlight. The target will be illuminated by a circle.
+ * Creates a target for a tutorial spotlight. The target will be illuminated by a circle or a
+ * rounded rectangle.
  */
 private fun createTarget(view: View, layout: View): Target {
     return Target.Builder()
@@ -386,7 +396,6 @@ private fun createTarget(view: View, layout: View): Target {
 /**
  * Create a tutorial spotlight around the target provided
  */
-
 fun createSpotlight(activity: Activity, vararg targets: Target): Spotlight {
     return Spotlight.Builder(activity)
         .setTargets(*targets)
@@ -418,7 +427,6 @@ fun scanWifi(
                     false
                 )
                 if (success) {
-//                    scanSuccess(wifiManager)
                     onRecieveNetworks(wifiManager!!.scanResults)
                 } else scanFailure()
             }
@@ -434,34 +442,11 @@ fun scanWifi(
 }
 
 /**
- * Handles wifi scan success
- */
-private fun scanSuccess(wifiManager: WifiManager?) { //todo - present results to user (Lazer)
-    val results = wifiManager!!.scanResults
-    for (result in results) {
-        Log.e("found_wifi_start", result.SSID)
-    }
-}
-
-/**
  * Handles failure: new scan did NOT succeed
  */
 private fun scanFailure() {
-    //todo consider using old scan results: these are the OLD results:
-    // val results = wifiManager!!.scanResults
-    Log.e("found_wifi_start", "wifi scan problem!")
+    Log.e("problem_in_wifi_scan", "wifi scan problem!")
 }
-
-
-///////////////////////////// Bluetooth related methods ////////////////////////////////////////////
-///**
-// * Returns a list of all the bluetooth devices that were paired with the device.
-// */
-//fun getPairedBluetoothDevices(): Set<BluetoothDevice>? {
-//    val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-//    val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
-//    return pairedDevices
-//}
 
 /**
  * Opens a pop-up that allows the user to choose an application from his\her device.
@@ -474,18 +459,6 @@ fun chooseApp(activity: Activity) {
     val pickIntent = Intent(Intent.ACTION_PICK_ACTIVITY)
     pickIntent.putExtra(Intent.EXTRA_INTENT, mainIntent)
     activity.startActivityForResult(pickIntent, CHOOSE_APP_ACTION_REQUEST_CODE)
-    // todo - add this code to the calling app:
-    //    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-    //        super.onActivityResult(requestCode, resultCode, data)
-    //        if (requestCode == CHOOSE_APP_REQUEST_CODE &&
-    //              resultCode == Activity.RESULT_OK && data != null) {
-    //            val componentName: ComponentName? = data.getComponent()
-    //            if(componentName != null) {
-    //                val packageName = componentName.packageName
-    //                val activityName = componentName.className
-    //            }
-    //        }
-    //    }
 }
 
 /**
@@ -496,14 +469,6 @@ fun getBluetoothDevices(): Set<BluetoothDevice>? {
     return bluetoothAdapter?.bondedDevices
 }
 
-fun checkPermissionsForAllExistingTasks(activity: Activity){ //todo - needed?
-    for(task in TaskManager.getTaskList()){
-        checkConditionsPermissions(task.condition.conditionType, activity)
-        for(action in task.actions){
-            checkActionsPermissions(action.actionType, activity)
-        }
-    }
-}
 /**
  * Starts the service that continuously checks for conditions.
  */

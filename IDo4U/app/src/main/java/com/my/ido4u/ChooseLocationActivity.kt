@@ -31,7 +31,7 @@ import com.google.gson.Gson
  */
 class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
 
-    private var centerLatLng = LatLng(31.772915, 35.218016) //todo
+    private var centerLatLng = LatLng(31.776532, 35.198034)
     private var mapCircle: Circle? = null
     private var centerMarker: Marker? = null
     private var radiusSeekBar: SeekBar? = null
@@ -47,7 +47,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_choose_location)
 
-        checkConditionsPermissions(Task.ConditionEnum.LOCATION, this@ChooseLocationActivity)
+//        checkConditionsPermissions(Task.ConditionEnum.LOCATION, this@ChooseLocationActivity)
         setViewsAndFragment()
         createChooseLocationTutorial()
 
@@ -171,7 +171,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
         checkConditionsPermissions(Task.ConditionEnum.LOCATION, this@ChooseLocationActivity)
         lastLocation
         initializeCenterAndCircle()
-        mapAPI!!.moveCamera(CameraUpdateFactory.newLatLngZoom(centerLatLng, 14.0f))
+        mapAPI!!.moveCamera(CameraUpdateFactory.newLatLngZoom(centerLatLng, 14.0f)) //todo
         mapAPI!!.uiSettings.isZoomControlsEnabled = true
         googleMap.setOnMarkerDragListener(object : OnMarkerDragListener {
             override fun onMarkerDragStart(marker: Marker) {}
@@ -191,7 +191,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (permissions.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            if (requestCode == MAP_PIN_LOCATION_REQUEST_CODE) {
+            if (requestCode == LOCATION_PERMISSIONS_REQUEST_CODE) {
                 lastLocation
             }
         }
