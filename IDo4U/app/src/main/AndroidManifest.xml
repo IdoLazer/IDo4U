@@ -33,7 +33,9 @@
         <activity android:name=".BrightnessActionActivity" />
         <activity android:name=".VolumeActionActivity" />
         <activity android:name=".CreateActionActivity" />
-        <activity android:name=".ChooseBluetoothActivity" />
+        <activity
+            android:name=".ChooseBluetoothActivity"
+            android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".ChooseWifiActivity"
             android:windowSoftInputMode="adjustNothing" />

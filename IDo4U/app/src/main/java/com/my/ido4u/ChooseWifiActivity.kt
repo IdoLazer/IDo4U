@@ -1,17 +1,21 @@
 package com.my.ido4u
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.View
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.lang.reflect.Type
+
+const val SCAN_RESULTS = "scan results"
 
 class ChooseWifiActivity : AppCompatActivity() {
 
@@ -19,52 +23,92 @@ class ChooseWifiActivity : AppCompatActivity() {
     private lateinit var chooseWifiEditText: EditText
     private var progressBar: ProgressBar? = null
 
+    private var scanResults: MutableList<WifiConditionData> = mutableListOf()
+    private var gson = Gson()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_choose_wifi)
 
+        initializeViews(savedInstanceState)
+    }
+
+    private fun initializeViews(savedInstanceState: Bundle?) {
         scanResultsLinearLayout = findViewById(R.id.choose_wifi_linearLayout)
         chooseWifiEditText = findViewById(R.id.choose_wifi_edit_text)
-        val confirmWifiButton : MaterialButton = findViewById(R.id.confirm_wifi_network_button)
+        val confirmWifiButton: MaterialButton = findViewById(R.id.confirm_wifi_network_button)
         confirmWifiButton.setOnClickListener {
             if (chooseWifiEditText.text.isNotEmpty()) {
-                onNetworkChosen("", chooseWifiEditText.text.toString())
+                onNetworkChosen(WifiConditionData("", chooseWifiEditText.text.toString()))
+            } else {
+                AlertDialog.Builder(this)
+                    .setTitle("No Wi-Fi Network Entered")
+                    .setMessage("Please manually enter the name of the Wi-Fi network")
+                    .setNeutralButton(
+                        android.R.string.ok
+                    ) { _, _ -> }
+                    .show()
             }
         }
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(SCAN_RESULTS)) {
+            val scanResultListJsonString = savedInstanceState.getString(SCAN_RESULTS, null)
+            if (scanResultListJsonString != null) {
+                scanResultsLinearLayout.removeAllViewsInLayout()
+                val groupListType: Type =
+                    object : TypeToken<MutableList<WifiConditionData>>() {}.type
+                val restoredScanResults: MutableList<WifiConditionData> =
+                    gson.fromJson(scanResultListJsonString, groupListType)
+                for (result in restoredScanResults) {
+                    addScanResultFromWifiData(result)
+                }
+                return
+            }
+        }
+
         val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         progressBar = findViewById(R.id.progressBar_cyclic_wifi)
-        if(wifiManager.isWifiEnabled) {
-            progressBar!!.visibility = ProgressBar.VISIBLE
-        }
+        progressBar!!.visibility = ProgressBar.VISIBLE
         scanWifi(this, wifiManager, ::populateList)
     }
 
+    private fun addScanResultFromWifiData(result: WifiConditionData) {
+        scanResults.add(result)
+        val scanResultLayout =
+            LayoutInflater.from(this)
+                .inflate(R.layout.item_menu, scanResultsLinearLayout, false)
+        scanResultLayout.findViewById<TextView>(R.id.menu_item_name).text = result.ssid
+        scanResultLayout.findViewById<ImageView>(R.id.menu_item_icon)
+            .setImageResource(R.drawable.ic_baseline_wifi_24)
+        scanResultLayout.setOnClickListener { onNetworkChosen(result) }
+        scanResultsLinearLayout.addView(scanResultLayout)
+    }
+
     private fun populateList(list: List<ScanResult>) {
-        scanResultsLinearLayout.removeAllViewsInLayout()
         progressBar!!.visibility = ProgressBar.INVISIBLE
+        scanResultsLinearLayout.removeAllViewsInLayout()
         for (item in list) {
-            val scanResultLayout =
-                LayoutInflater.from(this)
-                    .inflate(R.layout.item_menu, scanResultsLinearLayout, false)
-            scanResultLayout.findViewById<TextView>(R.id.menu_item_name).text = item.SSID
-            scanResultLayout.findViewById<ImageView>(R.id.menu_item_icon)
-                .setImageResource(R.drawable.ic_baseline_wifi_24)
-            scanResultLayout.setOnClickListener { onNetworkChosen(item.BSSID, item.SSID) }
-            scanResultsLinearLayout.addView(scanResultLayout)
+            val wifiData = WifiConditionData(item.BSSID, item.SSID)
+            addScanResultFromWifiData(wifiData)
         }
     }
 
-    private fun onNetworkChosen(bssid: String, ssid: String) {
+    private fun onNetworkChosen(wifiConditionData: WifiConditionData) {
         val resultIntent = Intent()
-        val wifiConditionData =
-            WifiConditionData(bssid, ssid)
         val condition = Task.Condition(
             Task.ConditionEnum.WIFI,
-            Gson().toJson(wifiConditionData),
+            gson.toJson(wifiConditionData),
             wifiConditionData.toString()
         )
-        resultIntent.putExtra(CONDITION, Gson().toJson(condition))
+        resultIntent.putExtra(CONDITION, gson.toJson(condition))
         setResult(FragmentActivity.RESULT_OK, resultIntent)
         finish()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (scanResults.isNotEmpty()) {
+            outState.putString(SCAN_RESULTS, gson.toJson(scanResults))
+        }
     }
 }

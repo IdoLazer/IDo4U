@@ -2,10 +2,8 @@ package com.my.ido4u
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.provider.Settings
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -100,6 +98,14 @@ class TaskProfileActivity : FragmentActivity() {
         addActionButton.setOnClickListener {
             if (actionsScrollViewLL.childCount < MAX_ACTIONS) {
                 addAction()
+            } else {
+                AlertDialog.Builder(this)
+                    .setTitle("Can't Add More Actions")
+                    .setMessage("Can't create more than $MAX_ACTIONS actions")
+                    .setNeutralButton(
+                        android.R.string.ok
+                    ) { _, _ -> }
+                    .show()
             }
         }
 
@@ -134,7 +140,7 @@ class TaskProfileActivity : FragmentActivity() {
     }
 
     private fun showCantCreateTaskDialog() {
-        var message: String = ""
+        var message = ""
         when {
             editTaskTitle.text.isEmpty() -> {
                 message = "Can't create a task without a title"
@@ -159,7 +165,7 @@ class TaskProfileActivity : FragmentActivity() {
         actions = mutableListOf()
         actionsScrollViewLL.removeAllViewsInLayout()
         val tv = TextView(this)
-        tv.hint = "Add an action"
+        tv.hint = getString(R.string.add_an_action)
         actionsScrollViewLL.addView(tv)
     }
 

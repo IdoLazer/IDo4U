@@ -19,8 +19,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:background="@color/colorPrimaryDark"
-                app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <EditText
@@ -188,8 +188,8 @@
                 android:textSize="12sp"
                 app:backgroundTint="@color/colorPrimaryDark"
 
-                app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/add_action_button" />
 
             <com.google.android.material.button.MaterialButton
@@ -201,8 +201,8 @@
                 android:textSize="12sp"
                 app:backgroundTint="@color/colorAccent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/apply_new_task_button" />
         </LinearLayout>
     </ScrollView>

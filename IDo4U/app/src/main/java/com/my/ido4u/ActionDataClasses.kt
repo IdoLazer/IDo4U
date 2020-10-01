@@ -1,22 +1,20 @@
 package com.my.ido4u
 
 
-import android.location.Location
-
 /**
  * A class that contains all the data needed for an action that changes screen brightness
  */
 
-data class BrightnessActionData (var brightness: Int){
+data class BrightnessActionData(var brightness: Int, var percentage: Int) {
     override fun toString(): String {
-        return "Put brightness level at ${(brightness.toFloat() * (100.0/255.0)).toInt()}%"
+        return "Put brightness level at ${percentage}%"
     }
 }
 
 /**
  * A class that contains all the data needed for an action that opens another application
  */
-data class OpenAppActionData(var packageName : String){
+data class OpenAppActionData(var packageName: String) {
     override fun toString(): String {
         val appName = packageName.removePrefix("com.").substringBefore('.') //todo?
         return "Open app: $packageName"

@@ -37,7 +37,7 @@
     <LinearLayout
         android:id="@+id/action_menu_linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="350dp"
+        android:layout_height="300dp"
         android:background="@color/colorBackGround"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent" />

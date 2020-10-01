@@ -10,6 +10,8 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.slider.Slider
 import com.google.gson.Gson
 
+const val CHECKED_BOX = "checked box"
+
 class VolumeActionActivity : AppCompatActivity() {
 
     private lateinit var setVolumeLevelCheckBox: CheckBox
@@ -24,28 +26,42 @@ class VolumeActionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_volume_action)
-        initializeViews()
+        initializeViews(savedInstanceState)
     }
 
-    private fun initializeViews() {
+    private fun initializeViews(savedInstanceState: Bundle?) {
         setVolumeLevelCheckBox = findViewById(R.id.set_custom_volume_level_checkbox)
-        setVolumeLevelCheckBox.isChecked = true
         putPhoneOnMuteCheckBox = findViewById(R.id.mute_phone_checkbox)
         putPhoneOnVibrateCheckBox = findViewById(R.id.put_phone_on_vibrate_checkbox)
         setVolumeSlider = findViewById(R.id.choose_volume_slider)
         setVolumeLinearLayout = findViewById(R.id.set_custom_volume_level_linearLayout)
+        setVolumeLinearLayout.removeViewAt(1)
 
         putPhoneOnMuteCheckBox.setOnClickListener { putOnMute() }
         putPhoneOnVibrateCheckBox.setOnClickListener { putOnVibrate() }
         setVolumeLevelCheckBox.setOnClickListener { setVolumeLevel() }
         val confirmVolumeButton: MaterialButton = findViewById(R.id.confirm_volume_action_button)
         confirmVolumeButton.setOnClickListener {
-            if (!checkActionsPermissions(Task.ActionEnum.VOLUME, this)){
+            if (!checkActionsPermissions(Task.ActionEnum.VOLUME, this)) {
                 showVolumePermissionsDialog(this)
-            }
-            else {
+            } else {
                 confirmVolumeAction()
             }
+        }
+
+        if (savedInstanceState != null) {
+            volumeActionType = Gson().fromJson(
+                savedInstanceState.getString(CHECKED_BOX),
+                VolumeActionData.VolumeAction::class.java
+            )
+            when(volumeActionType) {
+                VolumeActionData.VolumeAction.SOUND -> setVolumeLevel()
+                VolumeActionData.VolumeAction.MUTE -> putOnMute()
+                VolumeActionData.VolumeAction.VIBRATE -> putOnVibrate()
+            }
+        }
+        else {
+            setVolumeLevel()
         }
     }
 
@@ -54,7 +70,7 @@ class VolumeActionActivity : AppCompatActivity() {
         putPhoneOnMuteCheckBox.isChecked = false
         setVolumeLevelCheckBox.isChecked = true
         putPhoneOnVibrateCheckBox.isChecked = false
-        if(setVolumeLinearLayout.childCount <= 1) {
+        if (setVolumeLinearLayout.childCount <= 1) {
             setVolumeLinearLayout.addView(setVolumeSlider)
         }
     }
@@ -79,7 +95,7 @@ class VolumeActionActivity : AppCompatActivity() {
         }
     }
 
-    fun confirmVolumeAction() {
+    private fun confirmVolumeAction() {
         val resultIntent = Intent()
         val volumeActionData =
             VolumeActionData(volumeActionType, setVolumeSlider.value)
@@ -91,5 +107,10 @@ class VolumeActionActivity : AppCompatActivity() {
         resultIntent.putExtra(ACTION, Gson().toJson(action))
         setResult(FragmentActivity.RESULT_OK, resultIntent)
         finish()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(CHECKED_BOX, Gson().toJson(volumeActionType))
     }
 }

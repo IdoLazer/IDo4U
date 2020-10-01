@@ -3,7 +3,6 @@ package com.my.ido4u
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +10,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
@@ -18,6 +18,7 @@ import com.google.gson.Gson
 class CreateActionActivity : AppCompatActivity() {
 
     private var progressBar: ProgressBar? = null
+
     private data class MenuItem(
         var item_name: String,
         var icon_src: Int,
@@ -46,12 +47,22 @@ class CreateActionActivity : AppCompatActivity() {
 
         val menuItems = mutableListOf(
             MenuItem(
-                "Phone Settings",
-                R.drawable.ic_baseline_settings_24,
-                View.OnClickListener { clickedOnPhoneSettings() }
+                "Change Volume",
+                R.drawable.ic_baseline_volume_mute_24,
+                View.OnClickListener { clickedOnVolume() }
             ),
             MenuItem(
-                "Apps",
+                "Change Brightness",
+                R.drawable.ic_baseline_brightness_6_24,
+                View.OnClickListener { clickedOnBrightness() }
+            ),
+//            MenuItem(
+//                "Phone Settings",
+//                R.drawable.ic_baseline_settings_24,
+//                View.OnClickListener { clickedOnPhoneSettings() }
+//            ),
+            MenuItem(
+                "Open App",
                 R.drawable.ic_baseline_apps_24,
                 View.OnClickListener { clickedOnApps() }
             )
@@ -74,44 +85,44 @@ class CreateActionActivity : AppCompatActivity() {
         }
     }
 
-    private fun clickedOnPhoneSettings() {
-        createPhoneSettingsMenu()
-    }
-
-    private fun createPhoneSettingsMenu() {
-        val backButton: MaterialButton = findViewById(R.id.actions_menu_back_button)
-        backButton.visibility = View.VISIBLE
-        backButton.setOnClickListener {
-            createMainConditionMenu()
-        }
-        val phoneSettingsActionMenuLinearLayout: LinearLayout =
-            findViewById(R.id.action_menu_linearLayout)
-        phoneSettingsActionMenuLinearLayout.removeAllViewsInLayout()
-
-        val menuItems = mutableListOf(
-            MenuItem(
-                "Volume",
-                R.drawable.ic_baseline_volume_mute_24,
-                View.OnClickListener { clickedOnVolume() }
-            ),
-            MenuItem(
-                "Brightness",
-                R.drawable.ic_baseline_brightness_6_24,
-                View.OnClickListener { clickedOnBrightness() }
-            )
-        )
-
-        for (item in menuItems) {
-            val menuItemLayout =
-                LayoutInflater.from(this)
-                    .inflate(R.layout.item_menu, phoneSettingsActionMenuLinearLayout, false)
-            menuItemLayout.findViewById<TextView>(R.id.menu_item_name).text = item.item_name
-            menuItemLayout.findViewById<ImageView>(R.id.menu_item_icon)
-                .setImageResource(item.icon_src)
-            menuItemLayout.setOnClickListener(item.onClickListener)
-            phoneSettingsActionMenuLinearLayout.addView(menuItemLayout)
-        }
-    }
+//    private fun clickedOnPhoneSettings() { // todo: remove
+//        createPhoneSettingsMenu()
+//    }
+//
+//    private fun createPhoneSettingsMenu() {
+//        val backButton: MaterialButton = findViewById(R.id.actions_menu_back_button)
+//        backButton.visibility = View.VISIBLE
+//        backButton.setOnClickListener {
+//            createMainConditionMenu()
+//        }
+//        val phoneSettingsActionMenuLinearLayout: LinearLayout =
+//            findViewById(R.id.action_menu_linearLayout)
+//        phoneSettingsActionMenuLinearLayout.removeAllViewsInLayout()
+//
+//        val menuItems = mutableListOf(
+//            MenuItem(
+//                "Volume",
+//                R.drawable.ic_baseline_volume_mute_24,
+//                View.OnClickListener { clickedOnVolume() }
+//            ),
+//            MenuItem(
+//                "Brightness",
+//                R.drawable.ic_baseline_brightness_6_24,
+//                View.OnClickListener { clickedOnBrightness() }
+//            )
+//        )
+//
+//        for (item in menuItems) {
+//            val menuItemLayout =
+//                LayoutInflater.from(this)
+//                    .inflate(R.layout.item_menu, phoneSettingsActionMenuLinearLayout, false)
+//            menuItemLayout.findViewById<TextView>(R.id.menu_item_name).text = item.item_name
+//            menuItemLayout.findViewById<ImageView>(R.id.menu_item_icon)
+//                .setImageResource(item.icon_src)
+//            menuItemLayout.setOnClickListener(item.onClickListener)
+//            phoneSettingsActionMenuLinearLayout.addView(menuItemLayout)
+//        }
+//    }
 
     private fun clickedOnBrightness() {
         val intent = Intent(this, BrightnessActionActivity::class.java)
@@ -128,8 +139,8 @@ class CreateActionActivity : AppCompatActivity() {
         chooseApp(this)
     }
 
-    private fun clickedOnCommunication() {
-    }
+//    private fun clickedOnCommunication() { //todo:remove
+//    }
 
     override fun onActivityResult(
         requestCode: Int,
@@ -154,12 +165,11 @@ class CreateActionActivity : AppCompatActivity() {
         val componentName: ComponentName? = data.component
         if (componentName != null) {
             val openAppActionData = OpenAppActionData(componentName.packageName)
-            val action = Task.Action(
+            return Task.Action(
                 Task.ActionEnum.APPS,
                 Gson().toJson(openAppActionData),
                 openAppActionData.toString()
             )
-            return action
         }
         return null
     }

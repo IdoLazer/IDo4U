@@ -36,17 +36,17 @@ class CreateConditionActivity : AppCompatActivity() {
 //                View.OnClickListener { clickedOnDateAndTime() }
 //            ), //todo: Add date and time
             MenuItem(
-                "Location",
+                "When Entering Location",
                 R.drawable.ic_baseline_location_on_24,
                 View.OnClickListener { clickedOnLocation() }
             ),
             MenuItem(
-                "WiFi",
+                "When Connected to WiFi",
                 R.drawable.ic_baseline_wifi_24,
                 View.OnClickListener { clickedOnWifi() }
             ),
             MenuItem(
-                "Bluetooth",
+                "When Connected to Bluetooth",
                 R.drawable.ic_baseline_bluetooth_24,
                 View.OnClickListener { clickedOnBluetooth() }
             )

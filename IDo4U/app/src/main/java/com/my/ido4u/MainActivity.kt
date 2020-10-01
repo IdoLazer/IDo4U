@@ -215,7 +215,7 @@ class MainActivity : AppCompatActivity() {
 
         /////////////////////////////////// brightness action //////////////////////////////////////
         checkActionsPermissions(Task.ActionEnum.BRIGHTNESS,this)
-        val actData2 = BrightnessActionData(170)
+        val actData2 = BrightnessActionData(170, (170.0*100.0/255.0).toInt())
         val action2 : Task.Action = Task.Action(
             Task.ActionEnum.BRIGHTNESS,
             gson.toJson(actData2),

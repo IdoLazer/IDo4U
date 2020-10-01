@@ -15,7 +15,7 @@ class Task(
      * The possible types of conditions
      */
     enum class ConditionEnum {
-        WIFI, LOCATION, BLUETOOTH, TIME
+        WIFI, LOCATION, BLUETOOTH, //TIME //todo:remove
     }
 
     /**
@@ -33,7 +33,7 @@ class Task(
         var conditionType: ConditionEnum,
         var extraData: String,
         var description: String
-    ) {}
+    )
 
     /**
      * A class that represents an action of a task
@@ -42,6 +42,6 @@ class Task(
         var actionType: ActionEnum,
         var extraData: String,
         var description: String
-    ) {}
+    )
 
 }
