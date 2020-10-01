@@ -61,6 +61,7 @@ const val ACTION = "action"
 
 /** SP constants */
 const val SHOWED_MAIN_ACTIVITY_TUTORIAL = "showed mainActivity tutorial"
+const val SHOWED_LOCATION_CHOICE_ACTIVITY_TUTORIAL = "showed location choice tutorial"
 
 /** Condition Request Codes */
 const val CHOOSE_CONDITION_REQUEST_CODE = 6
@@ -104,7 +105,7 @@ fun checkConditionsPermissions(type: Task.ConditionEnum, activity: Activity): Bo
                 mutableListOf(
                     Manifest.permission.ACCESS_WIFI_STATE,
                     Manifest.permission.CHANGE_WIFI_STATE,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
+                    Manifest.permission.ACCESS_FINE_LOCATION
                 ),
                 WIFI_PERMISSION_REQUEST_CODE, activity
             )
@@ -161,10 +162,10 @@ private fun checkSpecificPermissions(
             var text = ""
             when (permission){
                 Manifest.permission.ACCESS_COARSE_LOCATION ->
-                    text = activity.getString(R.string.coarse_location_permission_explanation)
+                    text = activity.getString(R.string.location_permission_explanation)
 
                 Manifest.permission.ACCESS_FINE_LOCATION ->
-                    text = activity.getString(R.string.fine_location_permission_explanation)
+                    text = activity.getString(R.string.location_permission_explanation)
 
                 Manifest.permission.ACCESS_WIFI_STATE ->
                     text = activity.getString(R.string.wifi_access_permission_explanation)
@@ -203,8 +204,7 @@ fun showPermissionRationalDialog(activity: Activity, text: String, permission: S
         .setPositiveButton(android.R.string.yes, object : DialogInterface.OnClickListener {
             @RequiresApi(Build.VERSION_CODES.M) //todo
             override fun onClick(dialog: DialogInterface?, which: Int) {
-                ActivityCompat.requestPermissions(
-                    activity,
+                activity.requestPermissions(
                     arrayOf(permission),
                     code
                 )
@@ -305,10 +305,10 @@ fun hasLocationPermissions(context: Context): Boolean {
  * as tutorial text explanations
  */
 //todo - should only happen at first launch in every activity!
-fun createTutorial(activity: Activity, texts: List<String>, vararg views: View) {
+fun createTutorial(activity: Activity, texts: List<String>,toSP: String, vararg views: View) {
     val firstRoot = FrameLayout(activity)
     val layout = activity.layoutInflater.inflate(R.layout.layout_target, firstRoot)
-    createSpotlightWhenViewIsInflated(layout, activity, texts, *views)
+    createSpotlightWhenViewIsInflated(layout, activity, texts, toSP, *views)
 }
 
 /**
@@ -318,6 +318,7 @@ fun createSpotlightWhenViewIsInflated(
     layout: View,
     activity: Activity,
     texts: List<String>,
+    toSP: String,
     vararg views: View
 ) {
     views[0].viewTreeObserver.addOnGlobalLayoutListener(
@@ -333,6 +334,8 @@ fun createSpotlightWhenViewIsInflated(
                 val targetText = layout.findViewById<TextView>(R.id.target_text)
                 val nextButton =  layout.findViewById<View>(R.id.close_spotlight)
                 val skipTutorial = layout.findViewById<View>(R.id.next_button)
+                val sp = Ido4uApp.applicationContext()
+                    .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
                 targetText.text = textIterator.next()
                 if (
                     targetText.text == activity.getString(R.string.drag_marker_tutorial) ||
@@ -350,7 +353,6 @@ fun createSpotlightWhenViewIsInflated(
                 }
 
                 val nextSpotlight = View.OnClickListener {
-                    spotlight.next()
 
                     if (textIterator.hasNext()) {
                         targetText.text = textIterator.next()
@@ -359,11 +361,18 @@ fun createSpotlightWhenViewIsInflated(
                             targetText.text != activity.getString(R.string.choose_location_tutorial)
                         ) { //todo
                             targetText.setBackgroundColor(Color.TRANSPARENT)
-//                            skipTutorial.setBackgroundColor()
                         }
                     }
+                    else{
+                        sp.edit().putBoolean(toSP, true).apply()
+                    }
+
+                    spotlight.next()
                 }
-                val stopSpotlight = View.OnClickListener { spotlight.finish() }
+                val stopSpotlight = View.OnClickListener {
+                    sp.edit().putBoolean(toSP, true).apply()
+                    spotlight.finish()
+                }
                 nextButton.setOnClickListener(nextSpotlight)
                 skipTutorial.setOnClickListener(stopSpotlight)
                 spotlight.start()

@@ -4,15 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ChooseBluetoothActivity"
-    android:background="@color/colorPrimaryDark">
+    android:background="@color/colorPrimaryDark"
+    tools:context=".ChooseWifiActivity">
 
     <TextView
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="18dp"
+        android:text="@string/enter_or_choose_a_network"
         android:textColor="@color/colorBackGround"
-        android:text="@string/enter_or_choose_a_device"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -21,66 +22,80 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:background="@color/colorBackGroundDarker"
-        app:layout_constraintBottom_toTopOf="@+id/confirm_bluetooth_network_button_linearLayout"
+        app:layout_constraintBottom_toTopOf="@+id/confirm_wifi_network_button_linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent">
 
         <EditText
-            android:id="@+id/choose_bluetooth_edit_text"
+            android:id="@+id/choose_wifi_edit_text"
             android:layout_width="match_parent"
             android:layout_height="58dp"
             android:layout_marginTop="1dp"
             android:autofillHints="The task title"
             android:background="@color/colorBackGround"
-            android:hint="@string/enter_bluetooth_device_name"
+            android:hint="@string/enter_wifi_network_name"
             android:inputType="text"
             android:padding="10dp" />
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/confirm_bluetooth_network_button_linearLayout"
+        android:id="@+id/confirm_wifi_network_button_linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/scrollView4"
         android:background="@color/colorBackGround"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/scrollView3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/confirm_bluetooth_network_button"
+            android:id="@+id/confirm_wifi_network_button"
             android:layout_width="150dp"
             android:layout_height="50dp"
+            android:layout_gravity="center"
             android:text="@string/confirm"
             android:textSize="12sp"
-            app:backgroundTint="@color/colorPrimaryDark"
-            android:layout_gravity="center"
-            />
+            app:backgroundTint="@color/colorPrimaryDark" />
     </LinearLayout>
 
+
     <ScrollView
-        android:id="@+id/scrollView4"
+        android:id="@+id/scrollView3"
         android:layout_width="match_parent"
-        android:layout_height="544dp"
-        android:padding="10dp"
+        android:layout_height="244dp"
         android:background="@color/colorBackGround"
+        android:padding="10dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
-            android:id="@+id/choose_bluetooth_linearLayout"
+            android:id="@+id/choose_wifi_linearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            >
+            android:orientation="vertical">
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="@string/no_results_found_bluetooth"/>
+                android:hint="@string/no_results_found_wifi" />
+
+            <ProgressBar
+                android:id="@+id/progressBar_cyclic_wifi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="50dp"
+                android:minHeight="50dp"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
         </LinearLayout>
     </ScrollView>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

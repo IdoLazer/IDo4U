@@ -33,7 +33,7 @@
         Click this button in order to start creating a new task
     </string>
     <string name="task_recycler_explanation">
-        "Click any task to see it's content."
+        "Click any task to see its content."
     </string>
     <string name="task_switch_explanation">
         "Move a task's switch to turn it off or on."
@@ -162,7 +162,8 @@
     <string name="enter_or_choose_a_network">Enter or Choose a Network</string>
     <string name="enter_wifi_network_name">Enter Wifi Network Name and Press Confirm</string>
     <string name="confirm">Confirm</string>
-    <string name="no_results_found">No results found</string>
+    <string name="no_results_found_wifi">No results found, try turning on the Wi-Fi if it\'s off</string>
+    <string name="no_results_found_bluetooth">No results found, try turning on the bluetooth if it\'s off</string>
     <string name="enter_bluetooth_device_name">Enter Bluetooth Device Name and Confirm</string>
     <string name="enter_or_choose_a_device">Enter or Choose a Device</string>
     <string name="choose_an_action">Choose an Action</string>
@@ -182,15 +183,12 @@
         "perform sound Actions. If that's OK, click \"OK\" and in the next screen"
         "turn on the switch of IDo4U."
     </string>
-    <string name="coarse_location_permission_explanation">
-        "to access your coarse location, without it we CAN'T:"
+    <string name="location_permission_explanation">
+        "to access your location, without it we CAN'T:"
         "\n\n1. Perform location-conditioned tasks"
         "\n\n2. Show you available Wifi connections."
     </string>
-    <string name="fine_location_permission_explanation">
-        "to access your fine (exact) location, without it we CAN'T "
-        "perform location-conditioned tasks"
-    </string>
+
     <string name="wifi_access_permission_explanation">
         "to access you device's WiFi in order to perform WiFi-conditioned tasks!"
     </string>

@@ -69,7 +69,11 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
             getString(R.string.radius_bar_tutorial),
             getString(R.string.approve_location_tutorial)
         )
-        createTutorial(this@ChooseLocationActivity, listOfStrings, *listOfViews) //todo
+        createTutorial(
+            this@ChooseLocationActivity,
+            listOfStrings,
+            SHOWED_LOCATION_CHOICE_ACTIVITY_TUTORIAL,
+            *listOfViews) //todo
     }
 
     /**
@@ -160,10 +164,8 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
                     .strokeWidth(3f)
                     .strokeColor(Color.RED)
                     .fillColor(Color.argb(70, 150, 50, 50))
-
             )
-            radiusSeekBar!!.progress = (radius / RADIUS_MAX_IN_METERS).toInt()
-
+//            radiusSeekBar!!.progress = (radius / RADIUS_MAX_IN_METERS).toInt() //todo - remove I think
         }
     }
 

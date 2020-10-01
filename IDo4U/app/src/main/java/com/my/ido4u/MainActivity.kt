@@ -1,22 +1,17 @@
 package com.my.ido4u
 
-import android.app.Activity
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.Intent
-import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 
@@ -41,16 +36,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        if(TaskManager.getSize() != 0){ //todo - is it too many activations?
+        if(TaskManager.getSize() != 0 && savedInstanceState == null){ //todo - is it too many activations?
             startService(this)
         }
         initializeViews()
         val sp = Ido4uApp.applicationContext()
             .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
         if(!sp.getBoolean(SHOWED_MAIN_ACTIVITY_TUTORIAL, false)) {
-            mockBluetooth()
+            if(TaskManager.getSize() == 0) {
+                mockBluetooth()
+            }
             createMainActivityTutorial()
-            sp.edit().putBoolean(SHOWED_MAIN_ACTIVITY_TUTORIAL, true).apply()
         }
     }
 
@@ -82,7 +78,7 @@ class MainActivity : AppCompatActivity() {
                         )
                     }
 
-                    createTutorial(this@MainActivity, texts, *arr)
+                    createTutorial(this@MainActivity, texts,SHOWED_MAIN_ACTIVITY_TUTORIAL, *arr)
                     recycler!!.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 }
             })
@@ -225,4 +221,7 @@ class MainActivity : AppCompatActivity() {
         addNewTask(newTask2)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+    }
 }
