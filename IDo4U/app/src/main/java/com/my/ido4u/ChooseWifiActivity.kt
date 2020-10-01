@@ -12,6 +12,7 @@ import android.widget.*
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
+import java.util.jar.Manifest
 
 class ChooseWifiActivity : AppCompatActivity() {
 

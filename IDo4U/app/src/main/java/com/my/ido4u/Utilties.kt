@@ -187,7 +187,7 @@ private fun checkSpecificPermissions(
 /**
  * Return true if permission has been granted, false otherwise.
  */
-private fun checkPermission(permission: String, activity: Activity): Boolean {
+fun checkPermission(permission: String, activity: Activity): Boolean {
     val granted = PackageManager.PERMISSION_GRANTED
     return ContextCompat.checkSelfPermission(activity, permission) == granted
 }
