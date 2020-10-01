@@ -4,15 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ChooseBluetoothActivity"
-    android:background="@color/colorPrimaryDark">
+    android:background="@color/colorPrimaryDark"
+    tools:context=".ChooseBluetoothActivity">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="18dp"
-        android:textColor="@color/colorBackGround"
         android:text="@string/enter_or_choose_a_device"
+        android:textColor="@color/colorBackGround"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -45,41 +45,40 @@
         android:id="@+id/confirm_bluetooth_network_button_linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/scrollView4"
         android:background="@color/colorBackGround"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/scrollView4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/confirm_bluetooth_network_button"
             android:layout_width="150dp"
             android:layout_height="50dp"
+            android:layout_gravity="center"
             android:text="@string/confirm"
             android:textSize="12sp"
-            app:backgroundTint="@color/colorPrimaryDark"
-            android:layout_gravity="center"
-            />
+            app:backgroundTint="@color/colorPrimaryDark" />
     </LinearLayout>
 
     <ScrollView
         android:id="@+id/scrollView4"
         android:layout_width="match_parent"
-        android:layout_height="244dp"
-        android:padding="10dp"
+        android:layout_height="204dp"
         android:background="@color/colorBackGround"
+        android:padding="10dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:id="@+id/choose_bluetooth_linearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            >
+            android:orientation="vertical">
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="@string/no_results_found_bluetooth"/>
+                android:hint="@string/no_results_found_bluetooth" />
         </LinearLayout>
     </ScrollView>
 

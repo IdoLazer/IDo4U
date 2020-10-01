@@ -18,7 +18,7 @@ data class WifiConditionData(var bssid: String, var ssid: String) {
  * bluetoothName: the name of the bluetooth device.
  * hardwareAddress: the unique hardware address of the bluetooth device.
  */
-data class BluetoothConditionData(var bluetoothName: String, var hardwareAddress : String) {
+data class BluetoothConditionData(var bluetoothName: String, var hardwareAddress: String) {
     override fun toString(): String {
         return "Bluetooth connected: $bluetoothName"
     }

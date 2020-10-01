@@ -104,13 +104,13 @@ fun checkConditionsPermissions(type: Task.ConditionEnum, activity: Activity): Bo
     when (type) {
 
         Task.ConditionEnum.WIFI -> return checkSpecificPermissions(
-                mutableListOf(
-                    Manifest.permission.ACCESS_WIFI_STATE,
-                    Manifest.permission.CHANGE_WIFI_STATE,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ),
-                WIFI_PERMISSION_REQUEST_CODE, activity
-            )
+            mutableListOf(
+                Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.CHANGE_WIFI_STATE,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ),
+            WIFI_PERMISSION_REQUEST_CODE, activity
+        )
 
 
 //        Task.ConditionEnum.TIME -> {
@@ -133,7 +133,7 @@ fun checkConditionsPermissions(type: Task.ConditionEnum, activity: Activity): Bo
  * @return true if yes, false otherwise.
  */
 fun isLocationEnabled(context: Context): Boolean {
-    val lm = context?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    val lm = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     var gpsEnabled = false
     var networkEnabled = false
     try {
@@ -160,9 +160,9 @@ private fun checkSpecificPermissions(
     val unGrantedPermissionsList: MutableList<String> = ArrayList()
     for (permission in permissionsList) {
 
-        if(!checkPermission(permission, activity)){
+        if (!checkPermission(permission, activity)) {
             var text = ""
-            when (permission){
+            when (permission) {
                 Manifest.permission.ACCESS_COARSE_LOCATION ->
                     text = activity.getString(R.string.location_permission_explanation)
 
@@ -199,7 +199,7 @@ fun checkPermission(permission: String, activity: Activity): Boolean {
  * Presents an informative message explaining why we need the permission, after which
  * the permission is requested from the user.
  */
-fun showPermissionRationalDialog(activity: Activity, text: String, permission: String, code: Int){
+fun showPermissionRationalDialog(activity: Activity, text: String, permission: String, code: Int) {
     AlertDialog.Builder(activity)
         .setTitle("We need your permission")
         .setMessage(text)
@@ -221,8 +221,8 @@ fun showPermissionRationalDialog(activity: Activity, text: String, permission: S
  * requests those who has'nt been granted yet.
  */
 
-fun checkActionsPermissions(type: Task.ActionEnum, context: Context) : Boolean{
-    when(type){
+fun checkActionsPermissions(type: Task.ActionEnum, context: Context): Boolean {
+    when (type) {
         Task.ActionEnum.VOLUME -> return checkSoundPermissions(context)
         Task.ActionEnum.BRIGHTNESS -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return checkBrightnessPermission(context)
@@ -234,9 +234,9 @@ fun checkActionsPermissions(type: Task.ActionEnum, context: Context) : Boolean{
 }
 
 @RequiresApi(Build.VERSION_CODES.M) //todo
-/**
- * Returns true if the application is allowed to change screen brightness, false otherwise.
- */
+        /**
+         * Returns true if the application is allowed to change screen brightness, false otherwise.
+         */
 fun checkBrightnessPermission(context: Context): Boolean {
     return Settings.System.canWrite(context)
 }
@@ -247,17 +247,17 @@ fun checkBrightnessPermission(context: Context): Boolean {
  * If it is - the method returns true, else -  asks the permission from the user and sends him\her
  * to an activity in which it could be granted.
  */
-fun checkSoundPermissions(context: Context): Boolean{
+fun checkSoundPermissions(context: Context): Boolean {
     val notificationMngr = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
     return !(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-        !notificationMngr.isNotificationPolicyAccessGranted)
+            !notificationMngr.isNotificationPolicyAccessGranted)
 }
 
 /**
  * Shows a dialog in which we ask the user to give us permissions to modify notification do not
  * disturb policy in order to perform sound Actions.
  */
-fun showVolumePermissionsDialog(activity: Activity){
+fun showVolumePermissionsDialog(activity: Activity) {
     AlertDialog.Builder(activity)
         .setTitle("Sound Permissions")
         .setMessage(activity.getString(R.string.volume_permissions_explanation))
@@ -275,16 +275,13 @@ fun showVolumePermissionsDialog(activity: Activity){
 /**
  * todo
  */
-fun showBrightnessPermissionsDialog(activity: Activity, brightness: Float){
+fun showBrightnessPermissionsDialog(activity: Activity, brightness: Float) {
     AlertDialog.Builder(activity)
         .setTitle("Brightness Permissions")
         .setMessage(activity.getString(R.string.brightness_permissions_explanation))
-        .setPositiveButton(android.R.string.yes, object : DialogInterface.OnClickListener {
-            @RequiresApi(Build.VERSION_CODES.M) //todo
-            override fun onClick(dialog: DialogInterface?, which: Int) {
-                activity.startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
-            }
-        })
+        .setPositiveButton(
+            android.R.string.yes //todo
+        ) { _, _ -> activity.startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)) }
         .setNegativeButton(android.R.string.no, null)
         .setIcon(R.drawable.ic_baseline_brightness_6_24)
         .show()
@@ -307,7 +304,7 @@ fun hasLocationPermissions(context: Context): Boolean {
  * as tutorial text explanations
  */
 //todo - should only happen at first launch in every activity!
-fun createTutorial(activity: Activity, texts: List<String>,toSP: String, vararg views: View) {
+fun createTutorial(activity: Activity, texts: List<String>, toSP: String, vararg views: View) {
     val firstRoot = FrameLayout(activity)
     val layout = activity.layoutInflater.inflate(R.layout.layout_target, firstRoot)
     createSpotlightWhenViewIsInflated(layout, activity, texts, toSP, *views)
@@ -334,7 +331,7 @@ fun createSpotlightWhenViewIsInflated(
                 val spotlight = createSpotlight(activity, *targetsArray)
                 val textIterator = texts.iterator()
                 val targetText = layout.findViewById<TextView>(R.id.target_text)
-                val nextButton =  layout.findViewById<View>(R.id.close_spotlight)
+                val nextButton = layout.findViewById<View>(R.id.close_spotlight)
                 val skipTutorial = layout.findViewById<View>(R.id.next_button)
                 val sp = Ido4uApp.applicationContext()
                     .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
@@ -364,8 +361,7 @@ fun createSpotlightWhenViewIsInflated(
                         ) { //todo
                             targetText.setBackgroundColor(Color.TRANSPARENT)
                         }
-                    }
-                    else{
+                    } else {
                         sp.edit().putBoolean(toSP, true).apply()
                     }
 

@@ -1,7 +1,6 @@
 package com.my.ido4u
 
 import android.content.Context
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type
@@ -51,11 +50,6 @@ object TaskManager {
 
     fun switchTask(i: Int, isSwitched: Boolean) {
         taskList[i].isOn = isSwitched
-        refreshSharedPreferences()
-    }
-
-    fun renameTask(i: Int, name: String) {
-        taskList[i].name = name
         refreshSharedPreferences()
     }
 

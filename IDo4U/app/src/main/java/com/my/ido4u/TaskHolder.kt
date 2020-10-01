@@ -1,7 +1,6 @@
 package com.my.ido4u
 
 import android.view.View
-import android.widget.Switch
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.switchmaterial.SwitchMaterial

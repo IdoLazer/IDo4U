@@ -37,7 +37,7 @@ class BrightnessActionActivity : AppCompatActivity() {
         else{
             val resultIntent = Intent()
             val brightnessActionData =
-                BrightnessActionData((setBrightnessSlider.value * (255.0/100.0)).roundToInt())
+                BrightnessActionData((setBrightnessSlider.value * (255.0/100.0)).roundToInt(), setBrightnessSlider.value.toInt())
             val action = Task.Action(
                 Task.ActionEnum.BRIGHTNESS,
                 Gson().toJson(brightnessActionData),

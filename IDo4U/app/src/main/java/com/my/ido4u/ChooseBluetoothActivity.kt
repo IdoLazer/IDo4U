@@ -1,5 +1,6 @@
 package com.my.ido4u
 
+import android.app.AlertDialog
 import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.os.Bundle
@@ -15,8 +16,8 @@ import com.google.gson.Gson
 
 class ChooseBluetoothActivity : AppCompatActivity() {
 
-    lateinit var scanResultsLinearLayout: LinearLayout
-    lateinit var chooseBluetoothEditText: EditText
+    private lateinit var scanResultsLinearLayout: LinearLayout
+    private lateinit var chooseBluetoothEditText: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +32,14 @@ class ChooseBluetoothActivity : AppCompatActivity() {
         confirmWifiButton.setOnClickListener {
             if (chooseBluetoothEditText.text.isNotEmpty()) {
                 onDeviceChosen(chooseBluetoothEditText.text.toString(), "")
+            } else {
+                AlertDialog.Builder(this)
+                    .setTitle("No Device Name Entered")
+                    .setMessage("Please manually enter the name of the bluetooth device")
+                    .setNeutralButton(
+                        android.R.string.ok
+                    ) { _, _ -> }
+                    .show()
             }
         }
         populateList(getBluetoothDevices())

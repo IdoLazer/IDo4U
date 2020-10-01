@@ -10,9 +10,9 @@
     <com.google.android.material.imageview.ShapeableImageView
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:src="@drawable/i_do_for_u_banner_long"
         android:layout_marginEnd="420dp"
         android:layout_marginBottom="0dp"
+        android:src="@drawable/i_do_for_u_banner_long"
         app:layout_constraintBottom_toTopOf="@+id/task_recycler"
         app:layout_constraintTop_toTopOf="parent" />
 
