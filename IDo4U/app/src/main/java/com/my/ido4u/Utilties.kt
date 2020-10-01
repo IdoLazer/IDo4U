@@ -59,7 +59,9 @@ const val MAP_LOCATION_ACTION = "mapLocationAction"
 const val CONDITION = "condition"
 const val ACTION = "action"
 
-/** SP constants */
+const val BACKUP_CENTER_LOCATION = "backupCenterLocation"
+
+/** SP tutorial constants */
 const val SHOWED_MAIN_ACTIVITY_TUTORIAL = "showed mainActivity tutorial"
 const val SHOWED_LOCATION_CHOICE_ACTIVITY_TUTORIAL = "showed location choice tutorial"
 

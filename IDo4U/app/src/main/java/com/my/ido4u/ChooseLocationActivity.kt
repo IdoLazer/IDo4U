@@ -32,6 +32,7 @@ import com.google.gson.Gson
 class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
 
     private var centerLatLng = LatLng(31.776532, 35.198034)
+    private var backupCenterLatLng = LatLng(0.0, 0.0)
     private var mapCircle: Circle? = null
     private var centerMarker: Marker? = null
     private var radiusSeekBar: SeekBar? = null
@@ -40,6 +41,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
     private var fusedLocationClient: FusedLocationProviderClient? = null
     var mapAPI: GoogleMap? = null
     var mapFragment: SupportMapFragment? = null
+    var gson = Gson()
 
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -47,43 +49,53 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_choose_location)
 
-//        checkConditionsPermissions(Task.ConditionEnum.LOCATION, this@ChooseLocationActivity)
-        setViewsAndFragment()
-        createChooseLocationTutorial()
+        setViewsAndFragment(savedInstanceState)
 
+        createChooseLocationTutorial()
     }
 
     /**
      * Creates a tutorial for the ChooseLocationActivity
      */
     private fun createChooseLocationTutorial() {
-        val listOfViews = arrayOf<View>(
-            findViewById(R.id.fragmentLayout),
-            findViewById(R.id.mapAPI),
-            findViewById(R.id.RadiusSeekBar),
-            findViewById(R.id.approveLocationButton)
-        )
-        val listOfStrings = listOf(
-            getString(R.string.choose_location_tutorial),
-            getString(R.string.drag_marker_tutorial),
-            getString(R.string.radius_bar_tutorial),
-            getString(R.string.approve_location_tutorial)
-        )
-        createTutorial(
-            this@ChooseLocationActivity,
-            listOfStrings,
-            SHOWED_LOCATION_CHOICE_ACTIVITY_TUTORIAL,
-            *listOfViews) //todo
+        val sp = Ido4uApp.applicationContext()
+            .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
+        val showedTutorial = sp.getBoolean(SHOWED_LOCATION_CHOICE_ACTIVITY_TUTORIAL, false)
+        if(!showedTutorial) {
+            val listOfViews = arrayOf<View>(
+                findViewById(R.id.fragmentLayout),
+                findViewById(R.id.mapAPI),
+                findViewById(R.id.RadiusSeekBar),
+                findViewById(R.id.approveLocationButton)
+            )
+            val listOfStrings = listOf(
+                getString(R.string.choose_location_tutorial),
+                getString(R.string.drag_marker_tutorial),
+                getString(R.string.radius_bar_tutorial),
+                getString(R.string.approve_location_tutorial)
+            )
+            createTutorial(
+                this@ChooseLocationActivity,
+                listOfStrings,
+                SHOWED_LOCATION_CHOICE_ACTIVITY_TUTORIAL,
+                *listOfViews
+            ) //todo
+        }
     }
 
     /**
      * Sets the views of the activity and the map fragment.
      */
-    private fun setViewsAndFragment() {
+    private fun setViewsAndFragment(savedInstanceState: Bundle?) {
         setSeekBar()
         setOkButton()
         mapFragment = supportFragmentManager.findFragmentById(R.id.mapAPI) as SupportMapFragment?
         mapFragment!!.getMapAsync(this)
+
+        if(savedInstanceState != null) {
+            val restoredBackupCenter = savedInstanceState.getString(BACKUP_CENTER_LOCATION)
+            backupCenterLatLng = gson.fromJson(restoredBackupCenter, LatLng::class.java)
+        }
     }
 
     /**
@@ -100,8 +112,6 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
                 Gson().toJson(locationConditionData),
                 locationConditionData.toString()
             )
-//            resultIntent.putExtra(MARKER_LAT_LNG, centerLatLng)
-//            resultIntent.putExtra(RADIUS, radius)
             resultIntent.putExtra(CONDITION, Gson().toJson(condition))
             setResult(RESULT_OK, resultIntent)
             finish()
@@ -119,7 +129,9 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
             override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
                 val cur = radiusSeekBar!!.progress.toFloat()
                 radius = cur / seekBerMax * RADIUS_MAX_IN_METERS
-                mapCircle!!.radius = radius.toDouble()
+                if(mapCircle != null) {
+                    mapCircle!!.radius = radius.toDouble()
+                }
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
@@ -135,7 +147,12 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
             fusedLocationClient!!.lastLocation
                 .addOnSuccessListener(this) { location ->
                     if (location != null) {
-                        centerLatLng = LatLng(location.latitude, location.longitude)
+                        val defaultBackup = LatLng(0.0, 0.0)
+                        centerLatLng = if(backupCenterLatLng == defaultBackup) {
+                            LatLng(location.latitude, location.longitude)
+                        } else{
+                            backupCenterLatLng
+                        }
                         centerMarker!!.remove()
                         centerMarker = mapAPI!!.addMarker(
                             MarkerOptions().position(centerLatLng).draggable(true).title(
@@ -182,6 +199,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
             override fun onMarkerDrag(marker: Marker) {}
             override fun onMarkerDragEnd(marker: Marker) {
                 centerLatLng = marker.position
+                backupCenterLatLng = marker.position
                 mapCircle!!.radius = radius.toDouble()
                 mapCircle!!.center = centerMarker!!.position
             }
@@ -199,6 +217,12 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
                 lastLocation
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        outState.putString(BACKUP_CENTER_LOCATION, gson.toJson(backupCenterLatLng))
     }
 
 }

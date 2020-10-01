@@ -42,11 +42,11 @@
     <string name="ok">OK</string>
     <string name="skip_tutorial">Skip Tutorial</string>
     <string name="choose_location_tutorial">
-        Here, you\'ll choose a \"condition area\":
+        In this screen, you\'ll choose a \"condition area\":
         when you\'re inside this area your task\'s actions will be performed!
     </string>
     <string name="drag_marker_tutorial">
-        Press the marker and drag it to the center of you condition area
+        Long-press the marker and drag it to the center of you condition area
     </string>
     <string name="radius_bar_tutorial">
        Slide this bar to choose the radius of the condition area.
