@@ -7,6 +7,7 @@ import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
@@ -15,14 +16,11 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type
 
-const val SCAN_RESULTS = "scan results"
-
 class ChooseWifiActivity : AppCompatActivity() {
 
     private lateinit var scanResultsLinearLayout: LinearLayout
     private lateinit var chooseWifiEditText: EditText
     private var progressBar: ProgressBar? = null
-
     private var scanResults: MutableList<WifiConditionData> = mutableListOf()
     private var gson = Gson()
 
@@ -31,8 +29,36 @@ class ChooseWifiActivity : AppCompatActivity() {
         setContentView(R.layout.activity_choose_wifi)
 
         initializeViews(savedInstanceState)
+        createWifiChoiceTutorial()
     }
 
+    /**
+     * Creates a tutorial, if one should be shown
+     */
+    private fun createWifiChoiceTutorial() {
+        val sp = Ido4uApp.applicationContext()
+            .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
+        val showedTutorial = sp.getBoolean(SHOWED_WIFI_TUTORIAL, false)
+        if(!showedTutorial) {
+            val views = arrayOf<View>(
+                findViewById(R.id.choose_wifi_Layout),
+                findViewById(R.id.choose_wifi_edit_text),
+                findViewById(R.id.scrollView3)
+            )
+
+            val texts = listOf<String>(
+                getString(R.string.choose_wifi_tutorial),
+                getString(R.string.type_wifi_tutorial),
+                getString(R.string.choose_ready_wifi_tutorial)
+            )
+
+            createTutorial(this@ChooseWifiActivity, texts, SHOWED_WIFI_TUTORIAL, *views)
+        }
+    }
+
+    /**
+     * todo
+     */
     private fun initializeViews(savedInstanceState: Bundle?) {
         scanResultsLinearLayout = findViewById(R.id.choose_wifi_linearLayout)
         chooseWifiEditText = findViewById(R.id.choose_wifi_edit_text)
@@ -66,7 +92,14 @@ class ChooseWifiActivity : AppCompatActivity() {
             }
         }
 
-        val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        initializeScan()
+    }
+
+    /**
+     * todo
+     */
+    private fun initializeScan() {
+        val wifiManager = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
         progressBar = findViewById(R.id.progressBar_cyclic_wifi)
         progressBar!!.visibility = ProgressBar.VISIBLE
         scanWifi(this, wifiManager, ::populateList)

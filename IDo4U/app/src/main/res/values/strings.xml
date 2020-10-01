@@ -71,6 +71,17 @@
     <string name="task_add_action_tutorial">
             "Press this button in order to add a new action to the task - each task can have several actions"
     </string>
+    <string name="choose_wifi_tutorial">
+           "In this screen you\'ll chose a WiFi connection. When your device will connect a WiFi"
+            "connection with the chosen name this task\'s action will be performed."
+    </string>
+    <string name="type_wifi_tutorial">
+        "You can type here the Wifi connection\'s name yourself."
+    </string>
+    <string name="choose_ready_wifi_tutorial">
+        "OR you can choose from this list of close WiFi connections (if there are any)."
+        "You will see options here the first time you\'ll enter this screen AFTER you\'ve approved location tracking."
+    </string>
 
     <string name="choose_a_condition">Choose A Condition</string>
     <string name="sample_task">Sample Task</string>
@@ -216,6 +227,7 @@
         "Hey there! :)\nWe need your permission to change your screen\'s brightness."
         "If it's OK, click \"OK\" and in the next screen turn on the switch of IDo4U."
     </string>
+
 
 
 </resources>

@@ -61,12 +61,16 @@ const val MAP_LOCATION_ACTION = "mapLocationAction"
 const val CONDITION = "condition"
 const val ACTION = "action"
 
+const val SCAN_RESULTS = "scan results"
+
 const val BACKUP_CENTER_LOCATION = "backupCenterLocation"
 
 /** SP tutorial constants */
 const val SHOWED_MAIN_ACTIVITY_TUTORIAL = "showed mainActivity tutorial"
 const val SHOWED_LOCATION_CHOICE_ACTIVITY_TUTORIAL = "showed location choice tutorial"
 const val SHOWED_TASK_PROFILE_TUTORIAL = "showed_task_profile_tutorial"
+const val SHOWED_WIFI_TUTORIAL = "showed wifi tutorial"
+
 
 /** Condition Request Codes */
 const val CHOOSE_CONDITION_REQUEST_CODE = 6
@@ -339,15 +343,9 @@ fun createSpotlightWhenViewIsInflated(layout: View, activity: Activity, texts: L
                 val sp = Ido4uApp.applicationContext()
                     .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
                 targetText.text = textIterator.next()
-                if (
-                    targetText.text == activity.getString(R.string.drag_marker_tutorial) ||
-                    targetText.text == activity.getString(R.string.choose_location_tutorial) ||
-                    targetText.text == activity.getString(R.string.task_name_tutorial)
-                ) {
-                    targetText.setBackgroundColor(
-                        ContextCompat.getColor(activity, R.color.spotlightTextBackground)
-                    )
-                }
+                targetText.setBackgroundColor(
+                    ContextCompat.getColor(activity, R.color.spotlightTextBackground)
+                )
 
                 val nextSpotlight = View.OnClickListener(
                     nextSpot( textIterator, targetText, landscape, lowerText, sp, spotlight)

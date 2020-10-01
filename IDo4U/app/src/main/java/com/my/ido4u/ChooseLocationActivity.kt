@@ -61,26 +61,25 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
         val sp = Ido4uApp.applicationContext()
             .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
         val showedTutorial = sp.getBoolean(SHOWED_LOCATION_CHOICE_ACTIVITY_TUTORIAL, false)
-        if(!showedTutorial) {
-            val listOfViews = arrayOf<View>(
-                findViewById(R.id.fragmentLayout),
-                findViewById(R.id.mapAPI),
-                findViewById(R.id.RadiusSeekBar),
-                findViewById(R.id.approveLocationButton)
-            )
-            val listOfStrings = listOf(
-                getString(R.string.choose_location_tutorial),
-                getString(R.string.drag_marker_tutorial),
-                getString(R.string.radius_bar_tutorial),
-                getString(R.string.approve_location_tutorial)
-            )
-            createTutorial(
-                this@ChooseLocationActivity,
-                listOfStrings,
-                SHOWED_LOCATION_CHOICE_ACTIVITY_TUTORIAL,
-                *listOfViews
-            ) //todo
-        }
+        if(!showedTutorial){
+        val listOfViews = arrayOf<View>(
+            findViewById(R.id.fragmentLayout),
+            findViewById(R.id.mapAPI),
+            findViewById(R.id.RadiusSeekBar),
+            findViewById(R.id.approveLocationButton)
+        )
+        val listOfStrings = listOf(
+            getString(R.string.choose_location_tutorial),
+            getString(R.string.drag_marker_tutorial),
+            getString(R.string.radius_bar_tutorial),
+            getString(R.string.approve_location_tutorial)
+        )
+        createTutorial(
+            this@ChooseLocationActivity,
+            listOfStrings,
+            SHOWED_LOCATION_CHOICE_ACTIVITY_TUTORIAL,
+            *listOfViews) //todo
+            }
     }
 
     /**
