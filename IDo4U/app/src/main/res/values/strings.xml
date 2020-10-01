@@ -182,6 +182,21 @@
         "perform sound Actions. If that's OK, click \"OK\" and in the next screen"
         "turn on the switch of IDo4U."
     </string>
+    <string name="coarse_location_permission_explanation">
+        "to access your coarse location, without it we CAN'T:"
+        "\n\n1. Perform location-conditioned tasks"
+        "\n\n2. Show you available Wifi connections."
+    </string>
+    <string name="fine_location_permission_explanation">
+        "to access your fine (exact) location, without it we CAN'T "
+        "perform location-conditioned tasks"
+    </string>
+    <string name="wifi_access_permission_explanation">
+        "to access you device's WiFi in order to perform WiFi-conditioned tasks!"
+    </string>
+    <string name="wifi_change_permission_explanation">
+        "We need permission to change you device's WiFi in order to perform WiFi-conditioned tasks!"
+    </string>
     <string name="brightness_permissions_explanation">
         "Hey there! :)\nWe need your permission to change your screen\'s brightness."
         "If it's OK, click \"OK\" and in the next screen turn on the switch of IDo4U."

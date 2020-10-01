@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         val sp = Ido4uApp.applicationContext()
             .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
         if(!sp.getBoolean(SHOWED_MAIN_ACTIVITY_TUTORIAL, false)) {
+            mockBluetooth()
             createMainActivityTutorial()
             sp.edit().putBoolean(SHOWED_MAIN_ACTIVITY_TUTORIAL, true).apply()
         }
@@ -153,33 +154,24 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.M)
     private fun createMockTasks() { // todo - remove
 //        mockWifi()
-//        mockBluetooth()
+        mockBluetooth()
 //        mockLocation()
     }
 
     private fun mockBluetooth(){
-        checkConditionsPermissions(Task.ConditionEnum.LOCATION, this)
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-
-        if(checkConditionsPermissions(Task.ConditionEnum.BLUETOOTH, this)){
             val conData = BluetoothConditionData("LE-Ido's Bose QC35 II", "4C:87:5D:CB:9B:CD")
             val conDataStr = gson.toJson(conData)
-            var cond = Task.Condition(Task.ConditionEnum.BLUETOOTH, conDataStr, conData.toString())
-
-            val actData : ToastActionData = ToastActionData(
-                ToastActionData.ToastAction.LONG,
-                "found Ido's bluetooth!"
-            )
+            val cond = Task.Condition(Task.ConditionEnum.BLUETOOTH, conDataStr, conData.toString())
+            val actData = OpenAppActionData("com.waze")
             val action : Task.Action = Task.Action(
-                Task.ActionEnum.TOAST,
+                Task.ActionEnum.APPS,
                 gson.toJson(actData),
                 actData.toString()
             )
 
-            var newTask = Task("find earphone", true, cond, arrayOf(action))
-
+            val newTask = Task("find earphone", true, cond, arrayOf(action))
             addNewTask(newTask)
-        }
     }
 
     private fun mockLocation(){

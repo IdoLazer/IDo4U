@@ -69,22 +69,16 @@ class CreateConditionActivity : AppCompatActivity() {
     }
 
     private fun clickedOnLocation() {
-        if (!checkConditionsPermissions(Task.ConditionEnum.LOCATION, this)) return
-
-        val intent = Intent(this, ChooseLocationActivity::class.java)
-        startActivityForResult(intent, CHOOSE_LOCATION_CONDITION_REQUEST_CODE)
+                val intent = Intent(this, ChooseLocationActivity::class.java)
+                startActivityForResult(intent, CHOOSE_LOCATION_CONDITION_REQUEST_CODE)
     }
 
     private fun clickedOnWifi() {
-        if (!checkConditionsPermissions(Task.ConditionEnum.WIFI, this)) return
-
-        val intent = Intent(this, ChooseWifiActivity::class.java)
-        startActivityForResult(intent, CHOOSE_WIFI_CONDITION_REQUEST_CODE)
+            val intent = Intent(this, ChooseWifiActivity::class.java)
+            startActivityForResult(intent, CHOOSE_WIFI_CONDITION_REQUEST_CODE)
     }
 
     private fun clickedOnBluetooth() {
-        if (!checkConditionsPermissions(Task.ConditionEnum.BLUETOOTH, this)) return
-
         val intent = Intent(this, ChooseBluetoothActivity::class.java)
         startActivityForResult(intent, CHOOSE_BLUETOOTH_CONDITION_REQUEST_CODE)
     }
