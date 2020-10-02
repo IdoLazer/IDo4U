@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">IDo4U</string>
+    <string name="app_name">I Do 4 U</string>
     <string name="title_activity_settings">SettingsActivity</string>
 
     <!-- Preference Titles -->
@@ -208,7 +208,7 @@
     <string name="volume_permissions_explanation">
         "Hey there! :)\nWe need your permission to change your device\'s sound in order to"
         "perform sound Actions. If that's OK, click \"OK\" and in the next screen"
-        "turn on the switch of IDo4U."
+        "turn on the switch of I Do 4 U."
     </string>
     <string name="location_permission_explanation">
         "to access your location, without it we CAN'T:"
@@ -224,7 +224,7 @@
     </string>
     <string name="brightness_permissions_explanation">
         "Hey there! :)\nWe need your permission to change your screen\'s brightness."
-        "If it's OK, click \"OK\" and in the next screen turn on the switch of IDo4U."
+        "If it's OK, click \"OK\" and in the next screen turn on the switch of I Do 4 U."
     </string>
 
 
