@@ -16,8 +16,10 @@ import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type
-import java.util.jar.Manifest
 
+/**
+ * In this activity the user can choose a WiFi connection as a condition for a task.
+ */
 class ChooseWifiActivity : AppCompatActivity() {
 
     private lateinit var scanResultsLinearLayout: LinearLayout
@@ -58,21 +60,9 @@ class ChooseWifiActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode == WIFI_PERMISSION_REQUEST_CODE){
-            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                initializeScan()
-            }
-        }
-    }
 
     /**
-     * todo
+     * Initializes the views of the activity.
      */
     private fun initializeViews(savedInstanceState: Bundle?) {
         scanResultsLinearLayout = findViewById(R.id.choose_wifi_linearLayout)
@@ -111,7 +101,7 @@ class ChooseWifiActivity : AppCompatActivity() {
     }
 
     /**
-     * todo
+     * Performs scanWifi - preempting actions and than calls scanWifi.
      */
     private fun initializeScan() {
         val wifiManager = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
@@ -120,6 +110,9 @@ class ChooseWifiActivity : AppCompatActivity() {
         scanWifi(this, wifiManager, ::populateList)
     }
 
+    /**
+     * todo
+     */
     private fun addScanResultFromWifiData(result: WifiConditionData) {
         scanResults.add(result)
         val scanResultLayout =
@@ -132,6 +125,9 @@ class ChooseWifiActivity : AppCompatActivity() {
         scanResultsLinearLayout.addView(scanResultLayout)
     }
 
+    /**
+     * todo
+     */
     private fun populateList(list: List<ScanResult>) {
         progressBar!!.visibility = ProgressBar.INVISIBLE
         scanResultsLinearLayout.removeAllViewsInLayout()
@@ -141,6 +137,9 @@ class ChooseWifiActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * todo
+     */
     private fun onNetworkChosen(wifiConditionData: WifiConditionData) {
         val resultIntent = Intent()
         val condition = Task.Condition(
@@ -151,6 +150,19 @@ class ChooseWifiActivity : AppCompatActivity() {
         resultIntent.putExtra(CONDITION, gson.toJson(condition))
         setResult(FragmentActivity.RESULT_OK, resultIntent)
         finish()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if(requestCode == WIFI_PERMISSION_REQUEST_CODE){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                initializeScan()
+            }
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

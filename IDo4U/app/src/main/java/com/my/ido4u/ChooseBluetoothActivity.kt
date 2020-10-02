@@ -14,6 +14,9 @@ import androidx.fragment.app.FragmentActivity
 import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
 
+/**
+ * Activity in which thw user can choose a bluetooth device as a condition for a task.
+ */
 class ChooseBluetoothActivity : AppCompatActivity() {
 
     private lateinit var scanResultsLinearLayout: LinearLayout
@@ -25,6 +28,9 @@ class ChooseBluetoothActivity : AppCompatActivity() {
         initializeViews()
     }
 
+    /**
+     * Initializes all the views of the activity.
+     */
     private fun initializeViews() {
         scanResultsLinearLayout = findViewById(R.id.choose_bluetooth_linearLayout)
         chooseBluetoothEditText = findViewById(R.id.choose_bluetooth_edit_text)
@@ -45,6 +51,9 @@ class ChooseBluetoothActivity : AppCompatActivity() {
         populateList(getBluetoothDevices())
     }
 
+    /**
+     * todo
+     */
     private fun populateList(set: Set<BluetoothDevice>?) {
         if (set == null || set.isEmpty()) return
 
@@ -61,6 +70,9 @@ class ChooseBluetoothActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * todo
+     */
     private fun onDeviceChosen(name: String, address: String) {
         val resultIntent = Intent()
         val bluetoothConditionData =

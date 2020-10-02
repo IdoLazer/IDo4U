@@ -1,7 +1,5 @@
 package com.my.ido4u
 
-import android.Manifest
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,7 +10,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -50,7 +47,6 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
         setContentView(R.layout.activity_choose_location)
 
         setViewsAndFragment(savedInstanceState)
-
         createChooseLocationTutorial()
     }
 
@@ -78,7 +74,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
             this@ChooseLocationActivity,
             listOfStrings,
             SHOWED_LOCATION_CHOICE_ACTIVITY_TUTORIAL,
-            *listOfViews) //todo
+            *listOfViews)
             }
     }
 
@@ -181,7 +177,6 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
                     .strokeColor(Color.RED)
                     .fillColor(Color.argb(70, 150, 50, 50))
             )
-//            radiusSeekBar!!.progress = (radius / RADIUS_MAX_IN_METERS).toInt() //todo - remove I think
         }
     }
 
@@ -191,7 +186,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
         checkConditionsPermissions(Task.ConditionEnum.LOCATION, this@ChooseLocationActivity)
         lastLocation
         initializeCenterAndCircle()
-        mapAPI!!.moveCamera(CameraUpdateFactory.newLatLngZoom(centerLatLng, 14.0f)) //todo
+        mapAPI!!.moveCamera(CameraUpdateFactory.newLatLngZoom(centerLatLng, 14.0f)) //todo - check hoe much zoom needed
         mapAPI!!.uiSettings.isZoomControlsEnabled = true
         googleMap.setOnMarkerDragListener(object : OnMarkerDragListener {
             override fun onMarkerDragStart(marker: Marker) {}

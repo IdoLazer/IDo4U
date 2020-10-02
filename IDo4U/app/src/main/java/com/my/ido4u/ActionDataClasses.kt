@@ -37,7 +37,3 @@ data class VolumeActionData(var volumeAction: VolumeAction, var volumeLevel: Flo
 }
 
 
-data class ToastActionData(var toastAction: ToastAction, var text: String) { //todo - remove
-    enum class ToastAction { LONG, SHORT }
-}
-

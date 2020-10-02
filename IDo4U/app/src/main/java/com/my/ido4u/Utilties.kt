@@ -38,39 +38,44 @@ import java.util.*
  */
 
 ///////////////////////////////////////// Constants ////////////////////////////////////////////////
+
+/** Shared constants */
 const val CHANNEL_ID = "stickyChannel"
 const val SHARED_PREFERENCES_NAME = "TaskManagerSharedPreferences"
 const val TASK_LIST = "taskList"
-
-const val QUIT = "quit"
-const val QUIT_ID = 0
-const val FOREGROUND_ID = 1
-const val WIFI_CHANGED_BROADCAST = WifiManager.NETWORK_STATE_CHANGED_ACTION
-const val BLUETOOTH_CHANGED_BROADCAST = BluetoothDevice.ACTION_ACL_CONNECTED
-const val THRESHOLD_ACCURACY = 50
-const val LOCATION_REQUEST_INTERVALS: Long = 5
-const val WIFI_PERMISSION_REQUEST_CODE = 0
-const val LOCATION_PERMISSIONS_REQUEST_CODE = 1
-
-const val MAP_PIN_LOCATION_REQUEST_CODE = 5
-const val DEFAULT_RADIUS = 50f
-const val RADIUS_MAX_IN_METERS = 5000
-const val CENTER_MARKER = "centerMarker"
-const val MAP_LOCATION_ACTION = "mapLocationAction"
-
 const val CONDITION = "condition"
 const val ACTION = "action"
 
+/** Service related constants */
+const val QUIT = "quit"
+const val QUIT_ID = 0
+const val FOREGROUND_ID = 1
+
+/** Permission request codes */
+const val WIFI_PERMISSION_REQUEST_CODE = 0
+const val LOCATION_PERMISSIONS_REQUEST_CODE = 1
+
+/** Names of actions in intents */
+const val WIFI_CHANGED_BROADCAST = WifiManager.NETWORK_STATE_CHANGED_ACTION
+const val BLUETOOTH_CHANGED_BROADCAST = BluetoothDevice.ACTION_ACL_CONNECTED
+
+/** Wifi activity constant */
 const val SCAN_RESULTS = "scan results"
 
+/** Location activity constant */
 const val BACKUP_CENTER_LOCATION = "backupCenterLocation"
+const val DEFAULT_RADIUS = 50f
+const val THRESHOLD_ACCURACY = 50
+const val RADIUS_MAX_IN_METERS = 5000
+const val CENTER_MARKER = "centerMarker"
+const val MAP_LOCATION_ACTION = "mapLocationAction"
+const val LOCATION_REQUEST_INTERVALS: Long = 5
 
 /** SP tutorial constants */
 const val SHOWED_MAIN_ACTIVITY_TUTORIAL = "showed mainActivity tutorial"
 const val SHOWED_LOCATION_CHOICE_ACTIVITY_TUTORIAL = "showed location choice tutorial"
 const val SHOWED_TASK_PROFILE_TUTORIAL = "showed_task_profile_tutorial"
 const val SHOWED_WIFI_TUTORIAL = "showed wifi tutorial"
-
 
 /** Condition Request Codes */
 const val CHOOSE_CONDITION_REQUEST_CODE = 6
@@ -100,10 +105,9 @@ val ACTION_REQUEST_CODES =
         CHOOSE_BRIGHTNESS_ACTION_REQUEST_CODE
     )
 
-
 /////////////////////////// Permission - related methods ///////////////////////////////////////////
 /**
- * Return true if all the permissions relevant to the condition type are granted.
+ * Returns true if all the permissions relevant to the condition type are granted.
  * Else, tries to request the user for the un-granted permissions.
  * At the end - return true if all permissions were granted, false otherwise.
  */
@@ -118,7 +122,6 @@ fun checkConditionsPermissions(type: Task.ConditionEnum, activity: Activity): Bo
             ),
             WIFI_PERMISSION_REQUEST_CODE, activity
         )
-
 
 //        Task.ConditionEnum.TIME -> {
 //        } //todo
@@ -193,7 +196,6 @@ private fun checkSpecificPermissions(
     return unGrantedPermissionsList.size <= 0
 }
 
-
 /**
  * Return true if permission has been granted, false otherwise.
  */
@@ -206,19 +208,18 @@ fun checkPermission(permission: String, activity: Activity): Boolean {
  * Presents an informative message explaining why we need the permission, after which
  * the permission is requested from the user.
  */
+@RequiresApi(Build.VERSION_CODES.M)  //todo
 fun showPermissionRationalDialog(activity: Activity, text: String, permission: String, code: Int) {
     AlertDialog.Builder(activity)
         .setTitle("We need your permission")
         .setMessage(text)
-        .setPositiveButton(android.R.string.yes, object : DialogInterface.OnClickListener {
-            @RequiresApi(Build.VERSION_CODES.M) //todo
-            override fun onClick(dialog: DialogInterface?, which: Int) {
-                activity.requestPermissions(
-                    arrayOf(permission),
-                    code
-                )
-            }
-        })
+        .setPositiveButton(android.R.string.yes
+        ) { dialog, which ->
+            activity.requestPermissions(
+                arrayOf(permission),
+                code
+            )
+        }
         .setIcon(R.drawable.ic_baseline_announcement_24)
         .show()
 }
@@ -227,25 +228,15 @@ fun showPermissionRationalDialog(activity: Activity, text: String, permission: S
  * Checks if all the relevant permissions for the action type "type" has been granted and
  * requests those who has'nt been granted yet.
  */
-
 fun checkActionsPermissions(type: Task.ActionEnum, context: Context): Boolean {
     when (type) {
         Task.ActionEnum.VOLUME -> return checkSoundPermissions(context)
         Task.ActionEnum.BRIGHTNESS -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return checkBrightnessPermission(context)
+            return Settings.System.canWrite(context)
         }
         else -> return false
     }
     return true
-
-}
-
-@RequiresApi(Build.VERSION_CODES.M) //todo
-        /**
-         * Returns true if the application is allowed to change screen brightness, false otherwise.
-         */
-fun checkBrightnessPermission(context: Context): Boolean {
-    return Settings.System.canWrite(context)
 }
 
 
@@ -280,14 +271,16 @@ fun showVolumePermissionsDialog(activity: Activity) {
 }
 
 /**
- * todo
+ * Shows an informative dialog, explaining why the app needs permission to change screen brightness.
+ * If the user clicks "OK", he\she is sent to an activity in which he\she can grant this permission.
  */
+@RequiresApi(Build.VERSION_CODES.M)  //todo
 fun showBrightnessPermissionsDialog(activity: Activity, brightness: Float) {
     AlertDialog.Builder(activity)
         .setTitle("Brightness Permissions")
         .setMessage(activity.getString(R.string.brightness_permissions_explanation))
         .setPositiveButton(
-            android.R.string.yes //todo
+            android.R.string.yes
         ) { _, _ -> activity.startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)) }
         .setNegativeButton(android.R.string.no, null)
         .setIcon(R.drawable.ic_baseline_brightness_6_24)
@@ -307,10 +300,9 @@ fun hasLocationPermissions(context: Context): Boolean {
 
 //////////////////////// Tutorial - related methods ////////////////////////////////////////////////
 /**
- * Creates a tutorial with all the vies in views as spotlight targets and all the strings in texts
+ * Creates a tutorial with all the views in views as spotlight targets and all the strings in texts
  * as tutorial text explanations
  */
-//todo - should only happen at first launch in every activity!
 fun createTutorial(activity: Activity, texts: List<String>, toSP: String, vararg views: View) {
     val firstRoot = FrameLayout(activity)
     val layout = activity.layoutInflater.inflate(R.layout.layout_target, firstRoot)
@@ -348,7 +340,7 @@ fun createSpotlightWhenViewIsInflated(layout: View, activity: Activity, texts: L
                 )
 
                 val nextSpotlight = View.OnClickListener(
-                    nextSpot( textIterator, targetText, landscape, lowerText, sp, spotlight)
+                    nextSpot(textIterator, targetText, landscape, lowerText, sp, spotlight)
                 )
                 val stopSpotlight = View.OnClickListener {
                     sp.edit().putBoolean(toSP, true).apply()
@@ -361,7 +353,7 @@ fun createSpotlightWhenViewIsInflated(layout: View, activity: Activity, texts: L
             }
 
             /**
-             * todo
+             * Returns the callback for the "next" button in a tutorial
              */
             private fun nextSpot( textIterator: Iterator<String>,  targetText: TextView,
                 landscape: Boolean, lowerText: TextView,  sp: SharedPreferences,
@@ -425,7 +417,7 @@ private fun createTarget(view: View, layout: View): Target {
 }
 
 /**
- * Create a tutorial spotlight around the target provided
+ * Creates a tutorial spotlight around the target provided
  */
 fun createSpotlight(activity: Activity, vararg targets: Target): Spotlight {
     return Spotlight.Builder(activity)
@@ -451,7 +443,7 @@ fun scanWifi(
     if (checkConditionsPermissions(Task.ConditionEnum.WIFI, activity)) {
         val wifiScanReceiver = object : BroadcastReceiver() {
 
-            @RequiresApi(api = Build.VERSION_CODES.M)
+            @RequiresApi(api = Build.VERSION_CODES.M) //todo
             override fun onReceive(c: Context, intent: Intent) {
                 val success = intent.getBooleanExtra(
                     WifiManager.EXTRA_RESULTS_UPDATED,

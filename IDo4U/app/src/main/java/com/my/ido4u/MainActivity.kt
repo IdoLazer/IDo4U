@@ -1,11 +1,9 @@
 package com.my.ido4u
 
 import android.bluetooth.BluetoothAdapter
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.annotation.RequiresApi
@@ -31,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         }
     })
 
-    @RequiresApi(Build.VERSION_CODES.M)
+    @RequiresApi(Build.VERSION_CODES.M) //todo
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -85,7 +83,9 @@ class MainActivity : AppCompatActivity() {
                         )
                     }
 
-                    createTutorial(this@MainActivity, texts,SHOWED_MAIN_ACTIVITY_TUTORIAL, *arr)
+                    createTutorial(
+                        this@MainActivity, texts,SHOWED_MAIN_ACTIVITY_TUTORIAL, *arr
+                    )
                     recycler!!.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 }
             })
@@ -134,36 +134,14 @@ class MainActivity : AppCompatActivity() {
         startService(serviceIntent)
     }
 
-    //////////////////////////// permission related code ///////////////////////////////////////////
-    override fun onRequestPermissionsResult( // todo - needed?
-        requestCode: Int, permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        when(requestCode){
-            //todo - add cases!
-        }
-    }
-
-    /////////////////////////// override of activity methods s///////////////////////////////////////
-
-    override fun onDestroy() { //todo make sure all relevant broadcastReceivers are unregistered here
-        super.onDestroy()
-    }
-
-    ////////////////////////////////////// todo change /////////////////////////////////////////////
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun createMockTasks() { // todo - remove
-//        mockWifi()
-        mockBluetooth()
-//        mockLocation()
-    }
-
+    /**
+     * Creates a bluetooth - conditioned task for tutorial - purposes
+     */
     private fun mockBluetooth(){
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-            val conData = BluetoothConditionData("LE-Ido's Bose QC35 II", "4C:87:5D:CB:9B:CD")
+            val conData = BluetoothConditionData(
+                "LE-Ido's Bose QC35 II", "4C:87:5D:CB:9B:CD" //todo
+            )
             val conDataStr = gson.toJson(conData)
             val cond = Task.Condition(Task.ConditionEnum.BLUETOOTH, conDataStr, conData.toString())
             val actData = OpenAppActionData("com.waze")
@@ -172,63 +150,7 @@ class MainActivity : AppCompatActivity() {
                 gson.toJson(actData),
                 actData.toString()
             )
-
             val newTask = Task("find earphone", true, cond, arrayOf(action))
             addNewTask(newTask)
-    }
-
-    private fun mockLocation(){
-        checkConditionsPermissions(Task.ConditionEnum.LOCATION, this)
-        val condData = LocationConditionData(35.192712, 31.7770856, 50f)
-        val cond : Task.Condition = Task.Condition(
-            Task.ConditionEnum.LOCATION,
-            gson.toJson(condData),
-            condData.toString()
-        )
-        val actData = OpenAppActionData("com.waze")
-        val action : Task.Action = Task.Action(
-            Task.ActionEnum.APPS,
-            gson.toJson(actData),
-            actData.toString()
-        )
-        val newTask : Task = Task("location task", true, cond, arrayOf(action))
-        addNewTask(newTask)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun mockWifi(){ //todo delete!
-
-        if (!Settings.System.canWrite(applicationContext)) startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
-        val conData : WifiConditionData = WifiConditionData("", "Ido")//"10:be:f5:3c:48:e6") //todo
-        val cond : Task.Condition = Task.Condition(
-            Task.ConditionEnum.WIFI,
-            gson.toJson(conData),
-            conData.toString()
-        )
-
-        /////////////////////////////////////// volume action //////////////////////////////////////
-        val actData = VolumeActionData(VolumeActionData.VolumeAction.SOUND, 30f)
-        val action : Task.Action = Task.Action(
-            Task.ActionEnum.VOLUME,
-            gson.toJson(actData),
-            actData.toString()
-        )
-        val newTask : Task = Task("wifi task1", true, cond, arrayOf(action))
-        addNewTask(newTask)
-
-        /////////////////////////////////// brightness action //////////////////////////////////////
-        checkActionsPermissions(Task.ActionEnum.BRIGHTNESS,this)
-        val actData2 = BrightnessActionData(170, (170.0*100.0/255.0).toInt())
-        val action2 : Task.Action = Task.Action(
-            Task.ActionEnum.BRIGHTNESS,
-            gson.toJson(actData2),
-            actData2.toString()
-        )
-        val newTask2 = Task("wifi task2", true, cond, arrayOf(action2))
-        addNewTask(newTask2)
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
     }
 }

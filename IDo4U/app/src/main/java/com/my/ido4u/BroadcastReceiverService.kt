@@ -19,7 +19,6 @@ import android.os.IBinder
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.*
@@ -104,7 +103,7 @@ class BroadcastReceiverService : Service() {
     /**
      * Requests location updates periodically.
      */
-    @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission") //todo - problematic for google play?
     private fun requestNewLocationData() {
         val locationRequest = LocationRequest()
         locationRequest.interval = LOCATION_REQUEST_INTERVALS
@@ -119,7 +118,7 @@ class BroadcastReceiverService : Service() {
         fusedLocationClient!!.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
+    @RequiresApi(Build.VERSION_CODES.M) //todo
     /**
      * Goes through all the tasks in taskList and for each task:
      * - Checks whether it's location-conditioned
@@ -134,7 +133,7 @@ class BroadcastReceiverService : Service() {
                 lastLocation = curLocation
                 firstLocationQuery = true
             }
-            for (task in taskList) { //todo - doesLocationConditionApply return false if oldLocation is null + cancel second condition
+            for (task in taskList) {
                 if (task.isOn) {
                     if (task.condition.conditionType == Task.ConditionEnum.LOCATION) {
                         val newLocationSatisfiesCond = doesLocationConditionApply(task, curLocation)
@@ -165,20 +164,18 @@ class BroadcastReceiverService : Service() {
         return results[0] <= data.radius
     }
 
-
-
     ////////////////////////////////////////////////////////////////////////////////////////////////
     /**
      * The BroadcastReceiver of the Service, it listens to the relevant broadcasts.
      */
     inner class MyReceiver : BroadcastReceiver() {
-        @RequiresApi(Build.VERSION_CODES.M)
+        @RequiresApi(Build.VERSION_CODES.M) //todo
         override fun onReceive(context: Context, intent: Intent) {
             val action = intent.action
             if (action == null) {
                 Log.e("error", "action is null!")
             } else {
-                when (action) { // todo - add more cases?
+                when (action) {
                     QUIT -> stop()
                     WIFI_CHANGED_BROADCAST -> handleWifiCondition()
                     BLUETOOTH_CHANGED_BROADCAST -> handleBluetoothCondition(intent)
@@ -187,7 +184,7 @@ class BroadcastReceiverService : Service() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
+    @RequiresApi(Build.VERSION_CODES.M) //todo
     /**
      * Handles Bluetooth conditions.
      */
@@ -208,7 +205,7 @@ class BroadcastReceiverService : Service() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
+    @RequiresApi(Build.VERSION_CODES.M) //todo
     /**
      * Handles WiFi conditions.
      */
@@ -235,14 +232,13 @@ class BroadcastReceiverService : Service() {
         lastSSID = curSsid
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
+    @RequiresApi(Build.VERSION_CODES.M) //todo
     /**
      * Handles all the actions of a task.
      */
     private fun handleActions(task: Task) {
         for (action in task.actions) {
             when (action.actionType) {
-                Task.ActionEnum.TOAST -> createAndShowToast(action)  // todo - delete
                 Task.ActionEnum.VOLUME -> handleVolumeActions(action)
                 Task.ActionEnum.BRIGHTNESS -> handleBrightnessActions(action)
                 Task.ActionEnum.APPS -> handleAppOpeningAction(action)
@@ -263,7 +259,7 @@ class BroadcastReceiverService : Service() {
         launchIntent?.let { startActivity(it) }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
+    @RequiresApi(Build.VERSION_CODES.M) //todo
     /**
      * Handles screen brightness actions.
      */
@@ -280,7 +276,7 @@ class BroadcastReceiverService : Service() {
     /**
      * Handles volume actions.
      */
-    @RequiresApi(Build.VERSION_CODES.M)
+    @RequiresApi(Build.VERSION_CODES.M) //todo
     private fun handleVolumeActions(action : Task.Action) {
         val audioMngr = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val actionData = gson.fromJson(action.extraData, VolumeActionData::class.java)
@@ -311,7 +307,6 @@ class BroadcastReceiverService : Service() {
      */
     private fun changeRingerVolume(audioMngr: AudioManager, actionData: VolumeActionData) {
         audioMngr.ringerMode = AudioManager.RINGER_MODE_NORMAL
-
         val ringerMax = audioMngr.getStreamMaxVolume(AudioManager.STREAM_RING)
         val musicMax = audioMngr.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
         val systemMax = audioMngr.getStreamMaxVolume(AudioManager.STREAM_SYSTEM)
@@ -340,20 +335,12 @@ class BroadcastReceiverService : Service() {
         )
     }
 
-    private fun createAndShowToast(action : Task.Action) { //todo - delete
-        val actionData = gson.fromJson(action.extraData, ToastActionData::class.java)
-        val text: CharSequence = actionData.text
-        val duration = Toast.LENGTH_SHORT
-        val toast = Toast.makeText(context, text, duration)
-        toast.show()
-    }
-
     /**
      * Adds to a filter all the actions to whom the broadcastReceiver should listen and creates the
      * broadcastReceiver using the filter. Finally, registers the broadcastReceiver with the filter.
      */
     private fun createAndRegisterBroadcastReceiver() {
-        for(task in taskList){ //todo - should we check here if task is on?
+        for(task in taskList){
             when(task.condition.conditionType){
                 Task.ConditionEnum.WIFI -> actionsToListenTo.add(WIFI_CHANGED_BROADCAST)
                 Task.ConditionEnum.BLUETOOTH -> actionsToListenTo.add(BLUETOOTH_CHANGED_BROADCAST)
