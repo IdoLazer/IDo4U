@@ -2,17 +2,18 @@ package com.my.ido4u
 
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 
+/**
+ * The main activity, here the user will see a list of all their tasks
+ */
 class MainActivity : AppCompatActivity() {
 
     private var bluetoothAdapter: BluetoothAdapter? = null
@@ -29,12 +30,11 @@ class MainActivity : AppCompatActivity() {
         }
     })
 
-    @RequiresApi(Build.VERSION_CODES.M) //todo
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        if(TaskManager.getSize() != 0 && savedInstanceState == null){
+        if (TaskManager.getSize() != 0 && savedInstanceState == null) {
             startService(this)
         }
         initializeViews()
@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     createTutorial(
-                        this@MainActivity, texts,SHOWED_MAIN_ACTIVITY_TUTORIAL, *arr
+                        this@MainActivity, texts, SHOWED_MAIN_ACTIVITY_TUTORIAL, *arr
                     )
                     recycler!!.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 }
@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity() {
         recycler = findViewById(R.id.task_recycler)
         recycler!!.adapter = adapter
         recycler!!.layoutManager =
-                        LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+            LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         val addButton: FloatingActionButton = findViewById(R.id.add_task_button)
 
         addButton.setOnClickListener {
@@ -137,24 +137,20 @@ class MainActivity : AppCompatActivity() {
     /**
      * Creates a bluetooth - conditioned task for tutorial - purposes
      */
-    private fun mockBluetooth(){
+    private fun mockBluetooth() {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-            val conData = BluetoothConditionData(
-                "LE-Ido's Bose QC35 II", "4C:87:5D:CB:9B:CD" //todo
-            )
-            val conDataStr = gson.toJson(conData)
-            val cond = Task.Condition(Task.ConditionEnum.BLUETOOTH, conDataStr, conData.toString())
-            val actData = OpenAppActionData("com.waze")
-            val action : Task.Action = Task.Action(
-                Task.ActionEnum.APPS,
-                gson.toJson(actData),
-                actData.toString()
-            )
-            val newTask = Task("find earphone", true, cond, arrayOf(action))
-            addNewTask(newTask)
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
+        val conData = BluetoothConditionData(
+            "My Car's Bluetooth", ""
+        )
+        val conDataStr = gson.toJson(conData)
+        val cond = Task.Condition(Task.ConditionEnum.BLUETOOTH, conDataStr, conData.toString())
+        val actData = OpenAppActionData("Maps")
+        val action: Task.Action = Task.Action(
+            Task.ActionEnum.APPS,
+            gson.toJson(actData),
+            actData.toString()
+        )
+        val newTask = Task("Open Maps When I Enter My Car", true, cond, arrayOf(action))
+        addNewTask(newTask)
     }
 }

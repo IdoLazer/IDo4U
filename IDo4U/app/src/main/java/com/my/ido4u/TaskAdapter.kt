@@ -4,7 +4,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
-class TaskAdapter(private var taskClickListener: TaskClickListener) : RecyclerView.Adapter<TaskHolder>() {
+/**
+ * The adapter for the task list in the main activity
+ */
+class TaskAdapter(private var taskClickListener: TaskClickListener) :
+    RecyclerView.Adapter<TaskHolder>() {
 
     interface TaskClickListener {
         fun onTaskClicked(id: Int)

@@ -1,16 +1,16 @@
 package com.my.ido4u
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
-import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -33,15 +33,14 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
     private var mapCircle: Circle? = null
     private var centerMarker: Marker? = null
     private var radiusSeekBar: SeekBar? = null
-    private var seekBerMax = 0
-    private var radius = DEFAULT_RADIUS
+    private var seekBarMax = 0
+    private var radius = MIN_RADIUS
     private var fusedLocationClient: FusedLocationProviderClient? = null
-    var mapAPI: GoogleMap? = null
-    var mapFragment: SupportMapFragment? = null
+    private var mapAPI: GoogleMap? = null
+    private var mapFragment: SupportMapFragment? = null
     var gson = Gson()
 
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_choose_location)
@@ -57,25 +56,26 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
         val sp = Ido4uApp.applicationContext()
             .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
         val showedTutorial = sp.getBoolean(SHOWED_LOCATION_CHOICE_ACTIVITY_TUTORIAL, false)
-        if(!showedTutorial){
-        val listOfViews = arrayOf<View>(
-            findViewById(R.id.fragmentLayout),
-            findViewById(R.id.mapAPI),
-            findViewById(R.id.RadiusSeekBarLinearLayout),
-            findViewById(R.id.approveLocationButton)
-        )
-        val listOfStrings = listOf(
-            getString(R.string.choose_location_tutorial),
-            getString(R.string.drag_marker_tutorial),
-            getString(R.string.radius_bar_tutorial),
-            getString(R.string.approve_location_tutorial)
-        )
-        createTutorial(
-            this@ChooseLocationActivity,
-            listOfStrings,
-            SHOWED_LOCATION_CHOICE_ACTIVITY_TUTORIAL,
-            *listOfViews)
-            }
+        if (!showedTutorial) {
+            val listOfViews = arrayOf<View>(
+                findViewById(R.id.fragmentLayout),
+                findViewById(R.id.mapAPI),
+                findViewById(R.id.RadiusSeekBarLinearLayout),
+                findViewById(R.id.approveLocationButton)
+            )
+            val listOfStrings = listOf(
+                getString(R.string.choose_location_tutorial),
+                getString(R.string.drag_marker_tutorial),
+                getString(R.string.radius_bar_tutorial),
+                getString(R.string.approve_location_tutorial)
+            )
+            createTutorial(
+                this@ChooseLocationActivity,
+                listOfStrings,
+                SHOWED_LOCATION_CHOICE_ACTIVITY_TUTORIAL,
+                *listOfViews
+            )
+        }
     }
 
     /**
@@ -87,7 +87,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
         mapFragment = supportFragmentManager.findFragmentById(R.id.mapAPI) as SupportMapFragment?
         mapFragment!!.getMapAsync(this)
 
-        if(savedInstanceState != null) {
+        if (savedInstanceState != null) {
             val restoredBackupCenter = savedInstanceState.getString(BACKUP_CENTER_LOCATION)
             backupCenterLatLng = gson.fromJson(restoredBackupCenter, LatLng::class.java)
         }
@@ -97,8 +97,8 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
      * Sets the OK button and its' onClickListener.
      */
     private fun setOkButton() {
-        val OkButton = findViewById<Button>(R.id.approveLocationButton)
-        OkButton.setOnClickListener(View.OnClickListener {
+        val okButton = findViewById<Button>(R.id.approveLocationButton)
+        okButton.setOnClickListener {
             val resultIntent = Intent(MAP_LOCATION_ACTION)
             val locationConditionData =
                 LocationConditionData(centerLatLng.longitude, centerLatLng.latitude, radius)
@@ -110,7 +110,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
             resultIntent.putExtra(CONDITION, Gson().toJson(condition))
             setResult(RESULT_OK, resultIntent)
             finish()
-        })
+        }
     }
 
     /**
@@ -118,13 +118,13 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
      */
     private fun setSeekBar() {
         radiusSeekBar = findViewById<View>(R.id.RadiusSeekBar) as SeekBar
-        seekBerMax = radiusSeekBar!!.max
-        radiusSeekBar!!.progress = (radius / RADIUS_MAX_IN_METERS * seekBerMax ).toInt()
+        seekBarMax = radiusSeekBar!!.max
+//        radiusSeekBar!!.progress = (radius / RADIUS_MAX_IN_METERS * seekBarMax ).toInt()
         radiusSeekBar!!.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
                 val cur = radiusSeekBar!!.progress.toFloat()
-                radius = cur / seekBerMax * RADIUS_MAX_IN_METERS
-                if(mapCircle != null) {
+                radius = (cur / seekBarMax * RADIUS_MAX_IN_METERS) + MIN_RADIUS
+                if (mapCircle != null) {
                     mapCircle!!.radius = radius.toDouble()
                 }
             }
@@ -138,14 +138,24 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
      * Updates the marker's location to be the last one known and set the circle's center to be it.
      */
     private val lastLocation: Unit
-        private get() {
+        get() {
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return
+            }
             fusedLocationClient!!.lastLocation
                 .addOnSuccessListener(this) { location ->
                     if (location != null) {
                         val defaultBackup = LatLng(0.0, 0.0)
-                        centerLatLng = if(backupCenterLatLng == defaultBackup) {
+                        centerLatLng = if (backupCenterLatLng == defaultBackup) {
                             LatLng(location.latitude, location.longitude)
-                        } else{
+                        } else {
                             backupCenterLatLng
                         }
                         centerMarker!!.remove()
@@ -171,7 +181,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
         if (centerMarker != null) {
             mapCircle = mapAPI!!.addCircle(
                 CircleOptions()
-                    .center(centerMarker!!.getPosition())
+                    .center(centerMarker!!.position)
                     .radius(radius.toDouble())
                     .strokeWidth(3f)
                     .strokeColor(Color.RED)
@@ -186,7 +196,12 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
         checkConditionsPermissions(Task.ConditionEnum.LOCATION, this@ChooseLocationActivity)
         lastLocation
         initializeCenterAndCircle()
-        mapAPI!!.moveCamera(CameraUpdateFactory.newLatLngZoom(centerLatLng, 14.0f)) //todo - check hoe much zoom needed
+        mapAPI!!.moveCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                centerLatLng,
+                14.0f
+            )
+        )
         mapAPI!!.uiSettings.isZoomControlsEnabled = true
         googleMap.setOnMarkerDragListener(object : OnMarkerDragListener {
             override fun onMarkerDragStart(marker: Marker) {}

@@ -5,7 +5,6 @@ package com.my.ido4u
  * A class that contains all the data needed for a WiFi condition.
  * ssid: the name of the WiFi connection.
  */
-
 data class WifiConditionData(var bssid: String, var ssid: String) {
 
     override fun toString(): String {

@@ -21,10 +21,7 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
-import android.widget.ScrollView
 import android.widget.TextView
-import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.takusemba.spotlight.Spotlight
 import com.takusemba.spotlight.Target
@@ -58,13 +55,14 @@ const val LOCATION_PERMISSIONS_REQUEST_CODE = 1
 /** Names of actions in intents */
 const val WIFI_CHANGED_BROADCAST = WifiManager.NETWORK_STATE_CHANGED_ACTION
 const val BLUETOOTH_CHANGED_BROADCAST = BluetoothDevice.ACTION_ACL_CONNECTED
+const val BLUETOOTH_STATE_CHANGED = BluetoothAdapter.ACTION_STATE_CHANGED
 
 /** Wifi activity constant */
 const val SCAN_RESULTS = "scan results"
 
 /** Location activity constant */
 const val BACKUP_CENTER_LOCATION = "backupCenterLocation"
-const val DEFAULT_RADIUS = 50f
+const val MIN_RADIUS = 50f
 const val THRESHOLD_ACCURACY = 50
 const val RADIUS_MAX_IN_METERS = 5000
 const val CENTER_MARKER = "centerMarker"
@@ -122,9 +120,6 @@ fun checkConditionsPermissions(type: Task.ConditionEnum, activity: Activity): Bo
             ),
             WIFI_PERMISSION_REQUEST_CODE, activity
         )
-
-//        Task.ConditionEnum.TIME -> {
-//        } //todo
 
         Task.ConditionEnum.LOCATION -> return checkSpecificPermissions(
             mutableListOf(
@@ -208,13 +203,13 @@ fun checkPermission(permission: String, activity: Activity): Boolean {
  * Presents an informative message explaining why we need the permission, after which
  * the permission is requested from the user.
  */
-@RequiresApi(Build.VERSION_CODES.M)  //todo
 fun showPermissionRationalDialog(activity: Activity, text: String, permission: String, code: Int) {
     AlertDialog.Builder(activity)
         .setTitle("We need your permission")
         .setMessage(text)
-        .setPositiveButton(android.R.string.yes
-        ) { dialog, which ->
+        .setPositiveButton(
+            android.R.string.yes
+        ) { _, _ ->
             activity.requestPermissions(
                 arrayOf(permission),
                 code
@@ -259,12 +254,8 @@ fun showVolumePermissionsDialog(activity: Activity) {
     AlertDialog.Builder(activity)
         .setTitle("Sound Permissions")
         .setMessage(activity.getString(R.string.volume_permissions_explanation))
-        .setPositiveButton(android.R.string.yes, object : DialogInterface.OnClickListener {
-            @RequiresApi(Build.VERSION_CODES.M) //todo
-            override fun onClick(dialog: DialogInterface?, which: Int) {
-                activity.startActivity(Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
-            }
-        })
+        .setPositiveButton(android.R.string.yes
+        ) { _, _ -> activity.startActivity(Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)) }
         .setNegativeButton(android.R.string.no, null)
         .setIcon(R.drawable.ic_baseline_volume_up_24)
         .show()
@@ -274,8 +265,7 @@ fun showVolumePermissionsDialog(activity: Activity) {
  * Shows an informative dialog, explaining why the app needs permission to change screen brightness.
  * If the user clicks "OK", he\she is sent to an activity in which he\she can grant this permission.
  */
-@RequiresApi(Build.VERSION_CODES.M)  //todo
-fun showBrightnessPermissionsDialog(activity: Activity, brightness: Float) {
+fun showBrightnessPermissionsDialog(activity: Activity) {
     AlertDialog.Builder(activity)
         .setTitle("Brightness Permissions")
         .setMessage(activity.getString(R.string.brightness_permissions_explanation))
@@ -285,17 +275,6 @@ fun showBrightnessPermissionsDialog(activity: Activity, brightness: Float) {
         .setNegativeButton(android.R.string.no, null)
         .setIcon(R.drawable.ic_baseline_brightness_6_24)
         .show()
-}
-
-/**
- * Returns true if the app has the necessary permissions for location tracking, false otherwise
- */
-fun hasLocationPermissions(context: Context): Boolean {
-    return ActivityCompat.checkSelfPermission(
-        context, Manifest.permission.ACCESS_FINE_LOCATION
-    ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-        context, Manifest.permission.ACCESS_COARSE_LOCATION
-    ) == PackageManager.PERMISSION_GRANTED
 }
 
 //////////////////////// Tutorial - related methods ////////////////////////////////////////////////
@@ -312,14 +291,18 @@ fun createTutorial(activity: Activity, texts: List<String>, toSP: String, vararg
 /**
  * Adds a listener which create a target and spotlight around a view when it is inflated
  */
-fun createSpotlightWhenViewIsInflated(layout: View, activity: Activity, texts: List<String>,
-    toSP: String, vararg views: View) {
+fun createSpotlightWhenViewIsInflated(
+    layout: View, activity: Activity, texts: List<String>,
+    toSP: String, vararg views: View
+) {
 
     views[0].viewTreeObserver.addOnGlobalLayoutListener(
         object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 val targets: MutableList<Target> = mutableListOf()
-                for (view in views) { targets.add(createTarget(view, layout)) }
+                for (view in views) {
+                    targets.add(createTarget(view, layout))
+                }
                 val targetsArray = targets.toTypedArray()
                 val spotlight = createSpotlight(activity, *targetsArray)
                 val textIterator = texts.iterator()
@@ -355,18 +338,20 @@ fun createSpotlightWhenViewIsInflated(layout: View, activity: Activity, texts: L
             /**
              * Returns the callback for the "next" button in a tutorial
              */
-            private fun nextSpot( textIterator: Iterator<String>,  targetText: TextView,
-                landscape: Boolean, lowerText: TextView,  sp: SharedPreferences,
-                                  spotlight: Spotlight ): (View) -> Unit {
+            private fun nextSpot(
+                textIterator: Iterator<String>, targetText: TextView,
+                landscape: Boolean, lowerText: TextView, sp: SharedPreferences,
+                spotlight: Spotlight
+            ): (View) -> Unit {
                 return {
 
                     if (textIterator.hasNext()) {
                         targetText.text = textIterator.next()
                         if (
                             (targetText.text ==
-                            activity.getString(R.string.task_cond_info_tutorial) ||
-                            targetText.text ==
-                            activity.getString(R.string.task_add_condit_tutorial))
+                                    activity.getString(R.string.task_cond_info_tutorial) ||
+                                    targetText.text ==
+                                    activity.getString(R.string.task_add_condit_tutorial))
                             && !landscape
                         ) {
                             targetText.visibility = View.INVISIBLE
@@ -409,7 +394,7 @@ private fun createTarget(view: View, layout: View): Target {
                 view.width.toFloat(),
                 100f,
                 200f,
-                Color.argb(60, 124, 255, 90)
+                Color.argb(60, 241, 14, 14)
             )
         )
         .setOverlay(layout)
@@ -443,7 +428,6 @@ fun scanWifi(
     if (checkConditionsPermissions(Task.ConditionEnum.WIFI, activity)) {
         val wifiScanReceiver = object : BroadcastReceiver() {
 
-            @RequiresApi(api = Build.VERSION_CODES.M) //todo
             override fun onReceive(c: Context, intent: Intent) {
                 val success = intent.getBooleanExtra(
                     WifiManager.EXTRA_RESULTS_UPDATED,

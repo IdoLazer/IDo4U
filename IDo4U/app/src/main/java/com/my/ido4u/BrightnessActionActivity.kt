@@ -1,14 +1,17 @@
 package com.my.ido4u
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.slider.Slider
 import com.google.gson.Gson
 import kotlin.math.roundToInt
 
+/**
+ * In this activity the user can choose the level of brightness they wish for.
+ */
 class BrightnessActionActivity : AppCompatActivity() {
 
     private lateinit var setBrightnessSlider: Slider
@@ -31,13 +34,15 @@ class BrightnessActionActivity : AppCompatActivity() {
     }
 
     private fun confirmBrightnessAction() {
-        if (!checkActionsPermissions(Task.ActionEnum.BRIGHTNESS, this)){
-            showBrightnessPermissionsDialog(this, setBrightnessSlider.value)
-        }
-        else{
+        if (!checkActionsPermissions(Task.ActionEnum.BRIGHTNESS, this)) {
+            showBrightnessPermissionsDialog(this)
+        } else {
             val resultIntent = Intent()
             val brightnessActionData =
-                BrightnessActionData((setBrightnessSlider.value * (255.0/100.0)).roundToInt(), setBrightnessSlider.value.toInt())
+                BrightnessActionData(
+                    (setBrightnessSlider.value * (255.0 / 100.0)).roundToInt(),
+                    setBrightnessSlider.value.toInt()
+                )
             val action = Task.Action(
                 Task.ActionEnum.BRIGHTNESS,
                 Gson().toJson(brightnessActionData),
@@ -48,6 +53,5 @@ class BrightnessActionActivity : AppCompatActivity() {
             setResult(FragmentActivity.RESULT_OK, resultIntent)
             finish()
         }
-
     }
 }

@@ -1,6 +1,6 @@
 package com.my.ido4u
 
-import android.annotation.SuppressLint
+import android.Manifest
 import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
 import android.media.AudioManager
@@ -20,6 +21,7 @@ import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.*
 import com.google.gson.Gson
@@ -30,14 +32,14 @@ import com.google.gson.Gson
  */
 class BroadcastReceiverService : Service() {
     private var mReceiver: BroadcastReceiver? = null
-    private var actionsToListenTo : HashSet<String> = HashSet()
-    private var taskList : MutableList<Task> = TaskManager.getTaskList()
-    private var lastSSID : String? = null
-    private val gson : Gson = Gson()
+    private var actionsToListenTo: HashSet<String> = HashSet()
+    private var taskList: MutableList<Task> = TaskManager.getTaskList()
+    private var lastSSID: String? = null
+    private val gson: Gson = Gson()
     private var fusedLocationClient: FusedLocationProviderClient? = null
-    private var lastLocation : Location? = null
+    private var lastLocation: Location? = null
     private var locationTrackingStarted = false
-    private var context : Context? = null
+    private var context: Context? = null
     private var locationCallback: LocationCallback? = null
 
     /**
@@ -54,7 +56,7 @@ class BroadcastReceiverService : Service() {
     /**
      * Stops the service
      */
-    fun stop(){
+    fun stop() {
         stopSelf()
     }
 
@@ -84,14 +86,23 @@ class BroadcastReceiverService : Service() {
 
     //////////////////////////////// location tracking methods /////////////////////////////////////
 
-    @SuppressLint("MissingPermission") //todo - problematic for google play?
     /**
      * Initializes location tracking using fuseLocation.
      */
     private fun initializeLocationTracking() {
         if (!locationTrackingStarted) {
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-            if (hasLocationPermissions(applicationContext) && isLocationEnabled(applicationContext)) {
+            if (isLocationEnabled(applicationContext)) {
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    return
+                }
                 fusedLocationClient!!.lastLocation.addOnCompleteListener {
                     requestNewLocationData()
                 }
@@ -103,22 +114,33 @@ class BroadcastReceiverService : Service() {
     /**
      * Requests location updates periodically.
      */
-    @SuppressLint("MissingPermission") //todo - problematic for google play?
     private fun requestNewLocationData() {
         val locationRequest = LocationRequest()
         locationRequest.interval = LOCATION_REQUEST_INTERVALS
         locationRequest.fastestInterval = LOCATION_REQUEST_INTERVALS // the fastest interval allowed
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         locationCallback = object : LocationCallback() {
-            @RequiresApi(Build.VERSION_CODES.M)
             override fun onLocationResult(locationResult: LocationResult) {
                 onLocationChanged(locationResult.lastLocation)
             }
         }
-        fusedLocationClient!!.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        fusedLocationClient!!.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.myLooper()
+        )
     }
 
-    @RequiresApi(Build.VERSION_CODES.M) //todo
     /**
      * Goes through all the tasks in taskList and for each task:
      * - Checks whether it's location-conditioned
@@ -126,8 +148,8 @@ class BroadcastReceiverService : Service() {
      *   smaller or equal to the condition's radius.
      * - If so, it executes the task's actions.
      */
-    private fun onLocationChanged(curLocation: Location){
-        if(curLocation.accuracy < THRESHOLD_ACCURACY) {
+    private fun onLocationChanged(curLocation: Location) {
+        if (curLocation.accuracy < THRESHOLD_ACCURACY) {
             var firstLocationQuery = false
             if (lastLocation == null) {
                 lastLocation = curLocation
@@ -169,7 +191,6 @@ class BroadcastReceiverService : Service() {
      * The BroadcastReceiver of the Service, it listens to the relevant broadcasts.
      */
     inner class MyReceiver : BroadcastReceiver() {
-        @RequiresApi(Build.VERSION_CODES.M) //todo
         override fun onReceive(context: Context, intent: Intent) {
             val action = intent.action
             if (action == null) {
@@ -184,12 +205,11 @@ class BroadcastReceiverService : Service() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M) //todo
     /**
      * Handles Bluetooth conditions.
      */
-    private fun handleBluetoothCondition(intent : Intent) {
-        val device : BluetoothDevice? = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+    private fun handleBluetoothCondition(intent: Intent) {
+        val device: BluetoothDevice? = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
         for (task in taskList) {
             if (task.isOn) {
                 if (task.condition.conditionType == Task.ConditionEnum.BLUETOOTH) {
@@ -198,6 +218,8 @@ class BroadcastReceiverService : Service() {
                     if (device != null) {
                         if (conditionData.hardwareAddress == device.address) {
                             handleActions(task)
+                        } else if (conditionData.bluetoothName == device.name) {
+                            handleActions(task)
                         }
                     }
                 }
@@ -205,12 +227,11 @@ class BroadcastReceiverService : Service() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M) //todo
     /**
      * Handles WiFi conditions.
      */
     private fun handleWifiCondition() {
-        var curSsid : String? = null
+        var curSsid: String? = null
         for (task in taskList) {
             if (task.isOn) {
                 if (task.condition.conditionType == Task.ConditionEnum.WIFI) {
@@ -232,7 +253,6 @@ class BroadcastReceiverService : Service() {
         lastSSID = curSsid
     }
 
-    @RequiresApi(Build.VERSION_CODES.M) //todo
     /**
      * Handles all the actions of a task.
      */
@@ -242,8 +262,6 @@ class BroadcastReceiverService : Service() {
                 Task.ActionEnum.VOLUME -> handleVolumeActions(action)
                 Task.ActionEnum.BRIGHTNESS -> handleBrightnessActions(action)
                 Task.ActionEnum.APPS -> handleAppOpeningAction(action)
-                Task.ActionEnum.COMMUNICATION -> {} //todo
-                Task.ActionEnum.DATA -> {} //todo
             }
         }
     }
@@ -259,11 +277,10 @@ class BroadcastReceiverService : Service() {
         launchIntent?.let { startActivity(it) }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M) //todo
     /**
      * Handles screen brightness actions.
      */
-    private fun handleBrightnessActions(action : Task.Action) {
+    private fun handleBrightnessActions(action: Task.Action) {
         val rawData = gson.fromJson(action.extraData, BrightnessActionData::class.java)
         if (Settings.System.canWrite(context)) {
             Settings.System.putInt(
@@ -276,17 +293,16 @@ class BroadcastReceiverService : Service() {
     /**
      * Handles volume actions.
      */
-    @RequiresApi(Build.VERSION_CODES.M) //todo
-    private fun handleVolumeActions(action : Task.Action) {
+    private fun handleVolumeActions(action: Task.Action) {
         val audioMngr = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val actionData = gson.fromJson(action.extraData, VolumeActionData::class.java)
         checkActionsPermissions(Task.ActionEnum.VOLUME, applicationContext)
         when (actionData.volumeAction) {
             VolumeActionData.VolumeAction.SOUND -> changeRingerVolume(audioMngr, actionData)
             VolumeActionData.VolumeAction.VIBRATE ->
-                                        silenceDevice(audioMngr, AudioManager.RINGER_MODE_VIBRATE)
+                silenceDevice(audioMngr, AudioManager.RINGER_MODE_VIBRATE)
             VolumeActionData.VolumeAction.MUTE ->
-                                        silenceDevice(audioMngr, AudioManager.RINGER_MODE_SILENT)
+                silenceDevice(audioMngr, AudioManager.RINGER_MODE_SILENT)
         }
     }
 
@@ -294,7 +310,7 @@ class BroadcastReceiverService : Service() {
      * Changes the ringer mode of the device to mode and silences all other sound streams (music,
      * notifications and system).
      */
-    private fun silenceDevice(audioMngr: AudioManager, mode: Int){
+    private fun silenceDevice(audioMngr: AudioManager, mode: Int) {
         audioMngr.ringerMode = mode
         audioMngr.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0)
         audioMngr.setStreamVolume(AudioManager.STREAM_SYSTEM, 0, 0)
@@ -340,12 +356,11 @@ class BroadcastReceiverService : Service() {
      * broadcastReceiver using the filter. Finally, registers the broadcastReceiver with the filter.
      */
     private fun createAndRegisterBroadcastReceiver() {
-        for(task in taskList){
-            when(task.condition.conditionType){
+        for (task in taskList) {
+            when (task.condition.conditionType) {
                 Task.ConditionEnum.WIFI -> actionsToListenTo.add(WIFI_CHANGED_BROADCAST)
                 Task.ConditionEnum.BLUETOOTH -> actionsToListenTo.add(BLUETOOTH_CHANGED_BROADCAST)
                 Task.ConditionEnum.LOCATION -> initializeLocationTracking()
-//                Task.ConditionEnum.TIME -> {} // todo
             }
         }
         val filter = IntentFilter()
@@ -353,10 +368,9 @@ class BroadcastReceiverService : Service() {
             filter.addAction(action)
         }
         filter.addAction(QUIT)
-        if(mReceiver != null){
+        if (mReceiver != null) {
             unregisterReceiver(mReceiver)
-        }
-        else {
+        } else {
             mReceiver = MyReceiver()
         }
         registerReceiver(mReceiver, filter)
@@ -369,7 +383,7 @@ class BroadcastReceiverService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(mReceiver)
-        if(locationCallback != null) {
+        if (locationCallback != null) {
             fusedLocationClient!!.removeLocationUpdates(locationCallback)
         }
     }

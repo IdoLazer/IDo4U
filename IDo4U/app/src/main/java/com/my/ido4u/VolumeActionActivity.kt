@@ -12,6 +12,9 @@ import com.google.gson.Gson
 
 const val CHECKED_BOX = "checked box"
 
+/**
+ * In this activity the user can choose the level of brightness they wish for.
+ */
 class VolumeActionActivity : AppCompatActivity() {
 
     private lateinit var setVolumeLevelCheckBox: CheckBox
@@ -54,13 +57,12 @@ class VolumeActionActivity : AppCompatActivity() {
                 savedInstanceState.getString(CHECKED_BOX),
                 VolumeActionData.VolumeAction::class.java
             )
-            when(volumeActionType) {
+            when (volumeActionType) {
                 VolumeActionData.VolumeAction.SOUND -> setVolumeLevel()
                 VolumeActionData.VolumeAction.MUTE -> putOnMute()
                 VolumeActionData.VolumeAction.VIBRATE -> putOnVibrate()
             }
-        }
-        else {
+        } else {
             setVolumeLevel()
         }
     }

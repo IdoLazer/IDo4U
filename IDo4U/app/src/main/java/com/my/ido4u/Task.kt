@@ -15,15 +15,14 @@ class Task(
      * The possible types of conditions
      */
     enum class ConditionEnum {
-        WIFI, LOCATION, BLUETOOTH, //TIME //todo:remove
+        WIFI, LOCATION, BLUETOOTH
     }
 
     /**
      * The possible types of actions
      */
     enum class ActionEnum {
-        VOLUME, BRIGHTNESS, DATA, APPS, COMMUNICATION,
-        TOAST // todo delete
+        VOLUME, BRIGHTNESS, APPS
     }
 
     /**

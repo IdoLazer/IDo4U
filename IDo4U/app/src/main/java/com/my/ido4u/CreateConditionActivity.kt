@@ -11,7 +11,9 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 
-
+/**
+ * In this activity the user can choose what kind of condition they want for their task
+ */
 class CreateConditionActivity : AppCompatActivity() {
 
     private data class MenuItem(
@@ -30,11 +32,6 @@ class CreateConditionActivity : AppCompatActivity() {
         val conditionMenuLinearLayout: LinearLayout = findViewById(R.id.condition_menu_linearLayout)
 
         val menuItems = mutableListOf(
-//            MenuItem(
-//                "Date and Time",
-//                R.drawable.ic_baseline_access_time_24,
-//                View.OnClickListener { clickedOnDateAndTime() }
-//            ), //todo: Add date and time
             MenuItem(
                 "When Entering Location",
                 R.drawable.ic_baseline_location_on_24,
@@ -64,18 +61,14 @@ class CreateConditionActivity : AppCompatActivity() {
         }
     }
 
-    private fun clickedOnDateAndTime() {
-
-    }
-
     private fun clickedOnLocation() {
-                val intent = Intent(this, ChooseLocationActivity::class.java)
-                startActivityForResult(intent, CHOOSE_LOCATION_CONDITION_REQUEST_CODE)
+        val intent = Intent(this, ChooseLocationActivity::class.java)
+        startActivityForResult(intent, CHOOSE_LOCATION_CONDITION_REQUEST_CODE)
     }
 
     private fun clickedOnWifi() {
-            val intent = Intent(this, ChooseWifiActivity::class.java)
-            startActivityForResult(intent, CHOOSE_WIFI_CONDITION_REQUEST_CODE)
+        val intent = Intent(this, ChooseWifiActivity::class.java)
+        startActivityForResult(intent, CHOOSE_WIFI_CONDITION_REQUEST_CODE)
     }
 
     private fun clickedOnBluetooth() {

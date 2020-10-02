@@ -16,7 +16,6 @@ data class BrightnessActionData(var brightness: Int, var percentage: Int) {
  */
 data class OpenAppActionData(var packageName: String) {
     override fun toString(): String {
-        val appName = packageName.removePrefix("com.").substringBefore('.') //todo?
         return "Open app: $packageName"
     }
 }

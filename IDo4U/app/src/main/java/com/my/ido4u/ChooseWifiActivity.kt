@@ -43,14 +43,14 @@ class ChooseWifiActivity : AppCompatActivity() {
         val sp = Ido4uApp.applicationContext()
             .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
         val showedTutorial = sp.getBoolean(SHOWED_WIFI_TUTORIAL, false)
-        if(!showedTutorial) {
+        if (!showedTutorial) {
             val views = arrayOf<View>(
                 findViewById(R.id.choose_wifi_Layout),
                 findViewById(R.id.choose_wifi_edit_text),
                 findViewById(R.id.scrollView3)
             )
 
-            val texts = listOf<String>(
+            val texts = listOf(
                 getString(R.string.choose_wifi_tutorial),
                 getString(R.string.type_wifi_tutorial),
                 getString(R.string.choose_ready_wifi_tutorial)
@@ -111,7 +111,7 @@ class ChooseWifiActivity : AppCompatActivity() {
     }
 
     /**
-     * todo
+     * Add a scan result to the list of nearby Wi-Fi networks
      */
     private fun addScanResultFromWifiData(result: WifiConditionData) {
         scanResults.add(result)
@@ -126,7 +126,7 @@ class ChooseWifiActivity : AppCompatActivity() {
     }
 
     /**
-     * todo
+     * Populate the list of nearby Wi-Fi networks
      */
     private fun populateList(list: List<ScanResult>) {
         progressBar!!.visibility = ProgressBar.INVISIBLE
@@ -138,7 +138,7 @@ class ChooseWifiActivity : AppCompatActivity() {
     }
 
     /**
-     * todo
+     * When the use chooses a network this method is called and creates the appropriate condition
      */
     private fun onNetworkChosen(wifiConditionData: WifiConditionData) {
         val resultIntent = Intent()
@@ -158,8 +158,8 @@ class ChooseWifiActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode == WIFI_PERMISSION_REQUEST_CODE){
-            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+        if (requestCode == WIFI_PERMISSION_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 initializeScan()
             }
         }

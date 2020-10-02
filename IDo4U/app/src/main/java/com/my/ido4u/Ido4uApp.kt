@@ -6,6 +6,9 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 
+/**
+ * The Application class
+ */
 class Ido4uApp : Application() {
 
     init {

@@ -46,7 +46,7 @@
         when you\'re inside this area your task\'s actions will be performed!
     </string>
     <string name="drag_marker_tutorial">
-        Long-press the marker and drag it to the center of you condition area
+        Long-press the marker and drag it to the center of your desired condition area
     </string>
     <string name="radius_bar_tutorial">
        Slide this bar to choose the radius of the condition area.
@@ -56,7 +56,7 @@
     </string>
 
     <string name="task_name_tutorial">
-        "Enter the name of you task here (for example: \"Enter Home\")"
+        "Here you can enter and edit the name of your task"
     </string>
     <string name="task_cond_info_tutorial">
         "Here You\'ll see information about the condition of this task."
@@ -72,14 +72,14 @@
             "Press this button in order to add a new action to the task - each task can have several actions"
     </string>
     <string name="choose_wifi_tutorial">
-           "In this screen you\'ll chose a WiFi connection. When your device will connect a WiFi"
-            "connection with the chosen name this task\'s action will be performed."
+           "In this screen you\'ll choose a WiFi network. When your device will connect to a WiFi"
+            "network with the chosen name this task\'s action will be performed."
     </string>
     <string name="type_wifi_tutorial">
-        "You can type here the Wifi connection\'s name yourself."
+        "You can type here the WiFi network\'s name yourself."
     </string>
     <string name="choose_ready_wifi_tutorial">
-        "OR you can choose from this list of close WiFi connections (if there are any)."
+        "OR you can choose from this list of nearby WiFi connections (if there are any)."
     </string>
 
     <string name="choose_a_condition">Choose A Condition</string>
@@ -226,7 +226,6 @@
         "Hey there! :)\nWe need your permission to change your screen\'s brightness."
         "If it's OK, click \"OK\" and in the next screen turn on the switch of IDo4U."
     </string>
-
 
 
 </resources>

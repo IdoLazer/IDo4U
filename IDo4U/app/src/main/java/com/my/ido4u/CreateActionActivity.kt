@@ -12,9 +12,11 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
-import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
 
+/**
+ * In this activity the user can choose what kind of action they want to add to their task
+ */
 class CreateActionActivity : AppCompatActivity() {
 
     private var progressBar: ProgressBar? = null
@@ -40,8 +42,7 @@ class CreateActionActivity : AppCompatActivity() {
     }
 
     private fun createMainConditionMenu() {
-        val backButton: MaterialButton = findViewById(R.id.actions_menu_back_button)
-        backButton.visibility = View.INVISIBLE
+
         val actionMenuLinearLayout: LinearLayout = findViewById(R.id.action_menu_linearLayout)
         actionMenuLinearLayout.removeAllViewsInLayout()
 
@@ -56,21 +57,11 @@ class CreateActionActivity : AppCompatActivity() {
                 R.drawable.ic_baseline_brightness_6_24,
                 View.OnClickListener { clickedOnBrightness() }
             ),
-//            MenuItem(
-//                "Phone Settings",
-//                R.drawable.ic_baseline_settings_24,
-//                View.OnClickListener { clickedOnPhoneSettings() }
-//            ),
             MenuItem(
                 "Open App",
                 R.drawable.ic_baseline_apps_24,
                 View.OnClickListener { clickedOnApps() }
             )
-//            ,MenuItem(
-//                "Communication",
-//                R.drawable.ic_baseline_message_24,
-//                View.OnClickListener { clickedOnCommunication() }
-//            ) //todo: add Communication action
         )
 
         for (item in menuItems) {
@@ -84,45 +75,6 @@ class CreateActionActivity : AppCompatActivity() {
             actionMenuLinearLayout.addView(menuItemLayout)
         }
     }
-
-//    private fun clickedOnPhoneSettings() { // todo: remove
-//        createPhoneSettingsMenu()
-//    }
-//
-//    private fun createPhoneSettingsMenu() {
-//        val backButton: MaterialButton = findViewById(R.id.actions_menu_back_button)
-//        backButton.visibility = View.VISIBLE
-//        backButton.setOnClickListener {
-//            createMainConditionMenu()
-//        }
-//        val phoneSettingsActionMenuLinearLayout: LinearLayout =
-//            findViewById(R.id.action_menu_linearLayout)
-//        phoneSettingsActionMenuLinearLayout.removeAllViewsInLayout()
-//
-//        val menuItems = mutableListOf(
-//            MenuItem(
-//                "Volume",
-//                R.drawable.ic_baseline_volume_mute_24,
-//                View.OnClickListener { clickedOnVolume() }
-//            ),
-//            MenuItem(
-//                "Brightness",
-//                R.drawable.ic_baseline_brightness_6_24,
-//                View.OnClickListener { clickedOnBrightness() }
-//            )
-//        )
-//
-//        for (item in menuItems) {
-//            val menuItemLayout =
-//                LayoutInflater.from(this)
-//                    .inflate(R.layout.item_menu, phoneSettingsActionMenuLinearLayout, false)
-//            menuItemLayout.findViewById<TextView>(R.id.menu_item_name).text = item.item_name
-//            menuItemLayout.findViewById<ImageView>(R.id.menu_item_icon)
-//                .setImageResource(item.icon_src)
-//            menuItemLayout.setOnClickListener(item.onClickListener)
-//            phoneSettingsActionMenuLinearLayout.addView(menuItemLayout)
-//        }
-//    }
 
     private fun clickedOnBrightness() {
         val intent = Intent(this, BrightnessActionActivity::class.java)
@@ -138,9 +90,6 @@ class CreateActionActivity : AppCompatActivity() {
         progressBar!!.visibility = ProgressBar.VISIBLE
         chooseApp(this)
     }
-
-//    private fun clickedOnCommunication() { //todo:remove
-//    }
 
     override fun onActivityResult(
         requestCode: Int,

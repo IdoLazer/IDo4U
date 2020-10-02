@@ -1,8 +1,12 @@
 package com.my.ido4u
 
 import android.app.AlertDialog
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.EditText
@@ -14,6 +18,7 @@ import androidx.fragment.app.FragmentActivity
 import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
 
+
 /**
  * Activity in which thw user can choose a bluetooth device as a condition for a task.
  */
@@ -21,11 +26,39 @@ class ChooseBluetoothActivity : AppCompatActivity() {
 
     private lateinit var scanResultsLinearLayout: LinearLayout
     private lateinit var chooseBluetoothEditText: EditText
+    private lateinit var broadcastReceiver: BroadcastReceiver
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_choose_bluetooth)
         initializeViews()
+        createAndRegisterBroadcastReceiver()
+    }
+
+    /**
+     * Creates and registers a broadcastReceiver that listens to changes in bluetooth state.
+     */
+    private fun createAndRegisterBroadcastReceiver() {
+        broadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                val action = intent!!.action
+
+                if (action == BLUETOOTH_STATE_CHANGED) {
+                    val bluetoothState = intent.getIntExtra(
+                        BluetoothAdapter.EXTRA_STATE,
+                        BluetoothAdapter.ERROR
+                    )
+                    when (bluetoothState) {
+                        BluetoothAdapter.STATE_ON -> {
+                            populateList(getBluetoothDevices())
+                        }
+                    }
+                }
+            }
+        }
+        val filter = IntentFilter()
+        filter.addAction(BLUETOOTH_STATE_CHANGED)
+        registerReceiver(broadcastReceiver, filter)
     }
 
     /**
@@ -85,5 +118,11 @@ class ChooseBluetoothActivity : AppCompatActivity() {
         resultIntent.putExtra(CONDITION, Gson().toJson(condition))
         setResult(FragmentActivity.RESULT_OK, resultIntent)
         finish()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        unregisterReceiver(broadcastReceiver)
     }
 }

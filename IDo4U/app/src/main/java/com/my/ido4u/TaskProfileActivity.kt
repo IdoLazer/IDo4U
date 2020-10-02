@@ -44,7 +44,7 @@ class TaskProfileActivity : FragmentActivity() {
     }
 
     /**
-     * todo
+     * perform operations when opening the the activity for the first time
      */
     private fun performFirsLaunchOperations() {
         val sp = Ido4uApp.applicationContext()
@@ -55,7 +55,7 @@ class TaskProfileActivity : FragmentActivity() {
     }
 
     /**
-     * todo
+     * create a tutorial for the user on how to create a new task
      */
     private fun createTaskProfileTutorial() {
         val views = arrayOf<View>(
@@ -66,7 +66,7 @@ class TaskProfileActivity : FragmentActivity() {
             findViewById(R.id.add_action_button)
         )
 
-        val texts = listOf<String>(
+        val texts = listOf(
             getString(R.string.task_name_tutorial),
             getString(R.string.task_cond_info_tutorial),
             getString(R.string.task_add_condit_tutorial),
@@ -164,7 +164,7 @@ class TaskProfileActivity : FragmentActivity() {
             } else {
                 TaskManager.setPosition(id, task)
             }
-            startService(this) // todo: uncomment when solved
+            startService(this)
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
