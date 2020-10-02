@@ -87,10 +87,10 @@
     <string name="menu_item_icon">menu item icon</string>
     <string name="enter_task_title">Enter Task Title</string>
     <string name="condition">Condition</string>
-    <string name="add_a_condition">Add a condition</string>
+    <string name="add_a_condition">No condition added</string>
     <string name="add_condition">Add Condition</string>
     <string name="actions">Actions</string>
-    <string name="add_an_action">Add actions that will happen when the condition is met</string>
+    <string name="add_an_action">No actions added</string>
     <string name="add_action">Add Action</string>
     <string name="apply">Apply</string>
     <string name="sample_menu_item">Sample Menu Item</string>

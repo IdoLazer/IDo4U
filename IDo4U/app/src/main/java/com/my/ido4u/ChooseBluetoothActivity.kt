@@ -31,6 +31,7 @@ class ChooseBluetoothActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_choose_bluetooth)
+
         initializeViews()
         createAndRegisterBroadcastReceiver()
     }
@@ -80,6 +81,15 @@ class ChooseBluetoothActivity : AppCompatActivity() {
                     ) { _, _ -> }
                     .show()
             }
+        }
+        if (!BluetoothAdapter.getDefaultAdapter().isEnabled) {
+            AlertDialog.Builder(this)
+                .setTitle("Bluetooth is Off")
+                .setMessage("Please enable bluetooth if you wish to see a list of paired devices")
+                .setNeutralButton(
+                    android.R.string.ok
+                ) { _, _ -> }
+                .show()
         }
         populateList(getBluetoothDevices())
     }
