@@ -61,7 +61,7 @@ class ChooseLocationActivity : FragmentActivity(), OnMapReadyCallback {
         val listOfViews = arrayOf<View>(
             findViewById(R.id.fragmentLayout),
             findViewById(R.id.mapAPI),
-            findViewById(R.id.RadiusSeekBar),
+            findViewById(R.id.RadiusSeekBarLinearLayout),
             findViewById(R.id.approveLocationButton)
         )
         val listOfStrings = listOf(
