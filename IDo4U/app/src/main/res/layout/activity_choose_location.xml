@@ -24,7 +24,8 @@
     <LinearLayout
         android:id="@+id/fragmentLayout"
         android:layout_width="match_parent"
-        android:layout_height="650dp"
+        android:layout_height="match_parent"
+        android:layout_marginTop="80dp"
         android:background="@color/colorBackGround"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -37,10 +38,11 @@
 
             <SeekBar
                 android:id="@+id/RadiusSeekBar"
-                android:layout_width="380dp"
+                android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_gravity="center"
-                android:layout_marginTop="16dp" />
+                android:layout_marginTop="16dp"
+                android:padding="30dp" />
 
         </LinearLayout>
 
@@ -57,7 +59,7 @@
             android:id="@+id/mapAPI"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
-            android:layout_height="540dp" />
+            android:layout_height="match_parent" />
 
     </LinearLayout>
 

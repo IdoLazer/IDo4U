@@ -7,7 +7,7 @@
 
     <LinearLayout
         android:id="@+id/linearLayout2"
-        android:layout_width="385dp"
+        android:layout_width="match_parent"
         android:layout_height="254dp"
         android:orientation="vertical"
         IDo4U:layout_constraintBottom_toBottomOf="parent"
@@ -35,9 +35,12 @@
             <Button
                 android:id="@+id/close_spotlight"
                 style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="150dp"
+                android:layout_width="130dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="20dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_weight="1"
                 android:backgroundTint="@color/colorBackGroundDarker"
                 android:text="@string/next_tutorial_text"
                 android:textColor="@color/colorPrimaryDark" />
@@ -45,9 +48,12 @@
             <Button
                 android:id="@+id/next_button"
                 style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="150dp"
+                android:layout_width="130dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_weight="1
+"
                 android:backgroundTint="@color/colorBackGroundDarker"
                 android:text="@string/skip_tutorial"
                 android:textColor="@color/colorPrimaryDark" />

@@ -325,8 +325,6 @@ class BroadcastReceiverService : Service() {
         audioMngr.ringerMode = AudioManager.RINGER_MODE_NORMAL
         val ringerMax = audioMngr.getStreamMaxVolume(AudioManager.STREAM_RING)
         val musicMax = audioMngr.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-        val systemMax = audioMngr.getStreamMaxVolume(AudioManager.STREAM_SYSTEM)
-        val notificationMAx = audioMngr.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION)
         val targetVolume = actionData.volumeLevel / 100
 
         audioMngr.setStreamVolume(
@@ -337,16 +335,6 @@ class BroadcastReceiverService : Service() {
         audioMngr.setStreamVolume(
             AudioManager.STREAM_MUSIC,
             (targetVolume * musicMax).toInt(),
-            0
-        )
-        audioMngr.setStreamVolume(
-            AudioManager.STREAM_NOTIFICATION,
-            (targetVolume * notificationMAx).toInt(),
-            0
-        )
-        audioMngr.setStreamVolume(
-            AudioManager.STREAM_SYSTEM,
-            (targetVolume * systemMax).toInt(),
             0
         )
     }

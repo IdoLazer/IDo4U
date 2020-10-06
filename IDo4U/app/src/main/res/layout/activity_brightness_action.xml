@@ -23,7 +23,8 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="650dp"
+        android:layout_height="match_parent"
+        android:layout_marginTop="80dp"
         android:background="@color/colorBackGround"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -49,7 +50,7 @@
 
             <com.google.android.material.slider.Slider
                 android:id="@+id/choose_brightness_slider"
-                android:layout_width="380dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:stepSize="1"

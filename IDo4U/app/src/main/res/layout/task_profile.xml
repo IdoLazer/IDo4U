@@ -5,194 +5,211 @@
     android:layout_height="match_parent"
     android:background="@color/colorBackGround">
 
-    <LinearLayout
-        android:id="@+id/edit_task_title_linearLayout"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="@color/colorPrimaryDark"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <EditText
-            android:id="@+id/edit_task_title"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="58dp"
-            android:layout_marginTop="1dp"
-            android:autofillHints="The task title"
-            android:background="@color/colorBackGround"
-            android:hint="@string/enter_task_title"
-            android:inputType="text"
-            android:padding="10dp" />
-    </LinearLayout>
-
-
-    <TextView
-        android:id="@+id/condition_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_marginTop="50dp"
-        android:padding="2dp"
-        android:text="@string/condition"
-        android:textColor="@color/colorPrimaryDark"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@+id/edit_task_title_linearLayout" />
-
-    <LinearLayout
-        android:id="@+id/condition_scrollView"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_marginTop="20dp"
-        android:background="@color/colorBackGroundDarker"
-        app:layout_constraintTop_toBottomOf="@+id/condition_text_view">
-
-        <ScrollView
-            android:id="@+id/conditions_information"
-            android:layout_width="match_parent"
-            android:layout_height="78dp"
-            android:layout_marginTop="1dp"
-            android:background="@color/colorBackGround"
-            android:padding="10dp">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <LinearLayout
-                android:id="@+id/condition_scrollView_linearLayout"
+                android:id="@+id/edit_task_title_linearLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_height="60dp"
+                android:background="@color/colorPrimaryDark"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-                <TextView
+                <EditText
+                    android:id="@+id/edit_task_title"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:hint="@string/add_a_condition" />
+                    android:layout_height="58dp"
+                    android:layout_marginTop="1dp"
+                    android:autofillHints="The task title"
+                    android:background="@color/colorBackGround"
+                    android:hint="@string/enter_task_title"
+                    android:inputType="text"
+                    android:padding="10dp" />
             </LinearLayout>
-        </ScrollView>
-    </LinearLayout>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/add_condition_button"
-        android:layout_width="160dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="12dp"
-        android:text="@string/add_condition"
-        android:textSize="12sp"
-        app:backgroundTint="@color/colorPrimaryDark"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.95"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/condition_scrollView" />
 
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/remove_condition_button"
-        android:layout_width="40dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="12dp"
-        android:backgroundTint="@color/colorPrimary"
-        app:icon="@drawable/ic_baseline_delete_24"
-        app:iconGravity="textStart"
-        app:iconPadding="0dp"
-        app:iconSize="30dp"
-        app:iconTint="@color/colorBackGround"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/condition_scrollView" />
-
-    <TextView
-        android:id="@+id/actions_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_marginTop="10dp"
-        android:padding="2dp"
-        android:text="@string/actions"
-        android:textColor="@color/colorPrimaryDark"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@+id/add_condition_button" />
-
-    <LinearLayout
-        android:id="@+id/actions_scrollView"
-        android:layout_width="match_parent"
-        android:layout_height="160dp"
-        android:layout_marginTop="20dp"
-        android:background="@color/colorBackGroundDarker"
-        app:layout_constraintTop_toBottomOf="@+id/actions_text_view">
-
-        <ScrollView
-            android:id="@+id/actions_information"
-            android:layout_width="match_parent"
-            android:layout_height="158dp"
-            android:layout_marginTop="1dp"
-            android:background="@color/colorBackGround"
-            android:padding="10dp">
+            <TextView
+                android:id="@+id/condition_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginTop="50dp"
+                android:padding="2dp"
+                android:text="@string/condition"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="16sp"
+                app:layout_constraintTop_toBottomOf="@+id/edit_task_title_linearLayout" />
 
             <LinearLayout
-                android:id="@+id/actions_scrollView_linearLayout"
+                android:id="@+id/condition_scrollView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_height="80dp"
+                android:layout_marginTop="20dp"
+                android:background="@color/colorBackGroundDarker"
+                app:layout_constraintTop_toBottomOf="@+id/condition_text_view">
 
-                <TextView
+                <ScrollView
+                    android:id="@+id/conditions_information"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:hint="@string/add_an_action" />
+                    android:layout_height="78dp"
+                    android:layout_marginTop="1dp"
+                    android:background="@color/colorBackGround"
+                    android:padding="10dp">
+
+                    <LinearLayout
+                        android:id="@+id/condition_scrollView_linearLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:hint="@string/add_a_condition" />
+                    </LinearLayout>
+                </ScrollView>
             </LinearLayout>
-        </ScrollView>
-    </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="250dp"
+                android:layout_height="50dp"
+                android:layout_gravity="right"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/remove_condition_button"
+                    android:layout_width="40dp"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/colorPrimary"
+                    app:icon="@drawable/ic_baseline_delete_24"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="30dp"
+                    app:iconTint="@color/colorBackGround" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/add_condition_button"
+                    android:layout_width="160dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:text="@string/add_condition"
+                    android:textSize="12sp"
+                    app:backgroundTint="@color/colorPrimaryDark" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/actions_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:padding="2dp"
+                android:text="@string/actions"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="16sp"
+                app:layout_constraintTop_toBottomOf="@+id/add_condition_button" />
+
+            <LinearLayout
+                android:id="@+id/actions_scrollView"
+                android:layout_width="match_parent"
+                android:layout_height="160dp"
+                android:layout_marginTop="20dp"
+                android:background="@color/colorBackGroundDarker"
+                app:layout_constraintTop_toBottomOf="@+id/actions_text_view">
+
+                <ScrollView
+                    android:id="@+id/actions_information"
+                    android:layout_width="match_parent"
+                    android:layout_height="158dp"
+                    android:layout_marginTop="1dp"
+                    android:background="@color/colorBackGround"
+                    android:padding="10dp">
+
+                    <LinearLayout
+                        android:id="@+id/actions_scrollView_linearLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:hint="@string/add_an_action" />
+                    </LinearLayout>
+                </ScrollView>
+            </LinearLayout>
 
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/add_action_button"
-        android:layout_width="160dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="12dp"
-        android:text="@string/add_action"
-        android:textSize="12sp"
-        app:backgroundTint="@color/colorPrimaryDark"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.95"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/actions_scrollView" />
+            <LinearLayout
+                android:layout_width="250dp"
+                android:layout_height="50dp"
+                android:layout_gravity="right"
+                android:orientation="horizontal">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/remove_action_button"
-        android:layout_width="40dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="12dp"
-        android:backgroundTint="@color/colorPrimary"
-        app:icon="@drawable/ic_baseline_delete_24"
-        app:iconGravity="textStart"
-        app:iconPadding="0dp"
-        app:iconSize="30dp"
-        app:iconTint="@color/colorBackGround"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/actions_scrollView" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/remove_action_button"
+                    android:layout_width="40dp"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/colorPrimary"
+                    app:icon="@drawable/ic_baseline_delete_24"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="30dp"
+                    app:iconTint="@color/colorBackGround" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/apply_new_task_button"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="15dp"
-        android:text="@string/apply"
-        android:textSize="12sp"
-        app:backgroundTint="@color/colorPrimaryDark"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/add_action_button"
+                    android:layout_width="160dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:text="@string/add_action"
+                    android:textSize="12sp"
+                    app:backgroundTint="@color/colorPrimaryDark" />
 
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/add_action_button" />
+            </LinearLayout>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/delete_task_button"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginBottom="20dp"
-        android:text="@string/delete_task"
-        android:textSize="12sp"
-        app:backgroundTint="@color/colorAccent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/apply_new_task_button" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/apply_new_task_button"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="50dp"
+                android:text="@string/apply"
+                android:textSize="12sp"
+                app:backgroundTint="@color/colorPrimaryDark"
+
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/add_action_button" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/delete_task_button"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="20dp"
+                android:text="@string/delete_task"
+                android:textSize="12sp"
+                app:backgroundTint="@color/colorAccent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/apply_new_task_button" />
+        </LinearLayout>
+    </ScrollView>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
