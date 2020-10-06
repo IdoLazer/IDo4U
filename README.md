@@ -3,6 +3,7 @@ Final project for Post PC course at the Hebrew University in Jerusalem
 
 # Team Members
 Ido Porat 307905166 iporat08@gmail.com
+
 Ido Lazer 204635783 idolazer8@gmail.com
 
 # App Version
