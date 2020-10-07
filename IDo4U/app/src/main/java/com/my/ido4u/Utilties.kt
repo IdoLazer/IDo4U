@@ -482,7 +482,12 @@ fun getBluetoothDevices(): Set<BluetoothDevice>? {
 fun startService(context: Context) {
     val serviceIntent = Intent(context, BroadcastReceiverService::class.java)
     serviceIntent.putExtra("inputExtra", "listening")
-    context.startService(serviceIntent)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        context.startForegroundService(serviceIntent)
+    }
+    else {
+        context.startService(serviceIntent)
+    }
 }
 
 

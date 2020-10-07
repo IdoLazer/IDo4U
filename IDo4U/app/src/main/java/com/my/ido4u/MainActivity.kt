@@ -2,6 +2,7 @@ package com.my.ido4u
 
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
@@ -131,7 +132,12 @@ class MainActivity : AppCompatActivity() {
      */
     private fun startService() {
         val serviceIntent = Intent(this, BroadcastReceiverService::class.java)
-        startService(serviceIntent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent)
+        }
+        else {
+            startService(serviceIntent)
+        }
     }
 
     /**
