@@ -283,6 +283,7 @@ class BroadcastReceiverService : Service() {
     private fun handleBrightnessActions(action: Task.Action) {
         val rawData = gson.fromJson(action.extraData, BrightnessActionData::class.java)
         if (Settings.System.canWrite(context)) {
+            Log.d("tag", "${rawData.brightness}")
             Settings.System.putInt(
                 context?.contentResolver,
                 Settings.System.SCREEN_BRIGHTNESS, rawData.brightness

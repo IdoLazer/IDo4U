@@ -8,7 +8,7 @@
     <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
-        android:layout_height="254dp"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         IDo4U:layout_constraintBottom_toBottomOf="parent"
         IDo4U:layout_constraintEnd_toEndOf="parent"
@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:gravity="center"
-            android:text="@string/add_task_explanation"
+            android:text="@string/choose_wifi_tutorial"
             android:textAlignment="center"
             android:textColor="@color/quantum_black_100"
             android:textSize="24sp"
@@ -29,7 +29,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="190dp"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <Button
